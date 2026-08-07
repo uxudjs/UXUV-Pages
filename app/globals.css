@@ -1,0 +1,71 @@
+:root {
+  color-scheme: dark;
+  --background: #080b12;
+  --surface: #111725;
+  --border: #293247;
+  --primary: #f3f6fb;
+  --secondary: #a7b0c2;
+  --accent: #74a7ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--background);
+  color: var(--primary);
+  font-family: Arial, "Microsoft YaHei", sans-serif;
+}
+
+.public-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
+
+.public-notice {
+  width: min(100%, 680px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: clamp(24px, 5vw, 48px);
+}
+
+.public-kicker {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.public-title {
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.public-description,
+.public-guidance {
+  max-width: 56ch;
+  color: var(--secondary);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.public-description {
+  margin: 24px 0 0;
+}
+
+.public-guidance {
+  margin: 12px 0 0;
+}

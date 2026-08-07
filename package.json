@@ -1,6 +1,6 @@
 {
   "name": "uxuv-pages",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "next build",
     "lint": "eslint",
     "release:build": "node scripts/build-release.mjs",
-    "test": "node --test work-products/tests/static-export-contract.test.mjs work-products/tests/release-manifest.test.mjs"
+    "test": "node --test work-products/tests/static-export-contract.test.mjs work-products/tests/release-manifest.test.mjs work-products/tests/pages-deployment.test.mjs"
   },
   "dependencies": {
     "next": "16.2.12",

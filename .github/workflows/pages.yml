@@ -39,7 +39,9 @@ jobs:
 
       - name: Read release version
         shell: bash
-        run: echo "PAGES_VERSION=$(node -p \"require('./package.json').version\")" >> "$GITHUB_ENV"
+        run: |
+          PAGES_VERSION=$(node -p "require('./package.json').version")
+          echo "PAGES_VERSION=$PAGES_VERSION" >> "$GITHUB_ENV"
 
       - name: Check out published releases
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

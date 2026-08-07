@@ -35,6 +35,10 @@ test("keeps the Pages deployment manual, pinned, and immutable", () => {
   assert.match(workflow, /npx tsc --noEmit/);
   assert.match(workflow, /npm run build/);
   assert.ok(releaseBuild >= 0 && pagesCheckout > releaseBuild, "release must be built before checking out gh-pages");
+  assert.match(
+    workflow,
+    /PAGES_VERSION=\$\(node -p "require\('\.\/package\.json'\)\.version"\)\r?\n\s+echo "PAGES_VERSION=\$PAGES_VERSION" >> "\$GITHUB_ENV"/,
+  );
   assert.match(workflow, /path:\s*published/);
   assert.match(workflow, /target="published\/\$PAGES_VERSION"/);
   assert.match(workflow, /diff --recursive --brief "\$source" "\$target"/);

@@ -1,0 +1,5 @@
+1:"$Sreact.fragment"
+2:I[97367,["/UXUV-Pages/0.1.1/_next/static/chunks/158myu8e_yme3.js"],"OutletBoundary"]
+3:"$Sreact.suspense"
+0:{"rsc":["$","$1","c",{"children":[["$","main",null,{"className":"public-shell","children":["$","section",null,{"className":"public-notice","aria-labelledby":"public-page-title","children":[["$","p",null,{"className":"public-kicker","children":"UXUVideo Public Pages"}],["$","h1",null,{"className":"public-title","id":"public-page-title","children":"收藏"}],["$","p",null,{"className":"public-description","children":"收藏数据只在你的 Worker 应用中读取和同步。"}],["$","p",null,{"className":"public-guidance","children":"请从你的 UXUVideo Worker 域名访问完整应用。"}]]}]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"GHGT-uhvc8Ew8iMIVR9q_"}
+4:null

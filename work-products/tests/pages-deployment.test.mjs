@@ -5,16 +5,19 @@ import test from "node:test";
 
 const read = (path) => readFileSync(fileURLToPath(new URL(`../../${path}`, import.meta.url)), "utf8");
 
-test("pins the immutable 0.1.1 GitHub Pages base path", () => {
+test("advances the candidate without mutating the immutable 0.1.1 release", () => {
   const packageJson = JSON.parse(read("package.json"));
   const packageLock = JSON.parse(read("package-lock.json"));
   const nextConfig = read("next.config.ts");
+  const publishedManifest = JSON.parse(read("release/0.1.1/release-manifest.json"));
 
-  assert.equal(packageJson.version, "0.1.1");
-  assert.equal(packageLock.version, "0.1.1");
-  assert.equal(packageLock.packages[""].version, "0.1.1");
-  assert.match(nextConfig, /const PAGES_BASE_PATH = ["']\/UXUV-Pages\/0\.1\.1["']/);
+  assert.equal(packageJson.version, "0.1.2");
+  assert.equal(packageLock.version, "0.1.2");
+  assert.equal(packageLock.packages[""].version, "0.1.2");
+  assert.equal(publishedManifest.pagesVersion, "0.1.1");
+  assert.match(nextConfig, /const PAGES_BASE_PATH = ["']\/UXUV-Pages\/0\.1\.2["']/);
   assert.match(nextConfig, /basePath:\s*PAGES_BASE_PATH/);
+  assert.match(nextConfig, /generateBuildId:\s*async\s*\(\)\s*=>\s*["']uxuv-pages-0\.1\.2["']/);
   assert.doesNotMatch(nextConfig, /UXUV-Pages\/(?:main|master|latest)/i);
 });
 
@@ -52,6 +55,6 @@ test("runs the deployment contract in the repository test gate", () => {
 
   assert.equal(
     packageJson.scripts.test,
-    "node --test work-products/tests/static-export-contract.test.mjs work-products/tests/release-manifest.test.mjs work-products/tests/pages-deployment.test.mjs",
+    "node --test work-products/tests/static-export-contract.test.mjs work-products/tests/release-manifest.test.mjs work-products/tests/pages-deployment.test.mjs work-products/tests/auth-ui-contract.test.mjs work-products/tests/runtime-config-contract.test.mjs work-products/tests/sync-client.test.mjs work-products/tests/same-origin-boundary.test.mjs work-products/tests/media-ui-contract.test.mjs work-products/tests/pwa-contract.test.mjs",
   );
 });

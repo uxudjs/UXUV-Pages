@@ -1,5 +1,5 @@
-import { PublicPage } from "@/components/PublicPage";
+import { FavoritesExperience } from "@/components/FavoritesExperience";
 
 export default function PremiumFavoritesPage() {
-  return <PublicPage title="Premium 收藏" description="Premium 收藏只在你的 Worker 授权后显示。" />;
+  return <FavoritesExperience mode="premium" />;
 }

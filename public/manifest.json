@@ -1,0 +1,22 @@
+{
+  "name": "UXUVideo",
+  "short_name": "UXUVideo",
+  "description": "由你的 UXUVideo Worker 提供的同源视频应用",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080b12",
+  "theme_color": "#080b12",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "categories": ["entertainment", "video"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

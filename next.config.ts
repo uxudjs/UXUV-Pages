@@ -1,11 +1,14 @@
 import type { NextConfig } from "next";
 
-const PAGES_BASE_PATH = "/UXUV-Pages/0.1.1";
+const PAGES_BASE_PATH = "/UXUV-Pages/0.1.2";
 
 const nextConfig: NextConfig = {
   basePath: PAGES_BASE_PATH,
+  allowedDevOrigins: ["127.0.0.1"],
+  generateBuildId: async () => "uxuv-pages-0.1.2",
   output: "export",
   trailingSlash: true,
+  skipTrailingSlashRedirect: true,
   reactStrictMode: true,
   poweredByHeader: false,
   images: {

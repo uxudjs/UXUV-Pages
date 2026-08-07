@@ -1,6 +1,6 @@
 {
   "name": "uxuv-pages",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,19 +8,23 @@
     "build": "next build",
     "lint": "eslint",
     "release:build": "node scripts/build-release.mjs",
-    "test": "node --test work-products/tests/static-export-contract.test.mjs work-products/tests/release-manifest.test.mjs work-products/tests/pages-deployment.test.mjs"
+    "test:e2e": "playwright test",
+    "test": "node --test work-products/tests/static-export-contract.test.mjs work-products/tests/release-manifest.test.mjs work-products/tests/pages-deployment.test.mjs work-products/tests/auth-ui-contract.test.mjs work-products/tests/runtime-config-contract.test.mjs work-products/tests/sync-client.test.mjs work-products/tests/same-origin-boundary.test.mjs work-products/tests/media-ui-contract.test.mjs work-products/tests/pwa-contract.test.mjs"
   },
   "dependencies": {
-    "next": "16.2.12",
+    "hls.js": "1.6.15",
+    "next": "16.3.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.1",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "axe-core": "4.13.0",
     "eslint": "^9.25.1",
-    "eslint-config-next": "16.2.12",
+    "eslint-config-next": "16.3.0",
     "typescript": "^5"
   }
 }

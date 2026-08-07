@@ -40,7 +40,7 @@ test("defines a reproducible Next.js static-export toolchain", () => {
   assert.equal(packageJson.scripts["release:build"], "node scripts/build-release.mjs");
   assert.equal(packageJson.scripts.lint, "eslint");
   assert.equal(packageJson.scripts.build, "next build");
-  assert.equal(packageJson.dependencies.next, "16.2.12");
+  assert.equal(packageJson.dependencies.next, "16.3.0");
   assert.match(nextConfig, /output:\s*["']export["']/);
   assert.match(nextConfig, /unoptimized:\s*true/);
 });
@@ -61,6 +61,6 @@ test("keeps the Pages source public-only and browser-only", () => {
   assert.doesNotMatch(combined, /(?:from|require\()\s*["'](?:node:)?fs["']/);
   assert.doesNotMatch(combined, /server-only|@vercel\/analytics/);
   assert.doesNotMatch(combined, /ADMIN_PASSWORD|AUTH_SECRET|CF_API_TOKEN/);
-  assert.doesNotMatch(combined, /type=["']password["']|<form\b/i);
+  assert.match(combined, /isDirectPagesHost/);
   assert.match(combined, /请从你的 UXUVideo Worker 域名访问/);
 });

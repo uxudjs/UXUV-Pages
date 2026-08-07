@@ -1,5 +1,5 @@
-import { PublicPage } from "@/components/PublicPage";
+import { HomeExperience } from "@/components/HomeExperience";
 
 export default function HomePage() {
-  return <PublicPage title="UXUVideo" description="这是公开静态入口，不处理登录、同步或个人媒体数据。" />;
+  return <HomeExperience />;
 }

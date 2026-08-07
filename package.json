@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "eslint",
-    "test": "node --test work-products/tests/static-export-contract.test.mjs"
+    "release:build": "node scripts/build-release.mjs",
+    "test": "node --test work-products/tests/static-export-contract.test.mjs work-products/tests/release-manifest.test.mjs"
   },
   "dependencies": {
     "next": "16.2.12",

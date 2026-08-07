@@ -34,7 +34,9 @@ test("defines a reproducible Next.js static-export toolchain", () => {
   const nextConfig = read("next.config.ts");
 
   assert.equal(packageJson.private, true);
-  assert.equal(packageJson.scripts.test, "node --test work-products/tests/static-export-contract.test.mjs");
+  assert.match(packageJson.scripts.test, /work-products\/tests\/static-export-contract\.test\.mjs/);
+  assert.match(packageJson.scripts.test, /work-products\/tests\/release-manifest\.test\.mjs/);
+  assert.equal(packageJson.scripts["release:build"], "node scripts/build-release.mjs");
   assert.equal(packageJson.scripts.lint, "eslint");
   assert.equal(packageJson.scripts.build, "next build");
   assert.equal(packageJson.dependencies.next, "16.2.12");

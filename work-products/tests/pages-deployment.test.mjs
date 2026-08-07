@@ -5,16 +5,16 @@ import test from "node:test";
 
 const read = (path) => readFileSync(fileURLToPath(new URL(`../../${path}`, import.meta.url)), "utf8");
 
-test("advances the candidate without mutating the immutable 0.1.1 release", () => {
+test("advances the candidate without storing historic releases in the source checkout", () => {
   const packageJson = JSON.parse(read("package.json"));
   const packageLock = JSON.parse(read("package-lock.json"));
   const nextConfig = read("next.config.ts");
-  const publishedManifest = JSON.parse(read("release/0.1.1/release-manifest.json"));
+  const gitignore = read(".gitignore");
 
   assert.equal(packageJson.version, "0.1.2");
   assert.equal(packageLock.version, "0.1.2");
   assert.equal(packageLock.packages[""].version, "0.1.2");
-  assert.equal(publishedManifest.pagesVersion, "0.1.1");
+  assert.match(gitignore, /^release\/$/m);
   assert.match(nextConfig, /const PAGES_BASE_PATH = ["']\/UXUV-Pages\/0\.1\.2["']/);
   assert.match(nextConfig, /basePath:\s*PAGES_BASE_PATH/);
   assert.match(nextConfig, /generateBuildId:\s*async\s*\(\)\s*=>\s*["']uxuv-pages-0\.1\.2["']/);
@@ -24,6 +24,8 @@ test("advances the candidate without mutating the immutable 0.1.1 release", () =
 test("keeps the Pages deployment manual, pinned, and immutable", () => {
   const workflow = read(".github/workflows/pages.yml");
   const releaseBuild = workflow.indexOf("npm run release:build");
+  const staticBuild = workflow.indexOf("npm run build");
+  const testGate = workflow.indexOf("npm test");
   const pagesCheckout = workflow.indexOf("ref: gh-pages");
 
   assert.match(workflow, /^on:\s*\r?\n\s+workflow_dispatch:/m);
@@ -37,6 +39,7 @@ test("keeps the Pages deployment manual, pinned, and immutable", () => {
   assert.match(workflow, /npm run lint/);
   assert.match(workflow, /npx tsc --noEmit/);
   assert.match(workflow, /npm run build/);
+  assert.ok(staticBuild >= 0 && testGate > staticBuild, "static export must be built before tests that inspect out/");
   assert.ok(releaseBuild >= 0 && pagesCheckout > releaseBuild, "release must be built before checking out gh-pages");
   assert.match(
     workflow,

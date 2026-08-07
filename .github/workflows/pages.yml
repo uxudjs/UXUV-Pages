@@ -22,6 +22,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build static export
+        run: npm run build
+
       - name: Test
         run: npm test
 
@@ -30,9 +33,6 @@ jobs:
 
       - name: Type-check
         run: npx tsc --noEmit
-
-      - name: Build static export
-        run: npm run build
 
       - name: Build immutable release
         run: npm run release:build

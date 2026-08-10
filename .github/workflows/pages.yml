@@ -1,6 +1,8 @@
 name: Publish GitHub Pages
 
 on:
+  push:
+    branches: ["main"]
   workflow_dispatch:
     inputs:
       expectedCommit:
@@ -18,11 +20,11 @@ jobs:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: ${{ inputs.expectedCommit }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.expectedCommit || github.sha }}
 
       - name: Verify trigger and checkout identity
         env:
-          EXPECTED_COMMIT: ${{ inputs.expectedCommit }}
+          EXPECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.expectedCommit || github.sha }}
         run: node scripts/verify-release-identity.mjs
 
       - name: Set up Node.js

@@ -34,7 +34,7 @@ test("rejects a release identity that does not match the workflow trigger commit
   assert.throws(() => verifyReleaseIdentity({ expectedCommit: "abc1234", githubSha: commit, headCommit: commit }), /full 40-character commit/);
 });
 
-test("keeps the Pages deployment manual, pinned, and immutable", () => {
+test("publishes Pages from main pushes or a pinned manual dispatch", () => {
   const workflow = read(".github/workflows/pages.yml");
   const releaseBuild = workflow.indexOf("npm run release:build");
   const staticBuild = workflow.indexOf("npm run build");
@@ -43,16 +43,16 @@ test("keeps the Pages deployment manual, pinned, and immutable", () => {
   const identityGate = workflow.indexOf("node scripts/verify-release-identity.mjs");
   const artifactUpload = workflow.indexOf("actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02");
 
-  assert.match(workflow, /^on:\s*\r?\n\s+workflow_dispatch:/m);
+  assert.match(workflow, /^on:\s*\r?\n\s+push:\s*\r?\n\s+branches:\s*\["main"\]\s*\r?\n\s+workflow_dispatch:/m);
   assert.match(workflow, /expectedCommit:\s*\r?\n\s+description:/);
   assert.match(workflow, /expectedCommit:[\s\S]*?required:\s*true/);
-  assert.doesNotMatch(workflow, /^\s{2}(?:push|pull_request):/m);
+  assert.doesNotMatch(workflow, /^\s{2}pull_request:/m);
   assert.match(workflow, /contents:\s*write/);
   assert.match(workflow, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
   assert.match(workflow, /actions\/setup-node@820762786026740c76f36085b0efc47a31fe5020/);
   assert.match(workflow, /node-version:\s*["']?24["']?/);
-  assert.match(workflow, /ref:\s*\$\{\{\s*inputs\.expectedCommit\s*\}\}/);
-  assert.match(workflow, /EXPECTED_COMMIT:\s*\$\{\{\s*inputs\.expectedCommit\s*\}\}/);
+  assert.match(workflow, /ref:\s*\$\{\{\s*github\.event_name\s*==\s*'workflow_dispatch'\s*&&\s*inputs\.expectedCommit\s*\|\|\s*github\.sha\s*\}\}/);
+  assert.match(workflow, /EXPECTED_COMMIT:\s*\$\{\{\s*github\.event_name\s*==\s*'workflow_dispatch'\s*&&\s*inputs\.expectedCommit\s*\|\|\s*github\.sha\s*\}\}/);
   assert.ok(identityGate >= 0 && identityGate < workflow.indexOf("npm ci"), "commit identity must be checked before dependencies and build");
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /npm test/);

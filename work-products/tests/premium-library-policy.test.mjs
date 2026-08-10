@@ -3,13 +3,13 @@ import test from "node:test";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { build } from "esbuild";
 
 async function loadPolicy() {
   const directory = await mkdtemp(join(tmpdir(), "uxuv-premium-library-"));
   const outfile = join(directory, "policy.mjs");
-  await build({ entryPoints: [new URL("../../lib/content/library-isolation.ts", import.meta.url).pathname.slice(1)],
+  await build({ entryPoints: [fileURLToPath(new URL("../../lib/content/library-isolation.ts", import.meta.url))],
     outfile, bundle: true, platform: "node", format: "esm" });
   const policy = await import(`${pathToFileURL(outfile).href}?v=${Date.now()}`);
   return { policy, cleanup: () => rm(directory, { recursive: true, force: true }) };

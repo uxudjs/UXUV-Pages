@@ -1,21 +1,27 @@
 {
   "name": "uxuv-pages",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/transpile-client-assets.mjs out/_next/static",
     "lint": "eslint",
     "release:build": "node scripts/build-release.mjs",
     "test:e2e": "playwright test",
-    "test": "node --test work-products/tests/static-export-contract.test.mjs work-products/tests/release-manifest.test.mjs work-products/tests/pages-deployment.test.mjs work-products/tests/auth-ui-contract.test.mjs work-products/tests/runtime-config-contract.test.mjs work-products/tests/sync-client.test.mjs work-products/tests/same-origin-boundary.test.mjs work-products/tests/media-ui-contract.test.mjs work-products/tests/pwa-contract.test.mjs"
+    "test": "node --test work-products/tests/auth-ui-contract.test.mjs work-products/tests/auto-skip.test.mjs work-products/tests/danmaku-canvas-utils.test.mjs work-products/tests/danmaku-player-contract.test.mjs work-products/tests/danmaku-utils.test.mjs work-products/tests/data-settings-contract.test.mjs work-products/tests/desktop-player-contract.test.mjs work-products/tests/entry-state-contract.test.mjs work-products/tests/favorites-contract.test.mjs work-products/tests/floating-button-position.test.mjs work-products/tests/global-shell-contract.test.mjs work-products/tests/history-contract.test.mjs work-products/tests/home-ui-contract.test.mjs work-products/tests/iptv-browse-contract.test.mjs work-products/tests/iptv-playback-contract.test.mjs work-products/tests/iptv-playback-policy.test.mjs work-products/tests/iptv-playlist.test.mjs work-products/tests/iptv-source-loader.test.mjs work-products/tests/kvideo-webview-compatibility.test.mjs work-products/tests/media-ui-contract.test.mjs work-products/tests/mobile-device-player-contract.test.mjs work-products/tests/pages-deployment.test.mjs work-products/tests/playback-automation-contract.test.mjs work-products/tests/playback-lifecycle-contract.test.mjs work-products/tests/player-settings-contract.test.mjs work-products/tests/player-shell-contract.test.mjs work-products/tests/premium-home-contract.test.mjs work-products/tests/premium-home-policy.test.mjs work-products/tests/premium-library-contract.test.mjs work-products/tests/premium-library-policy.test.mjs work-products/tests/premium-settings-contract.test.mjs work-products/tests/pwa-contract.test.mjs work-products/tests/release-manifest.test.mjs work-products/tests/runtime-config-contract.test.mjs work-products/tests/same-origin-boundary.test.mjs work-products/tests/search-input-contract.test.mjs work-products/tests/search-results-contract.test.mjs work-products/tests/search-strategy-contract.test.mjs work-products/tests/settings-preferences-contract.test.mjs work-products/tests/settings-sources-contract.test.mjs work-products/tests/source-import-contract.test.mjs work-products/tests/static-export-contract.test.mjs work-products/tests/sync-client.test.mjs work-products/tests/sync-foundation.test.mjs work-products/tests/tag-management-contract.test.mjs"
   },
   "dependencies": {
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
     "hls.js": "1.6.15",
+    "lucide-react": "0.577.0",
     "next": "16.3.0",
+    "opencc-js": "1.0.5",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "zustand": "5.0.12"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
@@ -23,6 +29,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "axe-core": "4.13.0",
+    "esbuild": "0.27.7",
     "eslint": "^9.25.1",
     "eslint-config-next": "16.3.0",
     "typescript": "^5"

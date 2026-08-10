@@ -2,6 +2,11 @@ name: Publish GitHub Pages
 
 on:
   workflow_dispatch:
+    inputs:
+      expectedCommit:
+        description: Full commit SHA expected from this workflow trigger
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -12,6 +17,13 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.expectedCommit }}
+
+      - name: Verify trigger and checkout identity
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expectedCommit }}
+        run: node scripts/verify-release-identity.mjs
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
@@ -42,6 +54,16 @@ jobs:
         run: |
           PAGES_VERSION=$(node -p "require('./package.json').version")
           echo "PAGES_VERSION=$PAGES_VERSION" >> "$GITHUB_ENV"
+
+      - name: Upload commit-bound release artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: uxuv-pages-${{ env.PAGES_VERSION }}-${{ github.sha }}
+          path: release/${{ env.PAGES_VERSION }}
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: false
+          include-hidden-files: true
 
       - name: Check out published releases
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

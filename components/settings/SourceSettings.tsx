@@ -1,82 +1,116 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { Search, X } from "lucide-react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { AddSourceModal } from "@/components/settings/AddSourceModal";
+import { ImportModal } from "@/components/settings/ImportModal";
+import { SettingsSection } from "@/components/settings/SettingsSection";
+import { SourceManager } from "@/components/settings/SourceManager";
+import { useLocale } from "@/components/LocaleProvider";
 import { useSync } from "@/components/SyncProvider";
-import type { VideoSource } from "@/lib/content/types";
+import { Icon } from "@/components/ui/Icon";
+import { moveSource, orderedSources, reorderSources, sourceKind } from "@/lib/content/source-settings-policy";
+import type { SourceSubscription, VideoSource } from "@/lib/content/types";
 import type { ConfigPayload, TimestampedRecord } from "@/lib/sync/document-types";
 
+const COPY = {
+  "zh-CN": { title: "视频源管理", description: "管理视频来源，调整优先级和启用状态", premiumTitle: "高级源管理", premiumDescription: "管理高级内容来源，调整优先级和启用状态", count: "个来源",
+    system: "系统", personal: "个人", add: "添加源", import: "导入", restore: "恢复默认", search: "搜索源...", empty: "尚未配置视频源。",
+    showAll: "显示全部", collapse: "收起", enable: "启用", disable: "停用", moveUp: "上移", moveDown: "下移",
+    edit: "编辑", remove: "删除", drag: "拖动排序", confirmDelete: "删除视频源？", deleteMessage: "删除后会立即从此账户的本地配置移除。",
+    confirm: "确认删除", cancel: "取消", pending: "本地更改已保存，等待同步。", saved: "本地配置已保存。" },
+  "zh-TW": { title: "影片來源管理", description: "管理系統與個人影片來源、優先順序和啟用狀態。", premiumTitle: "進階來源管理", premiumDescription: "管理 Premium 內容來源、優先順序、匯入和啟用狀態。", count: "個來源",
+    system: "系統", personal: "個人", add: "新增來源", import: "匯入", restore: "恢復預設", search: "搜尋來源", empty: "尚未設定影片來源。",
+    showAll: "顯示全部", collapse: "收起", enable: "啟用", disable: "停用", moveUp: "上移", moveDown: "下移",
+    edit: "編輯", remove: "刪除", drag: "拖曳排序", confirmDelete: "刪除影片來源？", deleteMessage: "刪除後會立即從此帳戶的本機設定移除。",
+    confirm: "確認刪除", cancel: "取消", pending: "本機變更已儲存，等待同步。", saved: "本機設定已儲存。" },
+  en: { title: "Video sources", description: "Manage system and personal sources, priority, and enabled state.", premiumTitle: "Premium sources", premiumDescription: "Manage Premium content sources, priority, imports, and enabled state.", count: "sources",
+    system: "System", personal: "Personal", add: "Add source", import: "Import", restore: "Restore defaults", search: "Search sources", empty: "No video sources are configured.",
+    showAll: "Show all", collapse: "Collapse", enable: "Enable", disable: "Disable", moveUp: "Move up", moveDown: "Move down",
+    edit: "Edit", remove: "Remove", drag: "Drag to reorder", confirmDelete: "Remove video source?", deleteMessage: "This source will be removed immediately from this account's local configuration.",
+    confirm: "Remove", cancel: "Cancel", pending: "Local changes are saved and waiting to sync.", saved: "Local configuration is saved." },
+} as const;
+
 function isManagedSource(value: TimestampedRecord): value is VideoSource {
-  return typeof value.name === "string"
-    && typeof value.baseUrl === "string"
-    && value.group !== "premium";
+  return typeof value.name === "string" && typeof value.baseUrl === "string";
 }
 
-function normalizeBaseUrl(value: string): string | null {
-  try {
-    const url = new URL(value.trim());
-    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
-    return url.toString().replace(/\/$/, "");
-  } catch {
-    return null;
-  }
+function isSubscription(value: TimestampedRecord): value is SourceSubscription {
+  return typeof value.name === "string" && typeof value.url === "string" && typeof value.lastUpdated === "number";
 }
 
-export function SourceSettings() {
-  const { documents, upsertRecord, removeRecord } = useSync();
-  const [name, setName] = useState("");
-  const [baseUrl, setBaseUrl] = useState("");
-  const [error, setError] = useState("");
+export function SourceSettings({ mode = "standard" }: Readonly<{ mode?: "standard" | "premium" }>) {
+  const { locale } = useLocale();
+  const { documents, phase, upsertRecord, removeRecord } = useSync();
+  const copy = COPY[locale];
+  const [search, setSearch] = useState("");
+  const [expanded, setExpanded] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [editing, setEditing] = useState<VideoSource | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<VideoSource | null>(null);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+  const config = documents.config.payload as ConfigPayload;
+  const allSources = useMemo(() => config.sources.filter(isManagedSource), [config.sources]);
+  const subscriptions = useMemo(() => config.subscriptions.filter(isSubscription)
+    .filter((subscription) => mode === "premium" ? subscription.mode === "premium" : subscription.mode !== "premium"), [config.subscriptions, mode]);
   const sources = useMemo(() => {
-    const config = documents.config.payload as ConfigPayload;
-    return config.sources.filter(isManagedSource);
-  }, [documents.config.payload]);
-
-  const addSource = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const normalizedUrl = normalizeBaseUrl(baseUrl);
-    if (!normalizedUrl) {
-      setError("请输入有效的 HTTP 或 HTTPS 地址。");
-      return;
-    }
+    return orderedSources(config.sources.filter(isManagedSource)
+      .filter((source) => mode === "premium" ? source.group === "premium" : source.group !== "premium"));
+  }, [config.sources, mode]);
+  const filtered = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    return query ? sources.filter(({ name, baseUrl }) => `${name}\n${baseUrl}`.toLocaleLowerCase().includes(query)) : sources;
+  }, [search, sources]);
+  const displayed = search || expanded ? filtered : filtered.slice(0, 10);
+  const systemCount = sources.filter((source) => sourceKind(source) === "system").length;
+  const personalCount = sources.length - systemCount;
+  const closeModal = useCallback(() => { setModalOpen(false); setEditing(null); }, []);
+  const closeImport = useCallback(() => {
+    setImportOpen(false);
+    queueMicrotask(() => addButtonRef.current?.focus());
+  }, []);
+  const saveSource = (source: VideoSource) => upsertRecord("config", "sources", { ...source, group: mode === "premium" ? "premium" : "normal" });
+  const persistOrder = (ordered: readonly VideoSource[]) => {
     const now = Date.now();
-    upsertRecord("config", "sources", {
-      id: `source-${crypto.randomUUID()}`,
-      updatedAt: now,
-      name: name.trim(),
-      baseUrl: normalizedUrl,
-      searchPath: "/api.php/provide/vod/",
-      detailPath: "/api.php/provide/vod/",
-      enabled: true,
-      group: "normal",
-    });
-    setName("");
-    setBaseUrl("");
-    setError("");
+    ordered.forEach((source, index) => upsertRecord("config", "sources", { ...source, priority: index + 1, updatedAt: now }));
+  };
+  const restoreDefaults = () => {
+    persistOrder(sources.map((source) => sourceKind(source) === "system" ? { ...source, enabled: true } : source));
   };
 
-  return (
-    <section className="settings-section source-settings" aria-labelledby="source-settings-title">
-      <div className="section-heading">
-        <div><p className="public-kicker">个人内容</p><h2 id="source-settings-title">视频源</h2></div>
-        <span>{sources.length} 个来源</span>
-      </div>
-      {sources.length === 0 ? <p>尚未配置视频源。添加后即可在首页搜索。</p> : (
-        <ul className="source-list">{sources.map((source) => (
-          <li className="source-row" key={source.id}>
-            <div><strong>{source.name}</strong><span>{source.baseUrl}</span></div>
-            <button type="button" aria-pressed={source.enabled !== false} onClick={() => upsertRecord("config", "sources", {
-              ...source, enabled: source.enabled === false, updatedAt: Date.now(),
-            })}>{source.enabled === false ? "启用" : "停用"}</button>
-            <button className="danger-button" type="button" onClick={() => removeRecord("config", "sources", source.id)}>删除</button>
-          </li>
-        ))}</ul>
-      )}
-      <form className="source-form" onSubmit={addSource}>
-        <label>来源名称<input required value={name} onChange={(event) => setName(event.target.value)} /></label>
-        <label>基础 URL<input required type="url" inputMode="url" value={baseUrl} onChange={(event) => setBaseUrl(event.target.value)} /></label>
-        {error && <p className="form-error" role="alert">{error}</p>}
-        <button className="primary-button" type="submit">添加视频源</button>
-      </form>
-    </section>
-  );
+  return <SettingsSection id={mode === "premium" ? "premium-sources" : "sources"}
+    title={mode === "premium" ? copy.premiumTitle : copy.title} description={mode === "premium" ? copy.premiumDescription : copy.description}
+    summary={<div className="source-section-summary"><span className="source-count-summary">
+      {sources.length} {copy.count} · {copy.system} {systemCount} · {copy.personal} {personalCount}</span>
+      <div className="source-heading-actions"><button type="button" data-focusable onClick={restoreDefaults}>{copy.restore}</button>
+        <button ref={addButtonRef} type="button" className="primary-button" data-focusable onClick={() => { setEditing(null); setModalOpen(true); }}>
+          + {copy.add}</button></div></div>}>
+    <div className="source-toolbar"><label><span className="sr-only">{copy.search}</span><Icon source={Search} size={16} />
+      <input value={search} placeholder={copy.search} aria-label={copy.search} onChange={(event) => setSearch(event.target.value)} />
+      {search && <button type="button" aria-label={copy.cancel} onClick={() => setSearch("")}><Icon source={X} size={15} /></button>}</label></div>
+    {displayed.length === 0 ? <p className="source-empty">{copy.empty}</p> : <SourceManager sources={displayed}
+      labels={copy} onToggle={(source) => upsertRecord("config", "sources", { ...source, enabled: source.enabled === false, updatedAt: Date.now() })}
+      onMove={(id, direction) => persistOrder(moveSource(sources, id, direction))}
+      onReorder={(activeId, overId) => persistOrder(reorderSources(sources, activeId, overId))}
+      onEdit={(source) => { setEditing(source); setModalOpen(true); }} onDelete={setConfirmDelete} />}
+    {!search && sources.length > 10 && <button type="button" className="source-expand" data-focusable onClick={() => setExpanded((value) => !value)}>
+      {expanded ? copy.collapse : `${copy.showAll} (${sources.length})`}</button>}
+    <p className="source-local-status sr-only" role="status">{phase === "pending" || phase === "loading" ? copy.pending : copy.saved}</p>
+    {modalOpen && <AddSourceModal key={editing?.id ?? "new"} initial={editing} group={mode === "premium" ? "premium" : "normal"}
+      existingIds={allSources.map(({ id }) => id)} onClose={closeModal} onSave={saveSource} onImport={() => {
+        closeModal(); setImportOpen(true);
+      }} />}
+    {importOpen && <ImportModal existingIds={allSources.map(({ id }) => id)} subscriptions={subscriptions} onClose={closeImport}
+      onImport={(imported) => imported.forEach((source) => saveSource({ ...source, group: mode === "premium" ? "premium" : "normal" }))}
+      onSaveSubscription={(subscription) => upsertRecord("config", "subscriptions", { ...subscription, mode })}
+      onRemoveSubscription={(id) => removeRecord("config", "subscriptions", id)} />}
+    {confirmDelete && <section className="source-delete-confirm" role="alertdialog" aria-modal="true" aria-labelledby="source-delete-title">
+      <h3 id="source-delete-title">{copy.confirmDelete}</h3><p><strong>{confirmDelete.name}</strong> — {copy.deleteMessage}</p>
+      <div><button type="button" onClick={() => setConfirmDelete(null)}>{copy.cancel}</button>
+        <button type="button" className="danger-button" onClick={() => {
+          removeRecord("config", "sources", confirmDelete.id); setConfirmDelete(null);
+        }}>{copy.confirm}</button></div>
+    </section>}
+  </SettingsSection>;
 }

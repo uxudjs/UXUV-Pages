@@ -1,12 +1,87 @@
 "use client";
 
-import { FormEvent, useCallback, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Lock, User } from "lucide-react";
+import { AccountPreferenceBridge } from "@/components/AccountPreferenceBridge";
+import { useLocale } from "@/components/LocaleProvider";
 import { PublicPage } from "@/components/PublicPage";
+import { ScrollPositionManager } from "@/components/ScrollPositionManager";
 import { useRuntimeConfig } from "@/components/RuntimeConfigProvider";
 import { SyncProvider } from "@/components/SyncProvider";
 import { SyncStatus } from "@/components/SyncStatus";
+import { TVNavigationInitializer } from "@/components/TVNavigationInitializer";
 import { UsageAlertProvider } from "@/components/UsageAlertProvider";
+import { Button } from "@/components/ui/Button";
+import { BackToTop } from "@/components/ui/BackToTop";
+import { Icon } from "@/components/ui/Icon";
+import { Input } from "@/components/ui/Input";
 import { AuthContext, type AuthSession } from "@/lib/store/auth-store";
+
+const LOGIN_COPY = {
+  "zh-CN": {
+    title: "访问受限",
+    description: "请输入用户名和密码以继续",
+    username: "用户名",
+    usernamePlaceholder: "输入用户名...",
+    password: "密码",
+    passwordPlaceholder: "输入密码...",
+    submit: "登录",
+    submitting: "登录中...",
+    invalid: "用户名或密码不正确。",
+    network: "登录请求失败，请稍后重试。",
+    expired: "会话已失效，请重新登录。",
+    loading: "正在确认运行配置与安全会话…",
+    startupTitle: "无法启动应用",
+    startupDescription: "应用暂时无法启动，请稍后重试。",
+    setupTitle: "尚未完成设置",
+    setupDescription: "Worker 尚未提供有效的运行配置。请完成服务器端设置后重试。",
+    sessionTitle: "会话服务暂时不可用",
+    sessionDescription: "无法确认安全会话，请稍后重试。",
+    retry: "重试",
+  },
+  "zh-TW": {
+    title: "存取受限",
+    description: "請輸入使用者名稱和密碼以繼續",
+    username: "使用者名稱",
+    usernamePlaceholder: "輸入使用者名稱...",
+    password: "密碼",
+    passwordPlaceholder: "輸入密碼...",
+    submit: "登入",
+    submitting: "登入中...",
+    invalid: "使用者名稱或密碼不正確。",
+    network: "登入請求失敗，請稍後再試。",
+    expired: "工作階段已失效，請重新登入。",
+    loading: "正在確認執行設定與安全工作階段…",
+    startupTitle: "無法啟動應用程式",
+    startupDescription: "應用程式暫時無法啟動，請稍後再試。",
+    setupTitle: "尚未完成設定",
+    setupDescription: "Worker 尚未提供有效的執行設定。請完成伺服器端設定後再試。",
+    sessionTitle: "工作階段服務暫時無法使用",
+    sessionDescription: "無法確認安全工作階段，請稍後再試。",
+    retry: "重試",
+  },
+  en: {
+    title: "Access restricted",
+    description: "Enter your username and password to continue",
+    username: "Username",
+    usernamePlaceholder: "Enter username...",
+    password: "Password",
+    passwordPlaceholder: "Enter password...",
+    submit: "Sign in",
+    submitting: "Signing in...",
+    invalid: "The username or password is incorrect.",
+    network: "The sign-in request failed. Try again later.",
+    expired: "Your session expired. Sign in again.",
+    loading: "Checking runtime configuration and secure session…",
+    startupTitle: "Unable to start the application",
+    startupDescription: "The application cannot start right now. Try again later.",
+    setupTitle: "Setup is incomplete",
+    setupDescription: "The Worker did not provide a valid runtime configuration. Complete server setup and retry.",
+    sessionTitle: "Session service is unavailable",
+    sessionDescription: "The secure session could not be confirmed. Try again later.",
+    retry: "Retry",
+  },
+} as const;
 
 function responseMessage(body: unknown, fallback: string): string {
   if (!body || typeof body !== "object") return fallback;
@@ -29,12 +104,25 @@ async function readBody(response: Response): Promise<unknown> {
 
 export function PasswordGate({ children }: Readonly<{ children: React.ReactNode }>) {
   const runtime = useRuntimeConfig();
+  const { locale } = useLocale();
   const [sessionOverride, setSessionOverride] = useState<AuthSession | null | undefined>();
-  const [username, setUsername] = useState("admin");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const session = sessionOverride === undefined ? runtime.session : sessionOverride;
+  const copy = LOGIN_COPY[locale];
+  const startup = runtime.issue === "setup"
+    ? { title: copy.setupTitle, description: copy.setupDescription }
+    : runtime.issue === "session"
+      ? { title: copy.sessionTitle, description: copy.sessionDescription }
+      : { title: copy.startupTitle, description: copy.startupDescription };
+
+  useEffect(() => {
+    if (runtime.status === "ready" && !session) usernameRef.current?.focus();
+  }, [runtime.status, session]);
 
   const refreshSession = useCallback(async () => {
     const response = await fetch("/api/auth/session", { credentials: "same-origin" });
@@ -54,9 +142,9 @@ export function PasswordGate({ children }: Readonly<{ children: React.ReactNode 
   }, []);
 
   const markSessionExpired = useCallback(() => {
-    setMessage("会话已失效，请重新登录。");
+    setMessage(LOGIN_COPY[locale].expired);
     setSessionOverride(null);
-  }, []);
+  }, [locale]);
 
   const context = useMemo(() => session ? {
     session,
@@ -78,48 +166,91 @@ export function PasswordGate({ children }: Readonly<{ children: React.ReactNode 
       });
       const body = await readBody(response) as { session?: AuthSession } | null;
       if (!response.ok || !body?.session) {
-        setMessage(responseMessage(body, "用户名或密码不正确。"));
+        setMessage(responseMessage(body, copy.invalid));
+        passwordRef.current?.focus();
         return;
       }
       setSessionOverride(body.session);
       setPassword("");
     } catch {
-      setMessage("登录请求失败，请稍后重试。");
+      setMessage(copy.network);
+      passwordRef.current?.focus();
     } finally {
       setSubmitting(false);
     }
   };
 
   if (runtime.status === "public") {
-    return <PublicPage title={runtime.config.site.name} description={runtime.config.site.description} />;
+    return <PublicPage title={runtime.config.site.name} />;
   }
   if (runtime.status === "loading") {
-    return <main className="public-shell" role="status" aria-live="polite">正在确认运行配置与安全会话…</main>;
+    return <main className="public-shell" role="status" aria-live="polite">{copy.loading}</main>;
   }
   if (runtime.status === "error") {
     return (
       <main className="public-shell">
         <section className="public-notice" role="alert">
-          <h1 className="public-title">无法启动应用</h1>
-          <p className="public-description">{runtime.error}</p>
-          <button className="primary-button" type="button" onClick={runtime.retry}>重试</button>
+          <h1 className="public-title">{startup.title}</h1>
+          <p className="public-description">{startup.description}</p>
+          <button className="primary-button" type="button" autoFocus onClick={runtime.retry}>{copy.retry}</button>
         </section>
       </main>
     );
   }
   if (!context) {
     return (
-      <main className="public-shell">
-        <form className="auth-panel" onSubmit={submit} aria-labelledby="login-title">
-          <p className="public-kicker">{runtime.config.site.name}</p>
-          <h1 className="public-title" id="login-title">登录</h1>
-          <label className="field-label" htmlFor="username">用户名</label>
-          <input id="username" name="username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} />
-          <label className="field-label" htmlFor="password">密码</label>
-          <input id="password" name="password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
-          {message && <p className="form-error" role="alert">{message}</p>}
-          <button className="primary-button" type="submit" disabled={submitting}>{submitting ? "登录中…" : "登录"}</button>
-        </form>
+      <main className="auth-shell">
+        <div className="auth-frame">
+          <form
+            className="auth-card"
+            onSubmit={submit}
+            aria-labelledby="login-title"
+            aria-busy={submitting}
+            data-error={Boolean(message)}
+          >
+            <div className="auth-lock" aria-hidden="true">
+              <Icon source={Lock} size={32} />
+            </div>
+            <div className="auth-heading">
+              <h2 id="login-title">{copy.title}</h2>
+              <p>{copy.description}</p>
+            </div>
+            <div className="auth-fields">
+              <Input
+                ref={usernameRef}
+                id="login-username"
+                name="username"
+                label={copy.username}
+                leadingIcon={User}
+                autoComplete="username"
+                placeholder={copy.usernamePlaceholder}
+                value={username}
+                onChange={(event) => {
+                  setUsername(event.target.value);
+                  setMessage("");
+                }}
+              />
+              <Input
+                ref={passwordRef}
+                id="login-password"
+                name="password"
+                type="password"
+                label={copy.password}
+                autoComplete="current-password"
+                placeholder={copy.passwordPlaceholder}
+                aria-invalid={Boolean(message)}
+                aria-describedby={message ? "login-error" : undefined}
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                  setMessage("");
+                }}
+              />
+              {message && <p className="auth-error" id="login-error" role="alert">{message}</p>}
+              <Button type="submit" disabled={submitting}>{submitting ? copy.submitting : copy.submit}</Button>
+            </div>
+          </form>
+        </div>
       </main>
     );
   }
@@ -127,15 +258,15 @@ export function PasswordGate({ children }: Readonly<{ children: React.ReactNode 
   return (
     <AuthContext.Provider value={context}>
       <UsageAlertProvider>
-        <SyncProvider accountId={context.session.accountId}>
-          <div className="application-shell">
-            <header className="session-bar">
-              <p><strong>{context.session.name}</strong><span>{context.session.role}</span></p>
-              <button type="button" onClick={() => void signOut()}>退出登录</button>
-            </header>
-            <SyncStatus />
-            {children}
-          </div>
+          <SyncProvider key={context.session.accountId} accountId={context.session.accountId}>
+            <div className="application-shell">
+              <AccountPreferenceBridge accountId={context.session.accountId} />
+              <SyncStatus />
+              <ScrollPositionManager accountId={context.session.accountId} />
+              <TVNavigationInitializer />
+              {children}
+              <BackToTop />
+            </div>
         </SyncProvider>
       </UsageAlertProvider>
     </AuthContext.Provider>

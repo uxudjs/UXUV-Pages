@@ -35,6 +35,38 @@ test("guards GitHub Pages before authentication and keeps sessions cookie-only",
   assert.doesNotMatch(combined, /localStorage|sessionStorage|Authorization\s*:/);
 });
 
+test("builds the reviewed KVideo login from only its used Liquid Glass primitives", () => {
+  for (const path of [
+    "components/ui/Button.tsx",
+    "components/ui/Input.tsx",
+    "components/ui/Icon.tsx",
+  ]) {
+    assert.equal(existsSync(join(root, path)), true, `${path} must exist`);
+  }
+
+  const gate = read("components/PasswordGate.tsx");
+  const localeProvider = read("components/LocaleProvider.tsx");
+  const button = read("components/ui/Button.tsx");
+  const input = read("components/ui/Input.tsx");
+  const icon = read("components/ui/Icon.tsx");
+  const css = read("app/globals.css");
+
+  assert.match(gate, /from ["']@\/components\/ui\/Button["']/);
+  assert.match(gate, /from ["']@\/components\/ui\/Input["']/);
+  assert.match(gate, /from ["']@\/components\/ui\/Icon["']/);
+  assert.match(localeProvider, /navigator\.language/);
+  assert.match(gate, /credentials:\s*["']same-origin["']/);
+  assert.match(gate, /autoComplete=["']username["']/);
+  assert.match(gate, /autoComplete=["']current-password["']/);
+  assert.match(button, /auth-submit/);
+  assert.match(input, /auth-input/);
+  assert.match(icon, /lucide-react/);
+  for (const token of ["--bg-color", "--text-color", "--accent-color", "--glass-bg", "--glass-border", "--radius-2xl"]) {
+    assert.match(css, new RegExp(token));
+  }
+  assert.doesNotMatch(`${gate}\n${button}\n${input}\n${icon}`, /localStorage|sessionStorage|Authorization\s*:/);
+});
+
 test("uses relative account APIs and exposes management only to super_admin", () => {
   const adminGate = read("components/AdminGate.tsx");
   const settings = read("components/settings/AccountSettings.tsx");

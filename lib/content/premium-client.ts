@@ -29,6 +29,17 @@ export async function unlockPremium(password: string): Promise<void> {
   if (!response.ok) throw await responseError(response, "Premium 解锁失败。");
 }
 
+export async function verifyPremiumAccess(signal?: AbortSignal): Promise<void> {
+  const response = await fetch("/api/premium/types", {
+    method: "POST", credentials: "same-origin", headers: jsonHeaders(), signal,
+    body: JSON.stringify({ sources: [{
+      id: "premium-access-check", name: "Premium access check", baseUrl: "https://example.com",
+      searchPath: "/", detailPath: "/", enabled: false, group: "premium",
+    }] }),
+  });
+  if (!response.ok) throw await responseError(response, "Premium 授权验证失败。");
+}
+
 export async function loadPremiumTypes(sources: VideoSource[], signal?: AbortSignal): Promise<PremiumTypesResult> {
   const response = await fetch("/api/premium/types", {
     method: "POST", credentials: "same-origin", headers: jsonHeaders(), signal,
@@ -41,11 +52,11 @@ export async function loadPremiumTypes(sources: VideoSource[], signal?: AbortSig
 }
 
 export async function loadPremiumCategory(
-  sources: VideoSource[], category: string, signal?: AbortSignal,
+  sources: VideoSource[], category: string, page: number, signal?: AbortSignal,
 ): Promise<PremiumCategoryResult> {
   const response = await fetch("/api/premium/category", {
     method: "POST", credentials: "same-origin", headers: jsonHeaders(), signal,
-    body: JSON.stringify({ sources, category, page: 1, limit: 20 }),
+    body: JSON.stringify({ sources, category, page: Math.min(3, Math.max(1, Math.floor(page))), limit: 20 }),
   });
   if (!response.ok) throw await responseError(response, "无法读取 Premium 内容。");
   const body = await response.json() as { videos?: unknown[]; capability?: ContentCapability };

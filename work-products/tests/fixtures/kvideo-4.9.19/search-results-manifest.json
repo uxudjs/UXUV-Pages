@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "reference": {
+    "commit": "28334f41407082ae1028fa4a4180bcc46d31c52a",
+    "tree": "a3df89abb9bc05a87dc06174bd702c4ed281ee8d",
+    "dependencyEnvironment": "../../../../../UXUVideo/node_modules"
+  },
+  "captures": [
+    {
+      "displayMode": "normal",
+      "width": 320,
+      "path": "slices-search-results-normal-320.png",
+      "sha256": "dd457a23075e5a39b54709761cb6d535bc851847ecb02967b7710723239552e6",
+      "geometry": {
+        "grid": [
+          0,
+          0,
+          288,
+          568
+        ],
+        "card": [
+          0,
+          0,
+          138,
+          278
+        ],
+        "poster": [
+          17,
+          17,
+          104,
+          156
+        ],
+        "image": [
+          17,
+          17,
+          104,
+          156
+        ],
+        "copy": [
+          17,
+          173,
+          104,
+          88
+        ],
+        "title": [
+          29,
+          185,
+          80,
+          40
+        ]
+      }
+    },
+    {
+      "displayMode": "normal",
+      "width": 768,
+      "path": "slices-search-results-normal-768.png",
+      "sha256": "17b93abd44106f459084dc041c926608d16a40902648dc2a913d67780c2e478a",
+      "geometry": {
+        "grid": [
+          0,
+          0,
+          720,
+          315
+        ],
+        "card": [
+          0,
+          0,
+          168,
+          315
+        ],
+        "poster": [
+          25,
+          25,
+          118,
+          177
+        ],
+        "image": [
+          25,
+          25,
+          118,
+          177
+        ],
+        "copy": [
+          25,
+          202,
+          118,
+          88
+        ],
+        "title": [
+          37,
+          214,
+          94,
+          40
+        ]
+      }
+    },
+    {
+      "displayMode": "normal",
+      "width": 1024,
+      "path": "slices-search-results-normal-1024.png",
+      "sha256": "065e66bd8d2165dad4ad72e882e87a74c267793399e670e74f5dab21cc98cf96",
+      "geometry": {
+        "grid": [
+          0,
+          0,
+          960,
+          322
+        ],
+        "card": [
+          0,
+          0,
+          173,
+          322
+        ],
+        "poster": [
+          25,
+          25,
+          123,
+          184
+        ],
+        "image": [
+          25,
+          25,
+          123,
+          184
+        ],
+        "copy": [
+          25,
+          209,
+          123,
+          88
+        ],
+        "title": [
+          37,
+          221,
+          99,
+          40
+        ]
+      }
+    },
+    {
+      "displayMode": "normal",
+      "width": 1440,
+      "path": "slices-search-results-normal-1440.png",
+      "sha256": "a3042499fcb30edcc0b61b3057652de50b737ce5fa73e11cea3500f209fecfcc",
+      "geometry": {
+        "grid": [
+          0,
+          0,
+          1216,
+          337
+        ],
+        "card": [
+          0,
+          0,
+          183,
+          337
+        ],
+        "poster": [
+          25,
+          25,
+          133,
+          199
+        ],
+        "image": [
+          25,
+          25,
+          133,
+          199
+        ],
+        "copy": [
+          25,
+          224,
+          133,
+          88
+        ],
+        "title": [
+          37,
+          236,
+          109,
+          40
+        ]
+      }
+    },
+    {
+      "displayMode": "grouped",
+      "width": 1024,
+      "path": "slices-search-results-grouped-1024.png",
+      "sha256": "f8e533f6aeefb7cf7d24352649b94e78ffc66b156eeda4cfa7800a63b51588c8",
+      "geometry": {
+        "grid": [
+          0,
+          0,
+          960,
+          322
+        ],
+        "card": [
+          0,
+          0,
+          173,
+          322
+        ],
+        "poster": [
+          25,
+          25,
+          123,
+          184
+        ],
+        "image": [
+          25,
+          25,
+          123,
+          184
+        ],
+        "copy": [
+          25,
+          209,
+          123,
+          88
+        ],
+        "title": [
+          37,
+          221,
+          99,
+          40
+        ]
+      }
+    }
+  ]
+}

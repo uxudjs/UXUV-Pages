@@ -1,10 +1,53 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocale } from "@/components/LocaleProvider";
+import { VideoTogetherController } from "@/components/VideoTogetherController";
+import { DanmakuCanvas } from "@/components/player/DanmakuCanvas";
+import { DesktopControls, type DesktopControlLabels } from "@/components/player/desktop/DesktopControls";
+import { useCastControls } from "@/components/player/hooks/useCastControls";
+import { useAutoSkip } from "@/components/player/hooks/useAutoSkip";
+import { useControlsVisibility } from "@/components/player/hooks/useControlsVisibility";
+import { useDesktopShortcuts } from "@/components/player/hooks/useDesktopShortcuts";
+import { useFullscreenControls } from "@/components/player/hooks/useFullscreenControls";
+import { useHlsPlayer } from "@/components/player/hooks/useHlsPlayer";
+import { useDanmaku } from "@/components/player/hooks/useDanmaku";
+import { usePictureInPicture } from "@/components/player/hooks/usePictureInPicture";
+import { useSkipControls } from "@/components/player/hooks/useSkipControls";
+import { useStallDetection } from "@/components/player/hooks/useStallDetection";
+import { useVideoResolution, type VideoResolutionInfo } from "@/components/player/hooks/useVideoResolution";
+import { useDoubleTap } from "@/lib/hooks/mobile/useDoubleTap";
+import { useScreenOrientation } from "@/lib/hooks/mobile/useScreenOrientation";
+import { useMobilePlayer } from "@/lib/hooks/useMobilePlayer";
 import { buildMediaUrl } from "@/lib/media/media-client";
+import { usePlayerSettings } from "@/lib/hooks/usePlayerSettings";
+import { shouldHidePlayerCursor } from "@/lib/player/cursor-visibility";
+import { useAuth } from "@/lib/store/auth-store";
 
-type HlsInstance = import("hls.js").default;
 type Phase = "loading" | "ready" | "error";
+
+export interface MediaPlayerMessages {
+  connecting: string;
+  buffering: string;
+  retryPlayback: string;
+  tokenInvalid: string;
+  iptvDenied: string;
+  rateLimited: string;
+  upstreamFailed: string;
+  playbackFailed: string;
+  codecUnsupported: string;
+  nativeMode: string;
+  retryMode: string;
+  relayMode: string;
+}
+
+const DEFAULT_MESSAGES: MediaPlayerMessages = {
+  connecting: "正在连接受保护媒体…", buffering: "正在缓冲…", retryPlayback: "重试播放",
+  tokenInvalid: "媒体授权已过期，请重试。", iptvDenied: "当前账户没有 IPTV 播放权限。",
+  rateLimited: "媒体请求过于频繁，请稍后重试。", upstreamFailed: "上游媒体暂时中断，请重试或切换线路。",
+  playbackFailed: "媒体播放失败，请重试或切换线路。", codecUnsupported: "当前浏览器不支持此媒体的编解码格式。",
+  nativeMode: "原生解码", retryMode: "智能重试", relayMode: "始终中继",
+};
 
 interface MediaPlayerProps {
   target: string;
@@ -12,120 +55,298 @@ interface MediaPlayerProps {
   title: string;
   userAgent?: string;
   referer?: string;
+  mode?: "standard" | "premium";
+  shellControls?: DesktopControlLabels;
+  messages?: MediaPlayerMessages;
+  initialTime?: number;
+  onProgress?: (progress: { currentTime: number; duration: number }) => void;
+  onReady?: () => void;
+  onTerminalError?: () => void;
+  onClose?: () => void;
+  preferH264?: boolean;
+  focusable?: boolean;
+  onResolutionDetected?: (resolution: VideoResolutionInfo) => void;
+  hasNextEpisode?: boolean;
+  onNextEpisode?: () => void;
+  danmaku?: { videoTitle: string; episodeName: string; episodeIndex: number };
 }
 
-function mediaFailureMessage(status?: number): string {
-  if (status === 401) return "媒体授权已过期，请重试。"; // MEDIA_TOKEN_INVALID
-  if (status === 403) return "当前账户没有 IPTV 播放权限。"; // IPTV_ACCESS_REQUIRED
-  if (status === 429) return "媒体请求过于频繁，请稍后重试。"; // RATE_LIMITED
-  if (status === 502 || status === 504) return "上游媒体暂时中断，请重试或切换线路。"; // UPSTREAM_STREAM_ERROR
-  return "媒体播放失败，请重试或切换线路。";
+const DANMAKU_COPY = {
+  "zh-CN": { loading: "正在加载弹幕…", empty: "本集暂无弹幕", error: "弹幕暂时不可用" },
+  "zh-TW": { loading: "正在載入彈幕…", empty: "本集暫無彈幕", error: "彈幕暫時不可用" },
+  en: { loading: "Loading danmaku…", empty: "No danmaku for this episode", error: "Danmaku is temporarily unavailable" },
+} as const;
+
+function mediaFailureMessage(status: number | undefined, messages: MediaPlayerMessages): string {
+  if (status === 401) return messages.tokenInvalid; // MEDIA_TOKEN_INVALID
+  if (status === 403) return messages.iptvDenied; // IPTV_ACCESS_REQUIRED
+  if (status === 429) return messages.rateLimited; // RATE_LIMITED
+  if (status === 502 || status === 504) return messages.upstreamFailed; // UPSTREAM_STREAM_ERROR
+  if (status === 415) return messages.codecUnsupported;
+  return messages.playbackFailed;
 }
 
-function networkStatus(data: unknown): number | undefined {
-  if (!data || typeof data !== "object") return undefined;
-  const response = "response" in data ? data.response : null;
-  if (response && typeof response === "object" && "code" in response && typeof response.code === "number") return response.code;
-  const details = "networkDetails" in data ? data.networkDetails : null;
-  if (details && typeof details === "object" && "status" in details && typeof details.status === "number") return details.status;
-  return undefined;
-}
-
-export function MediaPlayer({ target, route, title, userAgent, referer }: Readonly<MediaPlayerProps>) {
+export function MediaPlayer({ target, route, title, userAgent, referer, mode = "standard", shellControls,
+  messages = DEFAULT_MESSAGES, initialTime = 0, onProgress, onReady, onTerminalError, onClose,
+  preferH264 = false, focusable = false,
+  onResolutionDetected, hasNextEpisode = false, onNextEpisode, danmaku }: Readonly<MediaPlayerProps>) {
+  const auth = useAuth()!;
+  const { locale } = useLocale();
+  const playerSettings = usePlayerSettings(auth.session.accountId, mode);
+  const danmakuState = useDanmaku({
+    enabled: playerSettings.danmakuEnabled && Boolean(danmaku), mode,
+    videoTitle: danmaku?.videoTitle, episodeName: danmaku?.episodeName, episodeIndex: danmaku?.episodeIndex,
+  });
+  const playerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const hlsRef = useRef<HlsInstance | null>(null);
+  const terminalErrorReported = useRef(false);
+  const readyReported = useRef(false);
+  const resumedMediaUrl = useRef("");
   const [attempt, setAttempt] = useState(0);
   const [phase, setPhase] = useState<Phase>("loading");
   const [message, setMessage] = useState("");
+  const [playing, setPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolumeState] = useState(1);
+  const [muted, setMuted] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [speedMenuOpen, setSpeedMenuOpen] = useState(false);
+  const [adMenuOpen, setAdMenuOpen] = useState(false);
+  const [videoTogetherOpen, setVideoTogetherOpen] = useState(false);
+  const videoTogetherVisible = Boolean(shellControls) && playerSettings.videoTogetherEnabled;
   const mediaUrl = useMemo(
-    () => buildMediaUrl(route, target, { userAgent, referer }),
-    [referer, route, target, userAgent],
+    () => buildMediaUrl(route, target, { userAgent, referer, ...(route === "proxy" ? {
+      adFilterMode: playerSettings.adFilterMode,
+      adKeywords: playerSettings.adKeywords,
+    } : {}) }),
+    [playerSettings.adFilterMode, playerSettings.adKeywords, referer, route, target, userAgent],
   );
+  const likelyHls = route === "iptv-stream" || /\.m3u8?(?:$|[?#])/i.test(target);
+  const handleLoading = useCallback(() => {
+    terminalErrorReported.current = false;
+    readyReported.current = false;
+    setMessage("");
+    setPhase("loading");
+  }, []);
+  const handleReady = useCallback(() => {
+    setPhase("ready");
+    if (!readyReported.current) { readyReported.current = true; onReady?.(); }
+  }, [onReady]);
+  const handleMediaError = useCallback((status?: number) => {
+    setMessage(mediaFailureMessage(status, messages));
+    setPhase("error");
+    if (!terminalErrorReported.current) {
+      terminalErrorReported.current = true;
+      onTerminalError?.();
+    }
+  }, [messages, onTerminalError]);
+  const { isTouchInput } = useMobilePlayer();
+  const fullscreenControls = useFullscreenControls(playerRef);
+  const pictureInPicture = usePictureInPicture(videoRef, playerRef);
+  const castControls = useCastControls(mediaUrl, videoRef);
+  useScreenOrientation(fullscreenControls.fullscreen, isTouchInput);
+  useHlsPlayer({ videoRef, src: mediaUrl, likelyHls, proxyMode: playerSettings.proxyMode, retryKey: attempt,
+    preferH264, onLoading: handleLoading, onReady: handleReady, onError: handleMediaError });
+  useAutoSkip({ videoRef, src: mediaUrl, currentTime, duration, isPlaying: playing,
+    autoNextEpisode: playerSettings.autoNextEpisode,
+    autoSkipIntro: playerSettings.autoSkipIntro && initialTime <= 0,
+    skipIntroSeconds: playerSettings.skipIntroSeconds,
+    autoSkipOutro: playerSettings.autoSkipOutro,
+    skipOutroSeconds: playerSettings.skipOutroSeconds,
+    hasNextEpisode,
+    onNextEpisode,
+  });
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    const controller = new AbortController();
-    let active = true;
-    let directFallbackUsed = false;
-
-    const fail = (status?: number) => {
-      if (!active) return;
-      setMessage(mediaFailureMessage(status));
-      setPhase("error");
+    const resume = () => {
+      if (resumedMediaUrl.current === mediaUrl || initialTime <= 0) return;
+      const maximum = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : initialTime;
+      video.currentTime = Math.min(initialTime, maximum);
+      setCurrentTime(video.currentTime);
+      resumedMediaUrl.current = mediaUrl;
     };
-    const direct = () => {
-      directFallbackUsed = true;
-      video.src = mediaUrl;
-      video.load();
+    const ready = () => { handleReady(); resume(); };
+    const directError = () => handleMediaError();
+    const started = () => setPlaying(true);
+    const stopped = () => setPlaying(false);
+    const updateTime = () => {
+      const nextTime = video.currentTime || 0;
+      const nextDuration = Number.isFinite(video.duration) ? video.duration : 0;
+      setCurrentTime(nextTime);
+      onProgress?.({ currentTime: nextTime, duration: nextDuration });
     };
-
-    setPhase("loading");
-    setMessage("");
-    video.removeAttribute("src");
-    video.load();
-
-    void import("hls.js").then(({ default: Hls }) => {
-      if (!active) return;
-      const likelyHls = route === "iptv-stream" || /\.m3u8?(?:$|[?#])/i.test(target);
-      if (!likelyHls || !Hls.isSupported()) {
-        direct();
-        return;
-      }
-      const hls = new Hls({
-        enableWorker: true,
-        manifestLoadingTimeOut: 20_000,
-        levelLoadingTimeOut: 20_000,
-        fragLoadingTimeOut: 20_000,
-        fetchSetup: (context, init) => new Request(context.url, {
-          ...init,
-          credentials: "same-origin",
-          signal: controller.signal,
-        }),
-      });
-      hlsRef.current = hls;
-      hls.attachMedia(video);
-      hls.loadSource(mediaUrl);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => setPhase("ready"));
-      hls.on(Hls.Events.ERROR, (_event, data) => {
-        if (!data.fatal) return;
-        if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-          hls.recoverMediaError();
-          return;
-        }
-        const status = networkStatus(data);
-        hls.destroy();
-        hlsRef.current = null;
-        if (!directFallbackUsed && status === undefined) direct();
-        else fail(status);
-      });
-    }).catch(() => direct());
-
-    const ready = () => setPhase("ready");
-    const directError = () => fail();
+    const updateDuration = () => setDuration(Number.isFinite(video.duration) ? video.duration : 0);
+    const updateVolume = () => { setVolumeState(video.volume); setMuted(video.muted); };
+    const updateRate = () => setPlaybackRate(video.playbackRate);
     video.addEventListener("canplay", ready);
     video.addEventListener("error", directError);
+    video.addEventListener("play", started);
+    video.addEventListener("pause", stopped);
+    video.addEventListener("timeupdate", updateTime);
+    video.addEventListener("durationchange", updateDuration);
+    video.addEventListener("loadedmetadata", ready);
+    video.addEventListener("volumechange", updateVolume);
+    video.addEventListener("ratechange", updateRate);
     return () => {
-      active = false;
-      controller.abort();
-      hlsRef.current?.destroy();
-      hlsRef.current = null;
       video.removeEventListener("canplay", ready);
       video.removeEventListener("error", directError);
-      video.pause();
-      video.removeAttribute("src");
-      video.load();
+      video.removeEventListener("play", started);
+      video.removeEventListener("pause", stopped);
+      video.removeEventListener("timeupdate", updateTime);
+      video.removeEventListener("durationchange", updateDuration);
+      video.removeEventListener("loadedmetadata", ready);
+      video.removeEventListener("volumechange", updateVolume);
+      video.removeEventListener("ratechange", updateRate);
     };
-  }, [attempt, mediaUrl, route, target]);
+  }, [handleMediaError, handleReady, initialTime, mediaUrl, onProgress]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || phase !== "ready" || initialTime <= 0 || resumedMediaUrl.current === mediaUrl) return;
+    const maximum = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : initialTime;
+    video.currentTime = Math.min(initialTime, maximum);
+    setCurrentTime(video.currentTime);
+    resumedMediaUrl.current = mediaUrl;
+  }, [initialTime, mediaUrl, phase]);
+
+  const stalled = useStallDetection(videoRef, playing);
+  const resolution = useVideoResolution(videoRef);
+  useEffect(() => { if (resolution) onResolutionDetected?.(resolution); }, [onResolutionDetected, resolution]);
+
+  const togglePlay = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) void video.play();
+    else video.pause();
+  }, []);
+  const seek = useCallback((time: number) => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = Math.min(Math.max(time, 0), Number.isFinite(video.duration) ? video.duration : time);
+    setCurrentTime(video.currentTime);
+  }, []);
+  const toggleMute = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setMuted(video.muted);
+  }, []);
+  const changeVolume = useCallback((nextVolume: number) => {
+    const video = videoRef.current;
+    if (!video) return;
+    const next = Math.min(Math.max(nextVolume, 0), 1);
+    video.volume = next;
+    video.muted = next === 0;
+    setVolumeState(next);
+    setMuted(video.muted);
+  }, []);
+  const changeRate = useCallback((rate: number) => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.playbackRate = rate;
+    setPlaybackRate(rate);
+  }, []);
+  const { skipForward, skipBackward } = useSkipControls(videoRef, duration, playerSettings.seekStepSeconds);
+  const visibility = useControlsVisibility(playing, speedMenuOpen || adMenuOpen || (videoTogetherVisible && videoTogetherOpen));
+  const doubleTap = useDoubleTap({
+    onSingleTap: visibility.toggleControls,
+    onDoubleTapLeft: skipBackward,
+    onDoubleTapRight: skipForward,
+  });
+  const controlLabels = useMemo(() => shellControls ? {
+    ...shellControls,
+    seekBack: shellControls.seekBack.replace("{seconds}", String(playerSettings.seekStepSeconds)),
+    seekForward: shellControls.seekForward.replace("{seconds}", String(playerSettings.seekStepSeconds)),
+  } : null, [playerSettings.seekStepSeconds, shellControls]);
+  useDesktopShortcuts({
+    enabled: Boolean(shellControls), volume, onTogglePlay: togglePlay, onToggleMute: toggleMute,
+    onSkipForward: skipForward, onSkipBackward: skipBackward, onVolumeChange: changeVolume,
+    onToggleSystemFullscreen: fullscreenControls.systemAvailable ? fullscreenControls.toggleSystemFullscreen : undefined,
+    onToggleWebFullscreen: fullscreenControls.toggleWebFullscreen,
+    onTogglePictureInPicture: pictureInPicture.pipAvailable ? pictureInPicture.togglePictureInPicture : undefined,
+    onEscape: onClose,
+    onInteraction: visibility.showControls,
+  });
+  const isolatePlayerArrows = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!shellControls || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+    if (event.target instanceof HTMLInputElement) return;
+    event.stopPropagation();
+    event.preventDefault();
+    if (event.key === "ArrowLeft") skipBackward();
+    else if (event.key === "ArrowRight") skipForward();
+    else if (event.key === "ArrowUp") changeVolume(volume + 0.1);
+    else changeVolume(volume - 0.1);
+    visibility.showControls();
+  }, [changeVolume, shellControls, skipBackward, skipForward, visibility, volume]);
+  const isolatePlayerInputArrows = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.target instanceof HTMLInputElement && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      event.stopPropagation();
+    }
+  }, []);
+  const hideCursor = shouldHidePlayerCursor({
+    fullscreen: fullscreenControls.fullscreen, playing, controlsVisible: visibility.controlsVisible,
+    interactiveOverlay: speedMenuOpen || adMenuOpen || (videoTogetherVisible && videoTogetherOpen),
+  });
+  const proxyModeLabel = playerSettings.proxyMode === "none" ? messages.nativeMode
+    : playerSettings.proxyMode === "always" ? messages.relayMode : messages.retryMode;
 
   return (
-    <div className="media-player" data-phase={phase}>
-      <video ref={videoRef} controls playsInline preload="metadata" aria-label="视频播放器" data-media-source={mediaUrl} />
-      {phase === "loading" && <p className="media-overlay" role="status">正在连接受保护媒体…</p>}
+    <div ref={playerRef} className={`media-player${fullscreenControls.fullscreenMode === "window" ? " is-web-fullscreen" : ""}${hideCursor ? " is-cursor-hidden" : ""}`}
+      data-phase={phase} data-proxy-mode={playerSettings.proxyMode} data-playback-strategy={`${likelyHls ? "hls" : "native"}-${playerSettings.proxyMode}`}
+      data-input-mode={isTouchInput ? "touch" : "desktop"}
+      data-fullscreen-type={playerSettings.fullscreenType} data-seek-step={playerSettings.seekStepSeconds}
+      data-auto-next-episode={playerSettings.autoNextEpisode} data-auto-skip-intro={playerSettings.autoSkipIntro}
+      data-auto-skip-outro={playerSettings.autoSkipOutro} data-ad-filter-mode={playerSettings.adFilterMode}
+      data-danmaku-enabled={playerSettings.danmakuEnabled} data-danmaku-status={danmakuState.status}
+      data-focusable={focusable || undefined} tabIndex={focusable ? 0 : undefined}
+      onPointerMove={shellControls ? visibility.handlePointerMove : undefined}
+      onPointerLeave={shellControls ? visibility.hideControlsNow : undefined}
+      onFocusCapture={shellControls ? visibility.showControls : undefined}
+      onBlurCapture={shellControls ? visibility.scheduleHide : undefined}
+      onKeyDownCapture={shellControls ? isolatePlayerArrows : undefined}
+      onKeyDown={shellControls ? isolatePlayerInputArrows : undefined}>
+      <video ref={videoRef} controls={!shellControls} playsInline preload="metadata" aria-label="视频播放器"
+        data-media-source={mediaUrl} onTouchEnd={shellControls && isTouchInput ? doubleTap.onTouchEnd : undefined} />
+      {playerSettings.danmakuEnabled && danmakuState.comments.length > 0 && <DanmakuCanvas
+        comments={danmakuState.comments} currentTime={currentTime} isPlaying={playing}
+        opacity={playerSettings.danmakuOpacity} fontSize={playerSettings.danmakuFontSize}
+        displayArea={playerSettings.danmakuDisplayArea} />}
+      {playerSettings.danmakuEnabled && (["loading", "empty", "error"] as const).includes(
+        danmakuState.status as "loading" | "empty" | "error",
+      ) && <p className="danmaku-state" role="status">{DANMAKU_COPY[locale][danmakuState.status as "loading" | "empty" | "error"]}</p>}
+      {(resolution || playerSettings.showModeIndicator) && <div className="player-status-badges" aria-live="polite">
+        {resolution && <span className="player-resolution-badge">{resolution.label}</span>}
+        {playerSettings.showModeIndicator && <span className="player-proxy-badge">{proxyModeLabel}</span>}
+      </div>}
+      {controlLabels && <DesktopControls visible={visibility.controlsVisible} playing={playing} currentTime={currentTime}
+        duration={duration} volume={volume} muted={muted} playbackRate={playbackRate} speedMenuOpen={speedMenuOpen}
+        adFilterMode={playerSettings.adFilterMode} adMenuOpen={adMenuOpen}
+        fullscreenMode={fullscreenControls.fullscreenMode} systemAvailable={fullscreenControls.systemAvailable}
+        pipAvailable={pictureInPicture.pipAvailable} pipActive={pictureInPicture.pipActive}
+        castAvailable={castControls.castAvailable} castActive={castControls.castActive}
+        labels={controlLabels} onTogglePlay={togglePlay} onSeek={seek} onSkipBackward={skipBackward}
+        onSkipForward={skipForward} onToggleMute={toggleMute} onVolumeChange={changeVolume}
+        onSpeedMenuOpenChange={(open) => { setSpeedMenuOpen(open); if (open) { setAdMenuOpen(false); setVideoTogetherOpen(false); } }}
+        onAdMenuOpenChange={(open) => { setAdMenuOpen(open); if (open) { setSpeedMenuOpen(false); setVideoTogetherOpen(false); } }}
+        onAdFilterModeChange={(value) => playerSettings.set("adFilterMode", value)} onRateChange={changeRate}
+        onToggleSystemFullscreen={fullscreenControls.toggleSystemFullscreen}
+        onToggleWebFullscreen={fullscreenControls.toggleWebFullscreen}
+        onTogglePictureInPicture={pictureInPicture.togglePictureInPicture}
+        onShowCastMenu={castControls.showCastMenu} />}
+      {videoTogetherVisible && <VideoTogetherController visible={visibility.controlsVisible} open={videoTogetherOpen}
+        onOpenChange={(open) => { setVideoTogetherOpen(open); if (open) { setSpeedMenuOpen(false); setAdMenuOpen(false); } }} />}
+      {phase === "loading" && <p className="media-overlay media-loading" role="status">
+        <span className="media-loading-spinner" aria-hidden="true" />
+        <span className="sr-only">{messages.connecting}</span>
+      </p>}
+      {phase === "ready" && stalled && <p className="media-overlay media-stalled" role="status">{messages.buffering}</p>}
       {phase === "error" && (
         <div className="media-overlay media-error" role="alert">
           <p>{message}</p>
-          <button type="button" onClick={() => setAttempt((value) => value + 1)}>重试播放</button>
+          <button type="button" onClick={() => setAttempt((value) => value + 1)}>{messages.retryPlayback}</button>
         </div>
       )}
       <span className="sr-only">{title}</span>

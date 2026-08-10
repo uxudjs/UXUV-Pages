@@ -1,4 +1,5 @@
 import type { TimestampedRecord } from "@/lib/sync/document-types";
+import { libraryRecordId } from "@/lib/content/library-isolation";
 
 export interface VideoSource extends TimestampedRecord {
   name: string;
@@ -8,6 +9,17 @@ export interface VideoSource extends TimestampedRecord {
   headers?: Record<string, string>;
   enabled?: boolean;
   group?: "normal" | "premium";
+  kind?: "system" | "personal";
+  priority?: number;
+}
+
+export interface SourceSubscription extends TimestampedRecord {
+  name: string;
+  url: string;
+  lastUpdated: number;
+  lastError?: string;
+  sourceIds?: string[];
+  mode?: "standard" | "premium";
 }
 
 export interface ContentCapability {
@@ -36,6 +48,8 @@ export interface Video {
   vod_pic?: string;
   vod_remarks?: string;
   vod_year?: string;
+  vod_score?: string | number;
+  relevanceScore?: number;
   type_name?: string;
   vod_lang?: string;
   source: string;
@@ -64,6 +78,7 @@ export interface HistoryRecord extends TimestampedRecord {
   episodeIndex?: number;
   playbackPosition?: number;
   duration?: number;
+  mode?: "standard" | "premium";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -106,12 +121,15 @@ export function videoFromApi(value: unknown, fallbackSource = ""): Video | null 
   const source = typeof value.source === "string" ? value.source : fallbackSource;
   if (!source) return null;
   const text = (key: string) => typeof value[key] === "string" ? value[key] : undefined;
+  const numeric = (key: string) => typeof value[key] === "number" ? value[key] : undefined;
   return {
     vod_id: value.vod_id,
     vod_name: value.vod_name,
     vod_pic: text("vod_pic"),
     vod_remarks: text("vod_remarks"),
     vod_year: text("vod_year"),
+    vod_score: numeric("vod_score") ?? text("vod_score"),
+    relevanceScore: numeric("relevanceScore"),
     type_name: text("type_name"),
     vod_lang: text("vod_lang"),
     source,
@@ -120,8 +138,9 @@ export function videoFromApi(value: unknown, fallbackSource = ""): Video | null 
 }
 
 export function favoriteFromVideo(video: Video, now = Date.now()): FavoriteRecord {
+  const mode = video.mode ?? "standard";
   return {
-    id: videoRecordId(video.source, video.vod_id),
+    id: libraryRecordId(mode, video.source, video.vod_id),
     updatedAt: now,
     videoId: video.vod_id,
     title: video.vod_name,
@@ -132,6 +151,6 @@ export function favoriteFromVideo(video: Video, now = Date.now()): FavoriteRecor
     type: video.type_name,
     year: video.vod_year,
     addedAt: now,
-    mode: video.mode ?? "standard",
+    mode,
   };
 }

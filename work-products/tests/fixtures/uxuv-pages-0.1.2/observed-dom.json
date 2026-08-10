@@ -1,0 +1,4538 @@
+{
+  "schemaVersion": 1,
+  "pagesCommit": "4bc847affa76755a5c99ce249d793aa43e0b83bb",
+  "pagesVersion": "0.1.2",
+  "viewport": {
+    "width": 1024,
+    "height": 900
+  },
+  "routes": {
+    "home": {
+      "route": "home",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "lang": "zh-CN",
+      "title": "UXUVideo",
+      "bodyText": "本地数据已与云端同步。 UXUVideo Fixture UI 语言 简 繁 EN F Fixture Administrator 0 0 搜索影视内容 搜索 尚未配置可用视频源，请先前往设置。 电影 电视剧 管理标签 热门 热门内容 无法加载热门内容。 重试",
+      "headings": [
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "热门内容",
+          "type": null,
+          "disabled": false,
+          "box": [
+            32,
+            544,
+            1,
+            1
+          ]
+        }
+      ],
+      "interactive": [
+        {
+          "tag": "aside",
+          "role": "status",
+          "name": "本地数据已与云端同步。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            1024,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UXUVideo",
+          "type": null,
+          "disabled": false,
+          "box": [
+            41,
+            77,
+            168,
+            44
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "直播",
+          "type": null,
+          "disabled": false,
+          "box": [
+            417,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "高级模式",
+          "type": null,
+          "disabled": false,
+          "box": [
+            465,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "我的收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            513,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            561,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "语言",
+          "type": null,
+          "disabled": false,
+          "box": [
+            609,
+            79,
+            52,
+            40
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "主题",
+          "type": null,
+          "disabled": false,
+          "box": [
+            669,
+            78,
+            130,
+            42
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "浅色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            672,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "深色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            716,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "跟随系统",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            760,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "退出登录",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            943,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开收藏夹",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            18,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开观看历史",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            929,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "form",
+          "role": "search",
+          "name": "搜索影视内容搜索",
+          "type": null,
+          "disabled": false,
+          "box": [
+            128,
+            172,
+            768,
+            62
+          ]
+        },
+        {
+          "tag": "input",
+          "role": "combobox",
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            128,
+            172,
+            768,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "搜索",
+          "type": "submit",
+          "disabled": true,
+          "box": [
+            780,
+            179,
+            108,
+            48
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "内容类型",
+          "type": null,
+          "disabled": false,
+          "box": [
+            352,
+            299,
+            320,
+            52
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "电影",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            357,
+            304,
+            155,
+            40
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "电视剧",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            512,
+            304,
+            155,
+            40
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "管理标签",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            32,
+            389,
+            80,
+            20
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "热门",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            34,
+            440,
+            82,
+            42
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "status",
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "alert",
+          "name": "无法加载热门内容。重试",
+          "type": null,
+          "disabled": false,
+          "box": [
+            32,
+            524,
+            960,
+            220
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "重试",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            479,
+            631,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "返回顶部",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "mainBox": [
+        0,
+        148,
+        1024,
+        676
+      ],
+      "tokens": {
+        "background": "rgb(8, 11, 18)",
+        "color": "rgb(243, 246, 251)",
+        "fontFamily": "Arial, \"Microsoft YaHei\", sans-serif",
+        "accent": "#0056b3",
+        "glass": "#1e1e1ee6",
+        "radius": "1.5rem"
+      }
+    },
+    "favorites": {
+      "route": "favorites",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "lang": "zh-CN",
+      "title": "UXUVideo",
+      "bodyText": "本地数据已与云端同步。 UXUVideo Fixture UI 语言 简 繁 EN F Fixture Administrator 0 0 YOUR LIBRARY 我的收藏 0 部影片，按账户安全同步。 收藏容量：0/100 · 同步状态：synced 排序 最近收藏 片名 网格 列表 清空收藏 还没有收藏 在搜索结果中点击“收藏”，影片会出现在这里。 去搜索",
+      "headings": [
+        {
+          "tag": "h1",
+          "role": null,
+          "name": "我的收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            65,
+            293,
+            265,
+            67
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "还没有收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            89,
+            616,
+            846,
+            31
+          ]
+        }
+      ],
+      "interactive": [
+        {
+          "tag": "aside",
+          "role": "status",
+          "name": "本地数据已与云端同步。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            1024,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UXUVideo",
+          "type": null,
+          "disabled": false,
+          "box": [
+            41,
+            78,
+            168,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "直播",
+          "type": null,
+          "disabled": false,
+          "box": [
+            417,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "高级模式",
+          "type": null,
+          "disabled": false,
+          "box": [
+            465,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "我的收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            513,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            561,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "语言",
+          "type": null,
+          "disabled": false,
+          "box": [
+            609,
+            79,
+            52,
+            40
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "主题",
+          "type": null,
+          "disabled": false,
+          "box": [
+            669,
+            78,
+            130,
+            42
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "浅色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            672,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "深色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            716,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "跟随系统",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            760,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "退出登录",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            943,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开收藏夹",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            18,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开观看历史",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            929,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "最近收藏片名",
+          "type": null,
+          "disabled": false,
+          "box": [
+            631,
+            366,
+            180,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "网格",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            823,
+            366,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "列表",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            893,
+            366,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "清空收藏",
+          "type": "button",
+          "disabled": true,
+          "box": [
+            631,
+            418,
+            180,
+            44
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "去搜索",
+          "type": null,
+          "disabled": false,
+          "box": [
+            470,
+            706,
+            84,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "返回顶部",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "mainBox": [
+        16,
+        148,
+        992,
+        755
+      ],
+      "tokens": {
+        "background": "rgb(8, 11, 18)",
+        "color": "rgb(243, 246, 251)",
+        "fontFamily": "Arial, \"Microsoft YaHei\", sans-serif",
+        "accent": "#0056b3",
+        "glass": "#1e1e1ee6",
+        "radius": "1.5rem"
+      }
+    },
+    "iptv": {
+      "route": "iptv",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "lang": "zh-CN",
+      "title": "UXUVideo",
+      "bodyText": "本地数据已与云端同步。 UXUVideo Fixture UI 语言 简 繁 EN F Fixture Administrator 0 0 LIVE TELEVISION IPTV 直播 受保护的直播频道 刷新全部 管理源 还没有直播源 添加一个 M3U、M3U8 或 JSON 播放列表开始使用。",
+      "headings": [
+        {
+          "tag": "h1",
+          "role": null,
+          "name": "IPTV 直播",
+          "type": null,
+          "disabled": false,
+          "box": [
+            65,
+            293,
+            268,
+            67
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "还没有直播源",
+          "type": null,
+          "disabled": false,
+          "box": [
+            89,
+            573,
+            846,
+            31
+          ]
+        }
+      ],
+      "interactive": [
+        {
+          "tag": "aside",
+          "role": "status",
+          "name": "本地数据已与云端同步。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            1024,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UXUVideo",
+          "type": null,
+          "disabled": false,
+          "box": [
+            41,
+            78,
+            168,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "直播",
+          "type": null,
+          "disabled": false,
+          "box": [
+            417,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "高级模式",
+          "type": null,
+          "disabled": false,
+          "box": [
+            465,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "我的收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            513,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            561,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "语言",
+          "type": null,
+          "disabled": false,
+          "box": [
+            609,
+            79,
+            52,
+            40
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "主题",
+          "type": null,
+          "disabled": false,
+          "box": [
+            669,
+            78,
+            130,
+            42
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "浅色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            672,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "深色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            716,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "跟随系统",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            760,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "退出登录",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            943,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开收藏夹",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            18,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开观看历史",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            929,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "刷新全部",
+          "type": "button",
+          "disabled": true,
+          "box": [
+            769,
+            375,
+            98,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "管理源",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            877,
+            375,
+            82,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "返回顶部",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "mainBox": [
+        16,
+        148,
+        992,
+        668
+      ],
+      "tokens": {
+        "background": "rgb(8, 11, 18)",
+        "color": "rgb(243, 246, 251)",
+        "fontFamily": "Arial, \"Microsoft YaHei\", sans-serif",
+        "accent": "#0056b3",
+        "glass": "#1e1e1ee6",
+        "radius": "1.5rem"
+      }
+    },
+    "player": {
+      "route": "player",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "lang": "zh-CN",
+      "title": "UXUVideo",
+      "bodyText": "本地数据已与云端同步。 返回 语言 简 繁 EN 0 0 无法开始播放 当前来源配置不存在，请返回搜索页重试。",
+      "headings": [
+        {
+          "tag": "h1",
+          "role": null,
+          "name": "无法开始播放",
+          "type": null,
+          "disabled": false,
+          "box": [
+            89,
+            276,
+            846,
+            42
+          ]
+        }
+      ],
+      "interactive": [
+        {
+          "tag": "aside",
+          "role": "status",
+          "name": "本地数据已与云端同步。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            1024,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UXUVideo",
+          "type": null,
+          "disabled": false,
+          "box": [
+            45,
+            80,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "返回",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            99,
+            75,
+            110,
+            50
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            729,
+            80,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "语言",
+          "type": null,
+          "disabled": false,
+          "box": [
+            783,
+            80,
+            52,
+            40
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "主题",
+          "type": null,
+          "disabled": false,
+          "box": [
+            849,
+            79,
+            130,
+            42
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "浅色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            852,
+            82,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "深色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            896,
+            82,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "跟随系统",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            940,
+            82,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开收藏夹",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            18,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开观看历史",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            929,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "section",
+          "role": "alert",
+          "name": "无法开始播放当前来源配置不存在，请返回搜索页重试。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            16,
+            182,
+            992,
+            274
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "返回顶部",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "mainBox": [
+        16,
+        150,
+        992,
+        386
+      ],
+      "tokens": {
+        "background": "rgb(8, 11, 18)",
+        "color": "rgb(243, 246, 251)",
+        "fontFamily": "Arial, \"Microsoft YaHei\", sans-serif",
+        "accent": "#0056b3",
+        "glass": "#1e1e1ee6",
+        "radius": "1.5rem"
+      }
+    },
+    "premium": {
+      "route": "premium",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "lang": "zh-CN",
+      "title": "UXUVideo",
+      "bodyText": "本地数据已与云端同步。 UXUVideo Fixture UI 语言 简 繁 EN F Fixture Administrator 0 0 PREMIUM Premium 内容 独立来源、推荐、分类与搜索均由当前 Worker 会话授权。 搜索 Premium 内容 搜索 无法载入 Premium 尚未配置 Premium 视频源。 检查来源",
+      "headings": [
+        {
+          "tag": "h1",
+          "role": null,
+          "name": "Premium 内容",
+          "type": null,
+          "disabled": false,
+          "box": [
+            78,
+            299,
+            867,
+            67
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "无法载入 Premium",
+          "type": null,
+          "disabled": false,
+          "box": [
+            89,
+            648,
+            846,
+            31
+          ]
+        }
+      ],
+      "interactive": [
+        {
+          "tag": "aside",
+          "role": "status",
+          "name": "本地数据已与云端同步。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            1024,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UXUVideo",
+          "type": null,
+          "disabled": false,
+          "box": [
+            41,
+            78,
+            168,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "直播",
+          "type": null,
+          "disabled": false,
+          "box": [
+            417,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "普通模式",
+          "type": null,
+          "disabled": false,
+          "box": [
+            465,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "我的收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            513,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            561,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "语言",
+          "type": null,
+          "disabled": false,
+          "box": [
+            609,
+            79,
+            52,
+            40
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "主题",
+          "type": null,
+          "disabled": false,
+          "box": [
+            669,
+            78,
+            130,
+            42
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "浅色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            672,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "深色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            716,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "跟随系统",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            760,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "退出登录",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            943,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开收藏夹",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            18,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开观看历史",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            929,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            132,
+            468,
+            674,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "搜索",
+          "type": "submit",
+          "disabled": true,
+          "box": [
+            816,
+            468,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "section",
+          "role": "alert",
+          "name": "无法载入 Premium尚未配置 Premium 视频源。检查来源",
+          "type": null,
+          "disabled": false,
+          "box": [
+            16,
+            575,
+            992,
+            280
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "检查来源",
+          "type": null,
+          "disabled": false,
+          "box": [
+            462,
+            738,
+            100,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "返回顶部",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "mainBox": [
+        16,
+        148,
+        992,
+        787
+      ],
+      "tokens": {
+        "background": "rgb(8, 11, 18)",
+        "color": "rgb(243, 246, 251)",
+        "fontFamily": "Arial, \"Microsoft YaHei\", sans-serif",
+        "accent": "#0056b3",
+        "glass": "#1e1e1ee6",
+        "radius": "1.5rem"
+      }
+    },
+    "premium-favorites": {
+      "route": "premium-favorites",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "lang": "zh-CN",
+      "title": "UXUVideo",
+      "bodyText": "本地数据已与云端同步。 UXUVideo Fixture UI 语言 简 繁 EN F Fixture Administrator 0 0 YOUR LIBRARY Premium 收藏 0 部影片，按账户安全同步。 收藏容量：0/100 · 同步状态：synced 排序 最近收藏 片名 网格 列表 清空收藏 还没有收藏 在搜索结果中点击“收藏”，影片会出现在这里。 去搜索",
+      "headings": [
+        {
+          "tag": "h1",
+          "role": null,
+          "name": "Premium 收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            65,
+            293,
+            391,
+            67
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "还没有收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            89,
+            616,
+            846,
+            31
+          ]
+        }
+      ],
+      "interactive": [
+        {
+          "tag": "aside",
+          "role": "status",
+          "name": "本地数据已与云端同步。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            1024,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UXUVideo",
+          "type": null,
+          "disabled": false,
+          "box": [
+            41,
+            78,
+            168,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "直播",
+          "type": null,
+          "disabled": false,
+          "box": [
+            417,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "普通模式",
+          "type": null,
+          "disabled": false,
+          "box": [
+            465,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "我的收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            513,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            561,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "语言",
+          "type": null,
+          "disabled": false,
+          "box": [
+            609,
+            79,
+            52,
+            40
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "主题",
+          "type": null,
+          "disabled": false,
+          "box": [
+            669,
+            78,
+            130,
+            42
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "浅色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            672,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "深色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            716,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "跟随系统",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            760,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "退出登录",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            943,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开收藏夹",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            18,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开观看历史",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            929,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "最近收藏片名",
+          "type": null,
+          "disabled": false,
+          "box": [
+            631,
+            366,
+            180,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "网格",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            823,
+            366,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "列表",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            893,
+            366,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "清空收藏",
+          "type": "button",
+          "disabled": true,
+          "box": [
+            631,
+            418,
+            180,
+            44
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "去搜索",
+          "type": null,
+          "disabled": false,
+          "box": [
+            470,
+            706,
+            84,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "返回顶部",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "mainBox": [
+        16,
+        148,
+        992,
+        755
+      ],
+      "tokens": {
+        "background": "rgb(8, 11, 18)",
+        "color": "rgb(243, 246, 251)",
+        "fontFamily": "Arial, \"Microsoft YaHei\", sans-serif",
+        "accent": "#0056b3",
+        "glass": "#1e1e1ee6",
+        "radius": "1.5rem"
+      }
+    },
+    "premium-settings": {
+      "route": "premium-settings",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "lang": "zh-CN",
+      "title": "UXUVideo",
+      "bodyText": "本地数据已与云端同步。 UXUVideo Fixture UI 语言 简 繁 EN F Fixture Administrator 0 0 PREMIUM SETTINGS 高级模式设置 管理与普通模式隔离的 Premium 来源和偏好设置。 重新验证授权 应用版本 通过同源 Worker 检查当前版本，不会从浏览器直连第三方服务。 暂时无法检查更新 当前版本 — 最新版本 — 重新检查 账户管理 管理可访问此 Worker 的账户、角色和初始凭据。 刷新 Fixture Administrator @fixture-admin 角色 viewer admin super_admin 删除 新增账户 用户名 显示名称 初始密码 角色 viewer admin super_admin 创建账户 播放器设置 配置播放方式、跳过、广告过滤与弹幕外观。 默认全屏方式 选择桌面端全屏按钮的行为。 系统全屏 进入浏览器原生全屏 网页全屏 播放器填满当前窗口 快进 / 快退间隔 控制 J / L、方向键和双击手势每次跳转的秒数。 5 s 10 s 15 s 30 s 60 s 自定义秒数 代理播放模式 兼容偏好会由后续媒体策略使用；浏览器始终只请求同源 Worker。 智能重试（推荐） 直连上游失败后尝试代理策略 仅直连 不做上游代理重试 总是代理 所有上游媒体使用代理策略 安全边界：任何模式都不会让浏览器直接请求第三方媒体；实际播放保持 same-origin Worker 路径。 一起看 (VideoTogether) 开启后在播放器和 IPTV 页面显示一起看入口；脚本地址已由 Worker 内置，无需另行配置。 启用一起看 自动下一集 显示播放模式标识 跳过片头 片头时长（秒） 跳过片尾 片尾剩余（秒） 广告过滤 选择清单过滤强度，并管理当前账户的自定义关键词。 关闭 关键词 智能（Beta） 激进 添加 弹幕外观 当前部署或账户尚未提供可用弹幕 API，弹幕开关保持禁用。 启用弹幕 弹幕透明度: 70% 14px 18px 20px 24px 28px 1/4 1/2 3/4 1 显示设置 管理搜索展示、滚动恢复、语言与主题。 记住滚动位置 退出或刷新页面后恢复之前的位置。 实时延迟显示 开启后定期更新搜索结果中的来源延迟。 搜索结果显示方式 选择每个来源单独显示，或合并同名影片。 默认显示 每个来源的结果单独显示 合并同名源 相同名称的影片合并为一个卡片 界面语言 选择此账户使用的界面语言。 简体中文 zh-CN 繁體中文 zh-TW English en 主题 选择浅色、深色或跟随系统。 内容类目过滤 隐藏类目名称中包含指定关键词的搜索结果。 添加 弹幕 API 管理此账户的弹幕 API，并选择优先使用项。 API 名称 API URL（https://…） 添加 API 配置按账户保存；敏感凭据只能留在 Worker 服务端。 使用系统默认 未配置系统弹幕 API 高级源管理 管理 Premium 内容来源、优先级、导入和启用状态。 0 个来源 · 系统 0 · 个人 0 搜索来源 导入 添加源 尚未配置视频源。 本地配置已保存。 搜索结果排序 选择搜索结果的默认排序方式。 默认排序 按相关性 延迟低到高 发布时间（新到旧） 发布时间（旧到新） 按评分（高到低） 按名称（A-Z） 按名称（Z-A） 数据管理 导出或导入当前账户的普通与 Premium 模式数据。 导出数据 生成经过敏感信息检查的双模式 JSON 备份。 导入数据 先完整验证和预览，再一次性替换本地同步数据。",
+      "headings": [
+        {
+          "tag": "h1",
+          "role": null,
+          "name": "高级模式设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            32,
+            215,
+            960,
+            42
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "应用版本",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            415,
+            460,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "账户管理",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            718,
+            348,
+            31
+          ]
+        },
+        {
+          "tag": "h3",
+          "role": null,
+          "name": "新增账户",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            931,
+            686,
+            25
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "播放器设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            1274,
+            320,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "显示设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            2867,
+            288,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "弹幕 API",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            3687,
+            318,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "高级源管理",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4081,
+            377,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "搜索结果排序",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4393,
+            224,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "数据管理",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4843,
+            361,
+            31
+          ]
+        }
+      ],
+      "interactive": [
+        {
+          "tag": "aside",
+          "role": "status",
+          "name": "本地数据已与云端同步。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            1024,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UXUVideo",
+          "type": null,
+          "disabled": false,
+          "box": [
+            41,
+            78,
+            168,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "直播",
+          "type": null,
+          "disabled": false,
+          "box": [
+            417,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "普通模式",
+          "type": null,
+          "disabled": false,
+          "box": [
+            465,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "我的收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            513,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            561,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "语言",
+          "type": null,
+          "disabled": false,
+          "box": [
+            609,
+            79,
+            52,
+            40
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "主题",
+          "type": null,
+          "disabled": false,
+          "box": [
+            669,
+            78,
+            130,
+            42
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "浅色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            672,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "深色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            716,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "跟随系统",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            760,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "退出登录",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            943,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开收藏夹",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            18,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开观看历史",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            929,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "重新验证授权",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            32,
+            310,
+            130,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "重新检查",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            580,
+            98,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "刷新",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            689,
+            718,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "vieweradminsuper_admin",
+          "type": null,
+          "disabled": false,
+          "box": [
+            359,
+            838,
+            220,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "删除",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            689,
+            826,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            995,
+            336,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            419,
+            995,
+            336,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "password",
+          "disabled": false,
+          "box": [
+            69,
+            1078,
+            336,
+            44
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "vieweradminsuper_admin",
+          "type": null,
+          "disabled": false,
+          "box": [
+            419,
+            1078,
+            336,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "创建账户",
+          "type": "submit",
+          "disabled": false,
+          "box": [
+            69,
+            1136,
+            686,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "系统全屏进入浏览器原生全屏",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            1409,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "网页全屏播放器填满当前窗口",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            1409,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "5 s",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            1550,
+            47,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "10 s",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            124,
+            1550,
+            56,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "15 s",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            189,
+            1550,
+            56,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "30 s",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            253,
+            1550,
+            56,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "60 s",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            317,
+            1550,
+            56,
+            38
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "number",
+          "disabled": false,
+          "box": [
+            69,
+            1624,
+            180,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "智能重试（推荐）直连上游失败后尝试代理策略",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            1747,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "仅直连不做上游代理重试",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            301,
+            1747,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "总是代理所有上游媒体使用代理策略",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            533,
+            1747,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "启用一起看",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            730,
+            1954,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            375,
+            2026,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            730,
+            2026,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            375,
+            2100,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "number",
+          "disabled": true,
+          "box": [
+            424,
+            2113,
+            180,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            375,
+            2184,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "number",
+          "disabled": true,
+          "box": [
+            424,
+            2197,
+            180,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "关闭",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            2320,
+            58,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "关键词",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            135,
+            2320,
+            74,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "智能（Beta）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            217,
+            2320,
+            123,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "激进",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            348,
+            2320,
+            58,
+            38
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            2368,
+            612,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "添加",
+          "type": "submit",
+          "disabled": true,
+          "box": [
+            689,
+            2368,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": true,
+          "box": [
+            730,
+            2530,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "range",
+          "disabled": false,
+          "box": [
+            71,
+            2621,
+            686,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "14px",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            2677,
+            61,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "18px",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            138,
+            2677,
+            61,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "20px",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            206,
+            2677,
+            61,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "24px",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            275,
+            2677,
+            61,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "28px",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            344,
+            2677,
+            61,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "1/4",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            2725,
+            48,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "1/2",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            125,
+            2725,
+            48,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "3/4",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            182,
+            2725,
+            48,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "1",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            238,
+            2725,
+            35,
+            38
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            730,
+            2948,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            730,
+            3020,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "默认显示每个来源的结果单独显示",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            3146,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "合并同名源相同名称的影片合并为一个卡片",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            3146,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "简体中文zh-CN",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            3287,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "繁體中文zh-TW",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            301,
+            3287,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Englishen",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            533,
+            3287,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "主题",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            3428,
+            686,
+            42
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "浅色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            72,
+            3431,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "深色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            116,
+            3431,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "跟随系统",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            160,
+            3431,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            3549,
+            612,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "添加",
+          "type": "submit",
+          "disabled": true,
+          "box": [
+            689,
+            3549,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            3790,
+            191,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            270,
+            3790,
+            409,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "添加",
+          "type": "submit",
+          "disabled": true,
+          "box": [
+            689,
+            3790,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "使用系统默认未配置系统弹幕 API",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            3943,
+            686,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "搜索来源",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4161,
+            472,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "导入",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            553,
+            4161,
+            89,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "添加源",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            650,
+            4161,
+            105,
+            44
+          ]
+        },
+        {
+          "tag": "p",
+          "role": "status",
+          "name": "本地配置已保存。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4282,
+            686,
+            17
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "默认排序",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            4471,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "按相关性",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            4471,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "延迟低到高",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            4543,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "发布时间（新到旧）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            4543,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "发布时间（旧到新）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            4615,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "按评分（高到低）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            4615,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "按名称（A-Z）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            4687,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "按名称（Z-A）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            4687,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "导出数据生成经过敏感信息检查的双模式 JSON 备份。",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            4921,
+            337,
+            88
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "导入数据先完整验证和预览，再一次性替换本地同步数据。",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            418,
+            4921,
+            337,
+            88
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "返回顶部",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "mainBox": [
+        32,
+        148,
+        960,
+        4982
+      ],
+      "tokens": {
+        "background": "rgb(8, 11, 18)",
+        "color": "rgb(243, 246, 251)",
+        "fontFamily": "Arial, \"Microsoft YaHei\", sans-serif",
+        "accent": "#0056b3",
+        "glass": "#1e1e1ee6",
+        "radius": "1.5rem"
+      }
+    },
+    "settings": {
+      "route": "settings",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "lang": "zh-CN",
+      "title": "UXUVideo",
+      "bodyText": "本地数据已与云端同步。 UXUVideo Fixture UI 语言 简 繁 EN F Fixture Administrator 0 0 UXUVIDEO 设置 管理此账户的界面、内容来源与安全选项。 应用版本 通过同源 Worker 检查当前版本，不会从浏览器直连第三方服务。 暂时无法检查更新 当前版本 — 最新版本 — 重新检查 账户管理 管理可访问此 Worker 的账户、角色和初始凭据。 刷新 Fixture Administrator @fixture-admin 角色 viewer admin super_admin 删除 新增账户 用户名 显示名称 初始密码 角色 viewer admin super_admin 创建账户 Cloudflare 用量 只读展示 Cloudflare 账户总量与本项目用量；Analytics Token 仅保留在 Worker。 刷新用量 尚未配置 Cloudflare 用量分析 业务功能不受影响。请在 Worker 中配置只读 Analytics Token 与三个项目标识。 缺少: CF_ANALYTICS_API_TOKEN 同步与离线 更改会先立即保存在此设备，再通过你的 Worker 与其他设备合并。 云端版本已确认 已同步 本地数据已与云端同步。 播放器设置 配置播放方式、跳过、广告过滤与弹幕外观。 默认全屏方式 选择桌面端全屏按钮的行为。 系统全屏 进入浏览器原生全屏 网页全屏 播放器填满当前窗口 快进 / 快退间隔 控制 J / L、方向键和双击手势每次跳转的秒数。 5 s 10 s 15 s 30 s 60 s 自定义秒数 代理播放模式 兼容偏好会由后续媒体策略使用；浏览器始终只请求同源 Worker。 智能重试（推荐） 直连上游失败后尝试代理策略 仅直连 不做上游代理重试 总是代理 所有上游媒体使用代理策略 安全边界：任何模式都不会让浏览器直接请求第三方媒体；实际播放保持 same-origin Worker 路径。 一起看 (VideoTogether) 开启后在播放器和 IPTV 页面显示一起看入口；脚本地址已由 Worker 内置，无需另行配置。 启用一起看 自动下一集 显示播放模式标识 跳过片头 片头时长（秒） 跳过片尾 片尾剩余（秒） 广告过滤 选择清单过滤强度，并管理当前账户的自定义关键词。 关闭 关键词 智能（Beta） 激进 添加 弹幕外观 当前部署或账户尚未提供可用弹幕 API，弹幕开关保持禁用。 启用弹幕 弹幕透明度: 70% 14px 18px 20px 24px 28px 1/4 1/2 3/4 1 显示设置 管理搜索展示、滚动恢复、语言与主题。 记住滚动位置 退出或刷新页面后恢复之前的位置。 实时延迟显示 开启后定期更新搜索结果中的来源延迟。 搜索结果显示方式 选择每个来源单独显示，或合并同名影片。 默认显示 每个来源的结果单独显示 合并同名源 相同名称的影片合并为一个卡片 界面语言 选择此账户使用的界面语言。 简体中文 zh-CN 繁體中文 zh-TW English en 主题 选择浅色、深色或跟随系统。 内容类目过滤 隐藏类目名称中包含指定关键词的搜索结果。 添加 弹幕 API 管理此账户的弹幕 API，并选择优先使用项。 API 名称 API URL（https://…） 添加 API 配置按账户保存；敏感凭据只能留在 Worker 服务端。 使用系统默认 未配置系统弹幕 API 视频源管理 管理系统与个人视频源、优先级和启用状态。 0 个来源 · 系统 0 · 个人 0 搜索来源 导入 添加源 尚未配置视频源。 本地配置已保存。 搜索结果排序 选择搜索结果的默认排序方式。 默认排序 按相关性 延迟低到高 发布时间（新到旧） 发布时间（旧到新） 按评分（高到低） 按名称（A-Z） 按名称（Z-A） 数据管理 导出或导入当前账户的普通与 Premium 模式数据。 导出数据 生成经过敏感信息检查的双模式 JSON 备份。 导入数据 先完整验证和预览，再一次性替换本地同步数据。",
+      "headings": [
+        {
+          "tag": "h1",
+          "role": null,
+          "name": "设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            32,
+            215,
+            960,
+            42
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "应用版本",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            355,
+            460,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "账户管理",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            658,
+            348,
+            31
+          ]
+        },
+        {
+          "tag": "h3",
+          "role": null,
+          "name": "新增账户",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            871,
+            686,
+            25
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "Cloudflare 用量",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            1214,
+            572,
+            31
+          ]
+        },
+        {
+          "tag": "h3",
+          "role": null,
+          "name": "尚未配置 Cloudflare 用量分析",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            1312,
+            686,
+            25
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "同步与离线",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            1523,
+            476,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "播放器设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            1765,
+            320,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "显示设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            3359,
+            288,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "弹幕 API",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4179,
+            318,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "视频源管理",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4573,
+            320,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "搜索结果排序",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4885,
+            224,
+            31
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": null,
+          "name": "数据管理",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            5335,
+            361,
+            31
+          ]
+        }
+      ],
+      "interactive": [
+        {
+          "tag": "aside",
+          "role": "status",
+          "name": "本地数据已与云端同步。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            1024,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UXUVideo",
+          "type": null,
+          "disabled": false,
+          "box": [
+            41,
+            78,
+            168,
+            42
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "直播",
+          "type": null,
+          "disabled": false,
+          "box": [
+            417,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "高级模式",
+          "type": null,
+          "disabled": false,
+          "box": [
+            465,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "我的收藏",
+          "type": null,
+          "disabled": false,
+          "box": [
+            513,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "设置",
+          "type": null,
+          "disabled": false,
+          "box": [
+            561,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "语言",
+          "type": null,
+          "disabled": false,
+          "box": [
+            609,
+            79,
+            52,
+            40
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "主题",
+          "type": null,
+          "disabled": false,
+          "box": [
+            669,
+            78,
+            130,
+            42
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "浅色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            672,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "深色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            716,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "跟随系统",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            760,
+            81,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "退出登录",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            943,
+            79,
+            40,
+            40
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开收藏夹",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            18,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "打开观看历史",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            929,
+            828,
+            77,
+            48
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "重新检查",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            520,
+            98,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "刷新",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            689,
+            658,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "vieweradminsuper_admin",
+          "type": null,
+          "disabled": false,
+          "box": [
+            359,
+            778,
+            220,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "删除",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            689,
+            766,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            935,
+            336,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            419,
+            935,
+            336,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "password",
+          "disabled": false,
+          "box": [
+            69,
+            1018,
+            336,
+            44
+          ]
+        },
+        {
+          "tag": "select",
+          "role": null,
+          "name": "vieweradminsuper_admin",
+          "type": null,
+          "disabled": false,
+          "box": [
+            419,
+            1018,
+            336,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "创建账户",
+          "type": "submit",
+          "disabled": false,
+          "box": [
+            69,
+            1076,
+            686,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "刷新用量",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            657,
+            1214,
+            98,
+            44
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "status",
+          "name": "已同步本地数据已与云端同步。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            1601,
+            686,
+            70
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "系统全屏进入浏览器原生全屏",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            1900,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "网页全屏播放器填满当前窗口",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            1900,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "5 s",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            2041,
+            47,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "10 s",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            124,
+            2041,
+            56,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "15 s",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            189,
+            2041,
+            56,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "30 s",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            253,
+            2041,
+            56,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "60 s",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            317,
+            2041,
+            56,
+            38
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "number",
+          "disabled": false,
+          "box": [
+            69,
+            2115,
+            180,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "智能重试（推荐）直连上游失败后尝试代理策略",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            2238,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "仅直连不做上游代理重试",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            301,
+            2238,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "总是代理所有上游媒体使用代理策略",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            533,
+            2238,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "启用一起看",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            730,
+            2445,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            375,
+            2517,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            730,
+            2517,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            375,
+            2591,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "number",
+          "disabled": true,
+          "box": [
+            424,
+            2604,
+            180,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            375,
+            2675,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "number",
+          "disabled": true,
+          "box": [
+            424,
+            2688,
+            180,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "关闭",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            2811,
+            58,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "关键词",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            135,
+            2811,
+            74,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "智能（Beta）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            217,
+            2811,
+            123,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "激进",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            348,
+            2811,
+            58,
+            38
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            2859,
+            612,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "添加",
+          "type": "submit",
+          "disabled": true,
+          "box": [
+            689,
+            2859,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": true,
+          "box": [
+            730,
+            3022,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "range",
+          "disabled": false,
+          "box": [
+            71,
+            3113,
+            686,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "14px",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            3169,
+            61,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "18px",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            138,
+            3169,
+            61,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "20px",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            206,
+            3169,
+            61,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "24px",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            275,
+            3169,
+            61,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "28px",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            344,
+            3169,
+            61,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "1/4",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            3217,
+            48,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "1/2",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            125,
+            3217,
+            48,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "3/4",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            182,
+            3217,
+            48,
+            38
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "1",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            238,
+            3217,
+            35,
+            38
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            730,
+            3440,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": "checkbox",
+          "disabled": false,
+          "box": [
+            730,
+            3512,
+            22,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "默认显示每个来源的结果单独显示",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            3638,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "合并同名源相同名称的影片合并为一个卡片",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            3638,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "简体中文zh-CN",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            3779,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "繁體中文zh-TW",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            301,
+            3779,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Englishen",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            533,
+            3779,
+            222,
+            62
+          ]
+        },
+        {
+          "tag": "div",
+          "role": "group",
+          "name": "主题",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            3920,
+            686,
+            42
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "浅色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            72,
+            3923,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "深色主题",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            116,
+            3923,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "跟随系统",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            160,
+            3923,
+            36,
+            36
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4041,
+            612,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "添加",
+          "type": "submit",
+          "disabled": true,
+          "box": [
+            689,
+            4041,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4282,
+            191,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "type": null,
+          "disabled": false,
+          "box": [
+            270,
+            4282,
+            409,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "添加",
+          "type": "submit",
+          "disabled": true,
+          "box": [
+            689,
+            4282,
+            66,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "使用系统默认未配置系统弹幕 API",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            4435,
+            686,
+            44
+          ]
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "搜索来源",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4653,
+            472,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "导入",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            553,
+            4653,
+            89,
+            44
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "添加源",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            650,
+            4653,
+            105,
+            44
+          ]
+        },
+        {
+          "tag": "p",
+          "role": "status",
+          "name": "本地配置已保存。",
+          "type": null,
+          "disabled": false,
+          "box": [
+            69,
+            4774,
+            686,
+            17
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "默认排序",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            4963,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "按相关性",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            4963,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "延迟低到高",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            5035,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "发布时间（新到旧）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            5035,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "发布时间（旧到新）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            5107,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "按评分（高到低）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            5107,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "按名称（A-Z）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            5179,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "按名称（Z-A）",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            417,
+            5179,
+            338,
+            62
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "导出数据生成经过敏感信息检查的双模式 JSON 备份。",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            69,
+            5413,
+            337,
+            88
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "导入数据先完整验证和预览，再一次性替换本地同步数据。",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            418,
+            5413,
+            337,
+            88
+          ]
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "返回顶部",
+          "type": "button",
+          "disabled": false,
+          "box": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "mainBox": [
+        32,
+        148,
+        960,
+        5474
+      ],
+      "tokens": {
+        "background": "rgb(8, 11, 18)",
+        "color": "rgb(243, 246, 251)",
+        "fontFamily": "Arial, \"Microsoft YaHei\", sans-serif",
+        "accent": "#0056b3",
+        "glass": "#1e1e1ee6",
+        "radius": "1.5rem"
+      }
+    }
+  }
+}

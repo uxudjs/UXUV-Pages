@@ -21,22 +21,23 @@ export interface RuntimeConfig {
 }
 
 type RuntimeStatus = "loading" | "public" | "ready" | "error";
+export type RuntimeIssue = "" | "setup" | "session" | "unknown";
 
 interface RuntimeConfigContextValue {
   status: RuntimeStatus;
   config: RuntimeConfig;
   session: AuthSession | null;
-  error: string;
+  issue: RuntimeIssue;
   retry: () => void;
 }
 
 const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
-  release: { worker: "", pages: "0.1.2", apiContract: 1 },
+  release: { worker: "", pages: "0.2.0", apiContract: 1 },
   site: {
     name: "UXUVideo",
     title: "UXUVideo",
     description: "UXUVideo 公共静态前端入口",
-    iconUrl: "/UXUV-Pages/0.1.2/icon.png",
+    iconUrl: "/UXUV-Pages/0.2.0/icon.png",
   },
   capabilities: { premium: false, iptv: false, danmaku: false },
   adKeywords: [],
@@ -80,7 +81,7 @@ export function RuntimeConfigProvider({ children }: Readonly<{ children: React.R
     status: "loading",
     config: DEFAULT_RUNTIME_CONFIG,
     session: null,
-    error: "",
+    issue: "",
   });
 
   useEffect(() => {
@@ -89,7 +90,7 @@ export function RuntimeConfigProvider({ children }: Readonly<{ children: React.R
         status: "public",
         config: DEFAULT_RUNTIME_CONFIG,
         session: null,
-        error: "",
+        issue: "",
       }));
       return;
     }
@@ -105,23 +106,30 @@ export function RuntimeConfigProvider({ children }: Readonly<{ children: React.R
           readJson(configResponse),
           readJson(sessionResponse),
         ]);
-        if (!configResponse.ok || !isRuntimeConfig(configBody)) {
-          throw new Error("运行时配置不可用。");
+        if (!configResponse.ok) {
+          const issue: RuntimeIssue = configResponse.status === 404 ? "setup" : "unknown";
+          if (active) setState({ status: "error", config: DEFAULT_RUNTIME_CONFIG, session: null, issue });
+          return;
+        }
+        if (!isRuntimeConfig(configBody)) {
+          if (active) setState({ status: "error", config: DEFAULT_RUNTIME_CONFIG, session: null, issue: "setup" });
+          return;
         }
         if (!sessionResponse.ok && sessionResponse.status !== 401) {
-          throw new Error("会话服务不可用。");
+          if (active) setState({ status: "error", config: DEFAULT_RUNTIME_CONFIG, session: null, issue: "session" });
+          return;
         }
         const sessionRecord = isRecord(sessionBody) ? sessionBody : null;
         const session = sessionRecord?.authenticated && isRecord(sessionRecord.session)
           ? sessionRecord.session as unknown as AuthSession
           : null;
-        if (active) setState({ status: "ready", config: configBody, session, error: "" });
-      } catch (error) {
+        if (active) setState({ status: "ready", config: configBody, session, issue: "" });
+      } catch {
         if (active) setState({
           status: "error",
           config: DEFAULT_RUNTIME_CONFIG,
           session: null,
-          error: error instanceof Error ? error.message : "应用启动失败。",
+          issue: "unknown",
         });
       }
     };
@@ -132,7 +140,7 @@ export function RuntimeConfigProvider({ children }: Readonly<{ children: React.R
   const value = useMemo<RuntimeConfigContextValue>(() => ({
     ...state,
     retry: () => {
-      setState((current) => ({ ...current, status: "loading", error: "" }));
+      setState((current) => ({ ...current, status: "loading", issue: "" }));
       setAttempt((current) => current + 1);
     },
   }), [state]);

@@ -6,7 +6,7 @@ const session = {
   role: "super_admin", customPermissions: [], mode: "managed",
 };
 const config = {
-  release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
+  release: { worker: "1.0.0", pages: "0.2.0", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
   capabilities: { premium: true, iptv: true, danmaku: false },
   adKeywords: [],
@@ -36,6 +36,10 @@ async function mockWorker(page: Page) {
     if (path === "/api/auth/session") return fulfill(route, { authenticated: true, session });
     if (path === "/api/user/config") return fulfill(route, emptyDocument("config"));
     if (path === "/api/user/sync") return fulfill(route, emptyDocument("library"));
+    if (path === "/api/app-update") return fulfill(route, { currentVersion: "1.0.0", latestVersion: "1.0.0", status: "up-to-date", checkedRemotely: true });
+    if (path === "/api/premium/types") return fulfill(route, { tags: [], capability: { profile: "paid", limits: {} } });
+    if (path === "/api/douban/tags") return fulfill(route, { tags: ["热门"] });
+    if (path === "/api/douban/recommend") return fulfill(route, { subjects: [] });
     if (path === "/api/auth/accounts") {
       return fulfill(route, { loginMode: "managed", managed: true, accounts: [{ id: "admin-1", ...session }], totalCount: 1 });
     }

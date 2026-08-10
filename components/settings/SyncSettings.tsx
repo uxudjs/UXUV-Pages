@@ -1,35 +1,35 @@
 "use client";
 
+import { useLocale } from "@/components/LocaleProvider";
 import { useSync } from "@/components/SyncProvider";
-import type { ConfigPayload } from "@/lib/sync/document-types";
+import { SYNC_STATUS_COPY } from "@/components/SyncStatus";
+import { SettingsSection } from "@/components/settings/SettingsSection";
 
-const locales = [
-  { value: "zh-CN", label: "简体中文" },
-  { value: "zh-TW", label: "繁體中文" },
-  { value: "en", label: "English" },
-];
+const COPY = {
+  "zh-CN": { title: "同步与离线", description: "更改会先立即保存在此设备，再通过你的 Worker 与其他设备合并。", dirty: "有未同步更改", synced: "云端版本已确认",
+    phases: { loading: "检查中", synced: "已同步", pending: "等待写入", conflict: "正在合并", offline: "离线保留", quota: "配额已满", error: "同步错误" } },
+  "zh-TW": { title: "同步與離線", description: "變更會先立即儲存在此裝置，再透過你的 Worker 與其他裝置合併。", dirty: "有尚未同步的變更", synced: "雲端版本已確認",
+    phases: { loading: "檢查中", synced: "已同步", pending: "等待寫入", conflict: "正在合併", offline: "離線保留", quota: "配額已滿", error: "同步錯誤" } },
+  en: { title: "Sync and offline", description: "Changes are saved on this device first, then merged with other devices through your Worker.", dirty: "Unsynced changes", synced: "Cloud version confirmed",
+    phases: { loading: "Checking", synced: "Synced", pending: "Waiting to write", conflict: "Merging", offline: "Saved offline", quota: "Quota reached", error: "Sync error" } },
+} as const;
 
 export function SyncSettings() {
   const sync = useSync();
-  const config = sync.documents.config.payload as ConfigPayload;
-  const localeValue = config.fields.locale?.value;
-  const locale = typeof localeValue === "string" ? localeValue : "zh-CN";
+  const { locale } = useLocale();
+  const copy = COPY[locale];
+  const statusCopy = SYNC_STATUS_COPY[locale];
+  const dirty = Object.values(sync.documents).some((document) => document.dirty);
+  const canRetry = ["offline", "quota", "error"].includes(sync.phase);
 
   return (
-    <section className="settings-section sync-settings" aria-labelledby="sync-settings-title">
-      <div className="section-heading">
-        <div>
-          <h2 id="sync-settings-title">同步与离线</h2>
-          <p>更改会先立即保存在此设备，再通过你的 Worker 与其他设备合并。</p>
-        </div>
-        <span className="sync-dirty-state" data-sync-dirty={sync.documents.config.dirty}>
-          {sync.documents.config.dirty ? "有未同步更改" : "云端版本已确认"}
-        </span>
+    <SettingsSection id="sync" title={copy.title} description={copy.description} summary={
+      <span className="sync-dirty-state" data-sync-dirty={dirty}>{dirty ? copy.dirty : copy.synced}</span>
+    }>
+      <div className={`sync-settings-detail sync-settings-${sync.phase}`} data-sync-detail={sync.phase} role="status" aria-live="polite">
+        <div><strong>{copy.phases[sync.phase]}</strong><p>{statusCopy[sync.phase]}</p></div>
+        {canRetry && <button type="button" data-focusable onClick={sync.retry}>{statusCopy.retry}</button>}
       </div>
-      <label className="field-label" htmlFor="sync-locale">界面语言</label>
-      <select id="sync-locale" value={locale} onChange={(event) => sync.updateConfigField("locale", event.target.value)}>
-        {locales.map((entry) => <option key={entry.value} value={entry.value}>{entry.label}</option>)}
-      </select>
-    </section>
+    </SettingsSection>
   );
 }

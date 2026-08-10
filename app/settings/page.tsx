@@ -1,19 +1,36 @@
 import { AdminGate } from "@/components/AdminGate";
 import { AccountSettings } from "@/components/settings/AccountSettings";
+import { AppVersionSettings } from "@/components/settings/AppVersionSettings";
 import { CloudflareUsageSettings } from "@/components/settings/CloudflareUsageSettings";
+import { DataSettings } from "@/components/settings/DataSettings";
+import { DisplaySettings } from "@/components/settings/DisplaySettings";
+import { PlayerSettings } from "@/components/settings/PlayerSettings";
 import { SourceSettings } from "@/components/settings/SourceSettings";
+import { SortSettings } from "@/components/settings/SortSettings";
+import { SettingsPageHeading } from "@/components/settings/SettingsPageHeading";
 import { SyncSettings } from "@/components/settings/SyncSettings";
+import { UserDanmakuSettings } from "@/components/settings/UserDanmakuSettings";
+import { UserSourceSettings } from "@/components/settings/UserSourceSettings";
 
 export default function SettingsPage() {
   return (
-    <main className="settings-shell">
-      <header className="page-heading"><p className="public-kicker">UXUVideo</p><h1>设置</h1><p>账户与权限由当前 Worker 安全管理。</p></header>
-      <AdminGate fallback={<section className="settings-section"><h2>账户管理</h2><p>只有 super_admin 可以查看和修改账户。</p></section>}>
-        <AccountSettings />
-      </AdminGate>
-      <AdminGate><CloudflareUsageSettings /></AdminGate>
-      <SyncSettings />
-      <SourceSettings />
-    </main>
+    <div className="content-shell settings-page-shell">
+      <main className="settings-shell">
+        <SettingsPageHeading />
+        <AppVersionSettings />
+        <AdminGate showFallback>
+          <AccountSettings />
+        </AdminGate>
+        <AdminGate><CloudflareUsageSettings /></AdminGate>
+        <SyncSettings />
+        <PlayerSettings />
+        <DisplaySettings />
+        <UserSourceSettings />
+        <UserDanmakuSettings />
+        <SourceSettings />
+        <SortSettings />
+        <DataSettings />
+      </main>
+    </div>
   );
 }

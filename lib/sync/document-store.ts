@@ -1,5 +1,5 @@
 import { createLocalDocument, isRemoteDocument } from "./document-merge";
-import type { LocalDocument, RemoteDocument, SyncKind } from "./document-types";
+import type { LocalDocument, SyncKind } from "./document-types";
 
 type StorageAdapter = Pick<Storage, "getItem" | "setItem">;
 const STORAGE_PREFIX = "uxuv-sync-v1";
@@ -27,8 +27,4 @@ export function loadLocalDocument(storage: StorageAdapter, accountId: string, ki
 
 export function saveLocalDocument(storage: StorageAdapter, accountId: string, document: LocalDocument): void {
   storage.setItem(documentStorageKey(accountId, document.kind), JSON.stringify(document));
-}
-
-export function acceptedRemoteDocument(remote: RemoteDocument, revision: number): LocalDocument {
-  return { ...remote, dirty: false, revision, retryAt: 0 };
 }

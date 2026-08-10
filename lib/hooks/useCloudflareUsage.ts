@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/store/auth-store";
 
 export type UsageLevel = "normal" | "notice" | "warning" | "critical" | "exhausted";
@@ -67,8 +67,14 @@ async function readBody(response: Response): Promise<unknown> {
 export function useCloudflareUsage() {
   const auth = useAuth();
   const enabled = auth?.session.role === "super_admin";
+  const accountId = auth?.session.accountId ?? null;
+  const markSessionExpiredRef = useRef(auth?.markSessionExpired);
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<UsageState>({ status: "idle", data: null, error: "" });
+
+  useEffect(() => {
+    markSessionExpiredRef.current = auth?.markSessionExpired;
+  }, [auth?.markSessionExpired]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -80,7 +86,7 @@ export function useCloudflareUsage() {
           credentials: "same-origin", cache: "no-store", signal: controller.signal,
         });
         const body = await readBody(response);
-        if (response.status === 401) auth?.markSessionExpired();
+        if (response.status === 401) markSessionExpiredRef.current?.();
         const data = isRecord(body) ? parseUsage(body.data) : null;
         if (!response.ok || !data) throw new Error("usage unavailable");
         setState({ status: "ready", data, error: "" });
@@ -92,7 +98,7 @@ export function useCloudflareUsage() {
     };
     void load();
     return () => controller.abort();
-  }, [attempt, auth, enabled]);
+  }, [accountId, attempt, enabled]);
 
   const refresh = useCallback(() => setAttempt((current) => current + 1), []);
   return { ...state, refresh, enabled };

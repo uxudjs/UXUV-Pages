@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "uxuv-static-";
-const CACHE_NAME = "uxuv-static-0.1.2";
+const CACHE_NAME = "uxuv-static-0.2.0";
 const LEGACY_CACHE_PREFIXES = ["video-cache-"];
 const STATIC_DESTINATIONS = new Set(["document", "font", "image", "manifest", "script", "style"]);
 const STATIC_EXTENSION = /\.(?:css|html|ico|js|json|mjs|png|svg|webmanifest|woff2?)$/i;
@@ -20,10 +20,19 @@ function responseMayBeCached(response) {
   return response.ok && response.type !== "opaque" && !/private|no-store/i.test(policy);
 }
 
+async function cacheResponse(cache, request, response) {
+  if (!responseMayBeCached(response)) return;
+  try {
+    await cache.put(request, response.clone());
+  } catch {
+    // Cache quota or storage failures must not replace a valid network response.
+  }
+}
+
 async function refreshNavigation(request, cache) {
   try {
     const response = await fetch(request);
-    if (responseMayBeCached(response)) await cache.put(request, response.clone());
+    await cacheResponse(cache, request, response);
     return response;
   } catch (error) {
     const cached = await cache.match(request);
@@ -32,7 +41,9 @@ async function refreshNavigation(request, cache) {
   }
 }
 
-self.addEventListener("install", () => self.skipWaiting());
+self.addEventListener("install", (event) => {
+  event.waitUntil(self.skipWaiting());
+});
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(caches.keys()
@@ -52,7 +63,7 @@ self.addEventListener("fetch", (event) => {
     const cached = await cache.match(event.request);
     if (cached) return cached;
     const response = await fetch(event.request);
-    if (responseMayBeCached(response)) await cache.put(event.request, response.clone());
+    await cacheResponse(cache, event.request, response);
     return response;
   }));
 });

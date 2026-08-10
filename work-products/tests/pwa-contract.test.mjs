@@ -23,6 +23,7 @@ test("declares a same-origin installable manifest and root service-worker regist
   assert.equal(manifest.start_url, "/");
   assert.equal(manifest.scope, "/");
   assert.equal(manifest.display, "standalone");
+  assert.equal(manifest.orientation, "any");
   assert.ok(manifest.icons.some(({ src, purpose }) => src === "/icon.png" && /maskable/.test(purpose)));
 
   const layout = read("app/layout.tsx");
@@ -36,7 +37,7 @@ test("declares a same-origin installable manifest and root service-worker regist
 
 test("service worker versions static caches and rejects API, auth, and media caching", () => {
   const source = read("public/sw.js");
-  assert.match(source, /uxuv-static-0\.1\.2/);
+  assert.match(source, /uxuv-static-0\.2\.0/);
   assert.match(source, /cacheName\.startsWith\(CACHE_PREFIX\).*cacheName !== CACHE_NAME/s);
   assert.match(source, /request\.method !== ["']GET["']/);
   assert.match(source, /url\.origin !== self\.location\.origin/);
@@ -91,6 +92,75 @@ test("service worker refreshes navigations before using an offline cached page",
   const response = await responsePromise;
   assert.equal(networkRequests, 1);
   assert.equal(await response.text(), "new page");
+});
+
+test("service worker keeps successful network responses usable when cache writes fail", async () => {
+  const listeners = new Map();
+  const fresh = new Response("fresh asset", { headers: { "Cache-Control": "public, max-age=31536000, immutable" } });
+  let responsePromise;
+  const cache = {
+    match: async () => undefined,
+    put: async () => { throw new Error("quota exceeded"); },
+  };
+  runInNewContext(read("public/sw.js"), {
+    URL,
+    Set,
+    Promise,
+    self: {
+      location: { origin: "https://worker.example" },
+      addEventListener: (name, listener) => listeners.set(name, listener),
+      skipWaiting: async () => {},
+      clients: { claim: async () => {} },
+    },
+    caches: {
+      keys: async () => [],
+      delete: async () => true,
+      open: async () => cache,
+    },
+    fetch: async () => fresh,
+  });
+
+  listeners.get("fetch")({
+    request: {
+      method: "GET",
+      url: "https://worker.example/icon.png",
+      mode: "same-origin",
+      destination: "image",
+    },
+    respondWith: (promise) => { responsePromise = promise; },
+  });
+
+  const response = await responsePromise;
+  assert.equal(await response.text(), "fresh asset");
+});
+
+test("service worker extends installation until skipWaiting completes", async () => {
+  const listeners = new Map();
+  let releaseSkipWaiting;
+  const skipWaiting = new Promise((resolve) => { releaseSkipWaiting = resolve; });
+  let installWork;
+  runInNewContext(read("public/sw.js"), {
+    URL,
+    Set,
+    Promise,
+    self: {
+      location: { origin: "https://worker.example" },
+      addEventListener: (name, listener) => listeners.set(name, listener),
+      skipWaiting: () => skipWaiting,
+      clients: { claim: async () => {} },
+    },
+    caches: {
+      keys: async () => [],
+      delete: async () => true,
+      open: async () => ({ match: async () => undefined, put: async () => {} }),
+    },
+    fetch: async () => new Response("fixture"),
+  });
+
+  listeners.get("install")({ waitUntil: (promise) => { installWork = promise; } });
+  assert.ok(installWork instanceof Promise);
+  releaseSkipWaiting();
+  await installWork;
 });
 
 test("production export contains the PWA assets", () => {

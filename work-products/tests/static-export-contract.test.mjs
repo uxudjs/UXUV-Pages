@@ -39,10 +39,39 @@ test("defines a reproducible Next.js static-export toolchain", () => {
   assert.match(packageJson.scripts.test, /work-products\/tests\/pages-deployment\.test\.mjs/);
   assert.equal(packageJson.scripts["release:build"], "node scripts/build-release.mjs");
   assert.equal(packageJson.scripts.lint, "eslint");
-  assert.equal(packageJson.scripts.build, "next build");
+  assert.equal(packageJson.scripts.build, "next build && node scripts/transpile-client-assets.mjs out/_next/static");
   assert.equal(packageJson.dependencies.next, "16.3.0");
   assert.match(nextConfig, /output:\s*["']export["']/);
   assert.match(nextConfig, /unoptimized:\s*true/);
+});
+
+test("pins only the KVideo browser dependencies needed by later UI slices", () => {
+  const packageJson = JSON.parse(read("package.json"));
+  const packageLock = JSON.parse(read("package-lock.json"));
+  const expectedDependencies = {
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
+    "lucide-react": "0.577.0",
+    "opencc-js": "1.0.5",
+    "zustand": "5.0.12",
+  };
+
+  for (const [name, version] of Object.entries(expectedDependencies)) {
+    assert.equal(packageJson.dependencies[name], version, `${name} must be pinned in package.json`);
+    assert.equal(packageLock.packages[""].dependencies[name], version, `${name} must be pinned in package-lock.json`);
+    assert.equal(packageLock.packages[`node_modules/${name}`].version, version, `${name} lock entry drifted`);
+  }
+  assert.equal(packageJson.devDependencies.esbuild, "0.27.7");
+  assert.equal(packageLock.packages[""].devDependencies.esbuild, "0.27.7");
+  assert.equal(packageLock.packages["node_modules/esbuild"].version, "0.27.7");
+  for (const forbidden of ["@upstash/redis", "@vercel/analytics"]) {
+    assert.equal(packageJson.dependencies[forbidden], undefined, `${forbidden} is server or deployment specific`);
+    assert.equal(packageJson.devDependencies[forbidden], undefined, `${forbidden} is server or deployment specific`);
+  }
+
+  assert.match(packageJson.scripts.test, /work-products\/tests\/kvideo-webview-compatibility\.test\.mjs/);
+  assert.ok(existsSync(join(root, "scripts/transpile-client-assets.mjs")));
 });
 
 test("declares eight deterministic static page entries", () => {

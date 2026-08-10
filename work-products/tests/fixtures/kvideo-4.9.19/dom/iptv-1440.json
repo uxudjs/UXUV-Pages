@@ -1,0 +1,88 @@
+{
+  "route": "iptv",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "lang": "zh-CN",
+  "title": "KVideo - 视频聚合平台",
+  "bodyText": "直播 IPTV 直播频道 管理源 暂无频道 请先添加 M3U 直播源",
+  "headings": [
+    {
+      "tag": "h1",
+      "role": null,
+      "name": "直播",
+      "type": null,
+      "disabled": false,
+      "box": [
+        177,
+        57,
+        88,
+        32
+      ]
+    }
+  ],
+  "interactive": [
+    {
+      "tag": "a",
+      "role": null,
+      "name": "返回首页",
+      "type": null,
+      "disabled": false,
+      "box": [
+        121,
+        63,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "管理源",
+      "type": null,
+      "disabled": false,
+      "box": [
+        1221,
+        64,
+        98,
+        38
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "返回顶部",
+      "type": null,
+      "disabled": false,
+      "box": [
+        1371,
+        871,
+        25,
+        25
+      ]
+    },
+    {
+      "tag": "div",
+      "role": "status",
+      "name": "",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -1,
+        899,
+        1,
+        1
+      ]
+    }
+  ],
+  "mainBox": null,
+  "tokens": {
+    "background": "rgb(18, 18, 18)",
+    "color": "rgb(245, 245, 247)",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif",
+    "accent": "#0056b3",
+    "glass": "rgba(255, 255, 255, 0.95)",
+    "radius": "1.5rem"
+  }
+}

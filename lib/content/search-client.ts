@@ -11,6 +11,7 @@ export interface SearchProgress {
 interface SearchOptions {
   signal: AbortSignal;
   onProgress: (progress: SearchProgress) => void;
+  onVideos: (videos: Video[]) => void;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -20,7 +21,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export async function searchVideos(
   query: string,
   sources: VideoSource[],
-  { signal, onProgress }: SearchOptions,
+  { signal, onProgress, onVideos }: SearchOptions,
 ): Promise<Video[]> {
   const response = await fetch("/api/search-parallel", {
     method: "POST",
@@ -53,8 +54,10 @@ export async function searchVideos(
       const source = typeof event.source === "string" ? event.source : "";
       for (const value of event.videos) {
         const video = videoFromApi(value, source);
-        if (video) videos.set(`${video.source}:${video.vod_id}`, video);
+        const id = video ? `${video.source}:${video.vod_id}` : "";
+        if (video && !videos.has(id)) videos.set(id, video);
       }
+      onVideos([...videos.values()]);
     } else if (event.type === "progress") {
       progress = {
         completed: typeof event.completedSources === "number" ? event.completedSources : progress.completed,

@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { LocaleProvider } from "@/components/LocaleProvider";
 import { PasswordGate } from "@/components/PasswordGate";
 import { RuntimeConfigProvider } from "@/components/RuntimeConfigProvider";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { SiteIconProvider } from "@/components/SiteIconProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,12 +22,16 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="zh-CN">
       <body>
-        <RuntimeConfigProvider>
-          <SiteIconProvider>
-            <PasswordGate>{children}</PasswordGate>
-          </SiteIconProvider>
-          <ServiceWorkerRegister />
-        </RuntimeConfigProvider>
+        <ThemeProvider>
+          <LocaleProvider>
+            <RuntimeConfigProvider>
+              <SiteIconProvider>
+                <PasswordGate>{children}</PasswordGate>
+              </SiteIconProvider>
+              <ServiceWorkerRegister />
+            </RuntimeConfigProvider>
+          </LocaleProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

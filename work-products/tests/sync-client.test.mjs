@@ -56,6 +56,30 @@ test("fresh tombstones prevent stale records from being revived", () => {
   ]);
 });
 
+test("a stale device cannot revive a deletion, while an explicit post-delete recreation can", () => {
+  const now = 40 * 24 * 60 * 60 * 1000;
+  const deleted = sync.removeDocumentRecord(
+    sync.createLocalDocument("library"),
+    "history",
+    "standard:source-1:video-1",
+    now,
+  );
+  const staleNewerWrite = {
+    history: [{ id: "standard:source-1:video-1", title: "stale progress", updatedAt: now + 10 }],
+    favorites: [], tombstones: [],
+  };
+  const protectedMerge = sync.mergePayload("library", deleted.payload, staleNewerWrite, now + 10);
+  assert.deepEqual(protectedMerge.history, []);
+
+  const recreated = sync.upsertDocumentRecord(deleted, "history", {
+    id: "standard:source-1:video-1", title: "explicit replay", updatedAt: now + 20,
+  });
+  const recreatedMerge = sync.mergePayload("library", deleted.payload, recreated.payload, now + 20);
+  assert.deepEqual(recreatedMerge.history, [{
+    id: "standard:source-1:video-1", title: "explicit replay", updatedAt: now + 20, recreatedAt: now + 20,
+  }]);
+});
+
 test("tombstones older than 30 days are pruned", () => {
   const day = 24 * 60 * 60 * 1000;
   const now = 40 * day;
@@ -70,4 +94,44 @@ test("tombstones older than 30 days are pruned", () => {
   assert.deepEqual(sync.mergePayload("library", payload, payload, now).tombstones, [
     { collection: "favorites", id: "fresh", deletedAt: now - (29 * day) },
   ]);
+});
+
+test("config document validation matches the Worker schema while preserving unknown fields", () => {
+  const valid = {
+    kind: "config", version: 2, updatedAt: 20,
+    payload: {
+      fields: { futureSetting: { value: { nested: true }, updatedAt: 10 } },
+      sources: [{ id: "standard:source-one", updatedAt: 11, futureSourceField: "kept" }],
+      subscriptions: [{ id: "subscription-one", updatedAt: 12, futureSubscriptionField: 42 }],
+      tombstones: [{ collection: "sources", id: "old-source", deletedAt: 13 }],
+    },
+  };
+  assert.equal(sync.isRemoteDocument(valid, "config"), true);
+
+  for (const invalid of [
+    { ...valid, updatedAt: -1 },
+    { ...valid, payload: { tombstones: [] } },
+    { ...valid, payload: { ...valid.payload, fields: { unsafe: { value: true, updatedAt: -1 } } } },
+    { ...valid, payload: { ...valid.payload, sources: [{ id: "bad id", updatedAt: 1 }] } },
+    { ...valid, payload: { ...valid.payload, subscriptions: [{ id: "sub", updatedAt: "now" }] } },
+    { ...valid, payload: { ...valid.payload, tombstones: [{ collection: "favorites", id: "x", deletedAt: 1 }] } },
+  ]) assert.equal(sync.isRemoteDocument(invalid, "config"), false);
+});
+
+test("library document validation accepts isolated modes and rejects malformed records or tombstones", () => {
+  const valid = {
+    kind: "library", version: 3, updatedAt: 30,
+    payload: {
+      history: [{ id: "standard:source-1:video-1", updatedAt: 20, mode: "standard", futureHistoryField: true }],
+      favorites: [{ id: "premium:source-2:video-2", updatedAt: 21, mode: "premium", futureFavoriteField: 42 }],
+      tombstones: [{ collection: "history", id: "standard:source-3:video-3", deletedAt: 22 }],
+    },
+  };
+  assert.equal(sync.isRemoteDocument(valid, "library"), true);
+
+  for (const invalid of [
+    { ...valid, payload: { ...valid.payload, history: [{ id: "bad id", updatedAt: 1 }] } },
+    { ...valid, payload: { ...valid.payload, favorites: [{ id: "favorite", updatedAt: -1 }] } },
+    { ...valid, payload: { ...valid.payload, tombstones: [{ collection: "sources", id: "x", deletedAt: 1 }] } },
+  ]) assert.equal(sync.isRemoteDocument(invalid, "library"), false);
 });

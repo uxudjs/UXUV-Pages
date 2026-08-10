@@ -107,7 +107,7 @@ test("player loads detail, switches episodes, and keeps media requests same-orig
   await expect(page.getByRole("heading", { name: "测试影片" })).toBeVisible();
   const video = page.getByLabel("视频播放器");
   await expect(video).toHaveAttribute("data-media-source", /\/api\/proxy\?.*one\.mp4/);
-  await page.getByRole("button", { name: "第二集" }).click();
+  await page.getByRole("radio", { name: "第二集" }).click();
   await expect(video).toHaveAttribute("data-media-source", /\/api\/proxy\?.*two\.mp4/);
   for (const width of [320, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
@@ -117,27 +117,27 @@ test("player loads detail, switches episodes, and keeps media requests same-orig
 });
 
 test("IPTV enforces permission, loads channels, switches streams, and exposes token expiry", async ({ browser }) => {
-  const deniedContext = await browser.newContext();
+  const deniedContext = await browser.newContext({ locale: "zh-CN" });
   const deniedWorker = await mockMediaWorker(deniedContext);
   const deniedPage = await deniedContext.newPage();
-  await deniedPage.goto("http://127.0.0.1:4173/UXUV-Pages/0.1.2/iptv/");
+  await deniedPage.goto("http://127.0.0.1:4173/UXUV-Pages/0.2.0/iptv/");
   await expect(deniedPage.getByRole("heading", { name: "无权访问 IPTV" })).toBeVisible();
   expect(deniedWorker.getIptvRequests()).toBe(0);
   await deniedContext.close();
 
-  const allowedContext = await browser.newContext();
+  const allowedContext = await browser.newContext({ locale: "zh-CN" });
   const worker = await mockMediaWorker(allowedContext, {
     role: "super_admin",
     iptvSources: JSON.stringify([{ name: "内置直播", url: "https://iptv.example/list.m3u" }]),
   });
   const page = await allowedContext.newPage();
-  await page.goto("http://127.0.0.1:4173/UXUV-Pages/0.1.2/iptv/");
+  await page.goto("http://127.0.0.1:4173/UXUV-Pages/0.2.0/iptv/");
   await expect(page.getByRole("button", { name: /新闻一台/ })).toBeVisible();
   await page.getByRole("button", { name: /新闻一台/ }).click();
   const video = page.getByLabel("视频播放器");
   await expect(video).toHaveAttribute("data-media-source", /\/api\/iptv\/stream\?.*news\.mp4/);
   await page.getByRole("button", { name: /过期频道/ }).click();
-  await expect(page.locator(".media-error[role=alert]")).toContainText("媒体授权已过期");
+  await expect(page.locator(".media-error[role=alert]")).toContainText("直播授权已过期");
   for (const width of [320, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

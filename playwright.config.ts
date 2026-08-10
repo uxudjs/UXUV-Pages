@@ -1,15 +1,17 @@
 import { defineConfig } from "@playwright/test";
 
 const port = 4173;
-const baseURL = `http://127.0.0.1:${port}/UXUV-Pages/0.1.2/`;
+const baseURL = `http://127.0.0.1:${port}/UXUV-Pages/0.2.0/`;
 
 export default defineConfig({
   testDir: "./work-products/tests",
   testMatch: "*.e2e.spec.ts",
+  testIgnore: "kvideo-visual-parity.e2e.spec.ts",
   outputDir: "./work-products/tests/artifacts/playwright",
   fullyParallel: false,
   workers: 1,
   reporter: "line",
+  snapshotPathTemplate: "work-products/tests/fixtures/kvideo-4.9.19/{arg}{ext}",
   use: {
     baseURL,
     channel: "chrome",

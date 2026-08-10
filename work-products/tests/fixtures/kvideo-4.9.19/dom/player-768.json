@@ -1,0 +1,652 @@
+{
+  "route": "player",
+  "viewport": {
+    "width": 768,
+    "height": 900
+  },
+  "lang": "zh-CN",
+  "title": "KVideo - 视频聚合平台",
+  "bodyText": "返回 1x 100 0:00 / 0:00 收藏这个视频 选集 简介 选集 2 第 1 集 第 2 集 我的收藏 暂无收藏 点击视频上的心形按钮即可收藏 观看历史 示例影片 第 1 集 0:00 / 0:00 今天 清空历史",
+  "headings": [
+    {
+      "tag": "h1",
+      "role": null,
+      "name": "示例影片",
+      "type": null,
+      "disabled": false,
+      "box": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "h1",
+      "role": null,
+      "name": "示例影片",
+      "type": null,
+      "disabled": false,
+      "box": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "h2",
+      "role": null,
+      "name": "我的收藏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -360,
+        30,
+        80,
+        28
+      ]
+    },
+    {
+      "tag": "h2",
+      "role": null,
+      "name": "观看历史",
+      "type": null,
+      "disabled": false,
+      "box": [
+        829,
+        30,
+        80,
+        28
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "示例影片",
+      "type": null,
+      "disabled": false,
+      "box": [
+        930,
+        118,
+        183,
+        20
+      ]
+    }
+  ],
+  "interactive": [
+    {
+      "tag": "button",
+      "role": null,
+      "name": "",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        38,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "返回",
+      "type": null,
+      "disabled": false,
+      "box": [
+        97,
+        33,
+        110,
+        50
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "设置",
+      "type": null,
+      "disabled": false,
+      "box": [
+        557,
+        38,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "设为浅色主题",
+      "type": null,
+      "disabled": false,
+      "box": [
+        614,
+        40,
+        36,
+        36
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "设为深色主题",
+      "type": null,
+      "disabled": false,
+      "box": [
+        650,
+        40,
+        36,
+        36
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "设为系统主题",
+      "type": null,
+      "disabled": false,
+      "box": [
+        685,
+        39,
+        38,
+        38
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "标准",
+      "type": null,
+      "disabled": false,
+      "box": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "宽屏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "影院",
+      "type": null,
+      "disabled": false,
+      "box": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "更多选项",
+      "type": null,
+      "disabled": false,
+      "box": [
+        48,
+        148,
+        48,
+        48
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "播放速度",
+      "type": null,
+      "disabled": false,
+      "box": [
+        672,
+        148,
+        48,
+        48
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "后退 10 秒",
+      "type": null,
+      "disabled": false,
+      "box": [
+        56,
+        287,
+        64,
+        64
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "前进 10 秒",
+      "type": null,
+      "disabled": false,
+      "box": [
+        648,
+        287,
+        64,
+        64
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "Play",
+      "type": null,
+      "disabled": false,
+      "box": [
+        40,
+        465,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "Mute",
+      "type": null,
+      "disabled": false,
+      "box": [
+        92,
+        465,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "画中画",
+      "type": null,
+      "disabled": false,
+      "box": [
+        584,
+        465,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "网页全屏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        636,
+        465,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "系统全屏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        688,
+        465,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "示例演员",
+      "type": null,
+      "disabled": false,
+      "box": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "示例导演",
+      "type": null,
+      "disabled": false,
+      "box": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "收藏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        24,
+        545,
+        38,
+        38
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "选集",
+      "type": null,
+      "disabled": false,
+      "box": [
+        29,
+        612,
+        355,
+        36
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "简介",
+      "type": null,
+      "disabled": false,
+      "box": [
+        384,
+        612,
+        355,
+        36
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "示例演员",
+      "type": null,
+      "disabled": false,
+      "box": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "示例导演",
+      "type": null,
+      "disabled": false,
+      "box": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "切换为列表",
+      "type": null,
+      "disabled": false,
+      "box": [
+        619,
+        695,
+        28,
+        28
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "倒序排列",
+      "type": null,
+      "disabled": false,
+      "box": [
+        653,
+        694,
+        30,
+        30
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "折叠选集列表",
+      "type": null,
+      "disabled": false,
+      "box": [
+        689,
+        694,
+        30,
+        30
+      ]
+    },
+    {
+      "tag": "div",
+      "role": "radiogroup",
+      "name": "剧集选择",
+      "type": null,
+      "disabled": false,
+      "box": [
+        49,
+        740,
+        670,
+        42
+      ]
+    },
+    {
+      "tag": "button",
+      "role": "radio",
+      "name": "第 1 集，当前播放",
+      "type": null,
+      "disabled": false,
+      "box": [
+        49,
+        740,
+        161,
+        42
+      ]
+    },
+    {
+      "tag": "button",
+      "role": "radio",
+      "name": "第 2 集",
+      "type": null,
+      "disabled": false,
+      "box": [
+        218,
+        740,
+        161,
+        42
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "打开收藏夹",
+      "type": null,
+      "disabled": false,
+      "box": [
+        16,
+        422,
+        50,
+        50
+      ]
+    },
+    {
+      "tag": "aside",
+      "role": "complementary",
+      "name": "我的收藏暂无收藏点击视频上的心形按钮即可收藏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -420,
+        0,
+        420,
+        900
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "关闭",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -65,
+        24,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "打开观看历史",
+      "type": null,
+      "disabled": false,
+      "box": [
+        696,
+        422,
+        50,
+        50
+      ]
+    },
+    {
+      "tag": "aside",
+      "role": "complementary",
+      "name": "观看历史示例影片第 1 集0:00 / 0:00今天清空历史",
+      "type": null,
+      "disabled": false,
+      "box": [
+        768,
+        0,
+        420,
+        900
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "关闭",
+      "type": null,
+      "disabled": false,
+      "box": [
+        1124,
+        24,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "示例影片第 1 集0:00 / 0:00今天",
+      "type": null,
+      "disabled": false,
+      "box": [
+        806,
+        118,
+        345,
+        64
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "收藏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        1125,
+        118,
+        26,
+        26
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "删除",
+      "type": null,
+      "disabled": false,
+      "box": [
+        1125,
+        148,
+        26,
+        26
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "清空历史",
+      "type": null,
+      "disabled": false,
+      "box": [
+        793,
+        826,
+        371,
+        50
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "返回顶部",
+      "type": null,
+      "disabled": false,
+      "box": [
+        699,
+        871,
+        25,
+        25
+      ]
+    },
+    {
+      "tag": "div",
+      "role": "status",
+      "name": "",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -1,
+        899,
+        1,
+        1
+      ]
+    }
+  ],
+  "mainBox": [
+    0,
+    108,
+    768,
+    779
+  ],
+  "tokens": {
+    "background": "rgb(18, 18, 18)",
+    "color": "rgb(245, 245, 247)",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif",
+    "accent": "#0056b3",
+    "glass": "rgba(255, 255, 255, 0.95)",
+    "radius": "1.5rem"
+  }
+}

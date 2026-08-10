@@ -4,8 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useAuth } from "@/lib/store/auth-store";
 import { pullRemoteDocument, pushRemoteDocument } from "@/lib/sync/document-client";
 import { createLocalDocument, mergePayload, removeDocumentRecord, updateConfigField, upsertDocumentRecord } from "@/lib/sync/document-merge";
-import { acceptedRemoteDocument, loadLocalDocument, saveLocalDocument } from "@/lib/sync/document-store";
-import type { LocalDocument, SyncCollection, SyncKind, TimestampedRecord } from "@/lib/sync/document-types";
+import { documentStorageKey, loadLocalDocument, saveLocalDocument } from "@/lib/sync/document-store";
+import { boundedRetryDelay, reconcileAccepted, reconcileConflict } from "@/lib/sync/sync-engine";
+import type { ConfigPayload, LibraryPayload, LocalDocument, SyncCollection, SyncKind, TimestampedRecord } from "@/lib/sync/document-types";
 
 export type SyncPhase = "loading" | "synced" | "pending" | "conflict" | "offline" | "quota" | "error";
 type Documents = Record<SyncKind, LocalDocument>;
@@ -16,7 +17,8 @@ interface SyncContextValue {
   phase: SyncPhase;
   retry: () => void;
   updateConfigField: (key: string, value: unknown) => void;
-  upsertRecord: (kind: SyncKind, collection: SyncCollection, record: TimestampedRecord) => void;
+  replacePayload: (payloads: { config: ConfigPayload; library: LibraryPayload }) => void;
+  upsertRecord: (kind: SyncKind, collection: SyncCollection, record: TimestampedRecord, syncDelay?: number) => void;
   removeRecord: (kind: SyncKind, collection: SyncCollection, id: string) => void;
 }
 
@@ -42,35 +44,46 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
     documentsRef.current = next;
     setDocuments(next);
   }, [accountId]);
-  const schedule = useCallback((kind: SyncKind, delay = 250) => {
-    if (timers.current[kind]) window.clearTimeout(timers.current[kind]);
-    timers.current[kind] = window.setTimeout(() => void runRef.current(kind), delay);
+  const schedule = useCallback((kind: SyncKind, delay = 250, replaceScheduled = true) => {
+    if (timers.current[kind]) {
+      if (!replaceScheduled) return;
+      window.clearTimeout(timers.current[kind]);
+    }
+    timers.current[kind] = window.setTimeout(() => {
+      timers.current[kind] = undefined;
+      void runRef.current(kind);
+    }, delay);
   }, []);
 
   const run = useCallback(async (kind: SyncKind) => {
     if (running.current.has(kind)) return;
-    running.current.add(kind);
     const outgoing = loadLocalDocument(window.localStorage, accountId, kind);
+    const remainingDelay = outgoing.dirty ? outgoing.retryAt - Date.now() : 0;
+    if (remainingDelay > 0) {
+      setPhase(kind, "pending");
+      schedule(kind, remainingDelay, false);
+      return;
+    }
+    running.current.add(kind);
     try {
       const result = outgoing.dirty ? await pushRemoteDocument(outgoing) : await pullRemoteDocument(kind);
       const latest = loadLocalDocument(window.localStorage, accountId, kind);
+      const merge = (remote: LocalDocument["payload"], local: LocalDocument["payload"]) => mergePayload(kind, remote, local);
       if (result.type === "ok") {
-        if (latest.revision === outgoing.revision) persist(acceptedRemoteDocument(result.document, latest.revision));
-        else {
-          persist({ ...latest, version: result.document.version, updatedAt: result.document.updatedAt,
-            payload: mergePayload(kind, result.document.payload, latest.payload), dirty: true });
-          schedule(kind);
-        }
-        setPhase(kind, latest.revision === outgoing.revision ? "synced" : "pending");
+        const transition = reconcileAccepted(outgoing, latest, result.document, merge);
+        persist(transition.document);
+        setPhase(kind, transition.phase);
+        if (transition.retryDelay !== null) schedule(kind, transition.retryDelay);
       } else if (result.type === "conflict") {
-        persist({ ...latest, version: result.document.version, updatedAt: result.document.updatedAt,
-          payload: mergePayload(kind, result.document.payload, latest.payload), dirty: true, retryAt: Date.now() + 400 });
-        setPhase(kind, "conflict");
-        schedule(kind, 400);
+        const transition = reconcileConflict(latest, result.document, merge);
+        persist(transition.document);
+        setPhase(kind, transition.phase);
+        schedule(kind, transition.retryDelay!);
       } else if (result.type === "rate") {
-        persist({ ...latest, dirty: true, retryAt: Date.now() + (result.retryAfter * 1000) });
+        const retryDelay = boundedRetryDelay(result.retryAfter);
+        persist({ ...latest, dirty: true, retryAt: Date.now() + retryDelay });
         setPhase(kind, "pending");
-        schedule(kind, result.retryAfter * 1000);
+        schedule(kind, retryDelay);
       } else if (result.type === "quota") setPhase(kind, "quota");
       else if (result.type === "auth") auth?.markSessionExpired();
       else setPhase(kind, result.type === "unavailable" ? "offline" : "error");
@@ -107,20 +120,47 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
     };
   }, [accountId]);
 
-  const mutate = useCallback((kind: SyncKind, update: (current: LocalDocument) => LocalDocument) => {
-    const next = update(loadLocalDocument(window.localStorage, accountId, kind));
-    persist(next);
+  const mutate = useCallback((kind: SyncKind, update: (current: LocalDocument) => LocalDocument,
+    syncDelay = 250, replaceScheduled = true) => {
+    const current = loadLocalDocument(window.localStorage, accountId, kind);
+    const next = update(current);
+    const now = Date.now();
+    const retryAt = syncDelay > 250
+      ? !replaceScheduled && current.retryAt > now ? current.retryAt : now + syncDelay
+      : next.retryAt;
+    persist({ ...next, retryAt });
     setPhase(kind, "pending");
-    schedule(kind);
+    schedule(kind, syncDelay, replaceScheduled);
   }, [accountId, persist, schedule, setPhase]);
+  const replacePayload = useCallback((payloads: { config: ConfigPayload; library: LibraryPayload }) => {
+    const previous = Object.fromEntries(kinds.map((kind) => [kind, window.localStorage.getItem(documentStorageKey(accountId, kind))])) as Record<SyncKind, string | null>;
+    const next = Object.fromEntries(kinds.map((kind) => {
+      const current = loadLocalDocument(window.localStorage, accountId, kind);
+      return [kind, { ...current, dirty: true, revision: current.revision + 1, retryAt: 0, payload: payloads[kind] }];
+    })) as unknown as Documents;
+    try {
+      kinds.forEach((kind) => saveLocalDocument(window.localStorage, accountId, next[kind]));
+    } catch (error) {
+      kinds.forEach((kind) => {
+        if (previous[kind] === null) window.localStorage.removeItem(documentStorageKey(accountId, kind));
+        else window.localStorage.setItem(documentStorageKey(accountId, kind), previous[kind]!);
+      });
+      throw error;
+    }
+    documentsRef.current = next;
+    setDocuments(next);
+    kinds.forEach((kind) => { setPhase(kind, "pending"); schedule(kind); });
+  }, [accountId, schedule, setPhase]);
   const value = useMemo<SyncContextValue>(() => ({
     documents,
     phase: phasePriority.find((candidate) => Object.values(phases).includes(candidate)) ?? "synced",
     retry: () => kinds.forEach((kind) => void runRef.current(kind)),
     updateConfigField: (key, fieldValue) => mutate("config", (current) => updateConfigField(current, key, fieldValue)),
-    upsertRecord: (kind, collection, record) => mutate(kind, (current) => upsertDocumentRecord(current, collection, record)),
+    replacePayload,
+    upsertRecord: (kind, collection, record, syncDelay) => mutate(kind,
+      (current) => upsertDocumentRecord(current, collection, record), syncDelay ?? 250, syncDelay === undefined),
     removeRecord: (kind, collection, id) => mutate(kind, (current) => removeDocumentRecord(current, collection, id)),
-  }), [documents, mutate, phases]);
+  }), [documents, mutate, phases, replacePayload]);
 
   return <SyncContext.Provider value={value}>{children}</SyncContext.Provider>;
 }

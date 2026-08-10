@@ -1,5 +1,6 @@
 import { responseError } from "@/lib/content/api-client";
 import type { VideoSource } from "@/lib/content/types";
+import type { AdFilterMode } from "@/lib/player/player-settings";
 
 export interface Episode {
   name: string;
@@ -21,26 +22,6 @@ export interface VideoDetail {
   vod_lang?: string;
   source: string;
   episodes: Episode[];
-}
-
-export interface IptvSource {
-  id: string;
-  name: string;
-  url: string;
-  updatedAt: number;
-  kind: "builtin" | "custom";
-}
-
-export interface IptvChannel {
-  id: string;
-  name: string;
-  url: string;
-  group: string;
-  logo?: string;
-  userAgent?: string;
-  referer?: string;
-  sourceId: string;
-  sourceName: string;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -87,71 +68,13 @@ export async function getVideoDetail(
 export function buildMediaUrl(
   route: "proxy" | "iptv-stream",
   target: string,
-  options: { userAgent?: string; referer?: string } = {},
+  options: { userAgent?: string; referer?: string; adFilterMode?: AdFilterMode; adKeywords?: readonly string[] } = {},
 ): string {
   const query = new URLSearchParams({ url: target });
   if (options.userAgent) query.set("ua", options.userAgent);
   if (options.referer) query.set("referer", options.referer);
+  if (options.adFilterMode) query.set("ad", options.adFilterMode);
+  const keywords = [...new Set((options.adKeywords || []).map((value) => value.trim().slice(0, 40)).filter(Boolean))].slice(0, 32);
+  for (const keyword of keywords) query.append("adkw", keyword);
   return `${route === "proxy" ? "/api/proxy" : "/api/iptv/stream"}?${query}`;
-}
-
-export function parseIptvSources(raw: string, kind: IptvSource["kind"] = "builtin"): IptvSource[] {
-  let candidates: Array<{ name?: unknown; url?: unknown }> = [];
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (Array.isArray(parsed)) candidates = parsed.filter(isRecord);
-  } catch {
-    candidates = raw.split(",").map((url) => ({ url: url.trim() }));
-  }
-  return candidates.slice(0, 32).flatMap((candidate, index) => {
-    const url = safeHttpUrl(candidate.url);
-    if (!url) return [];
-    const name = typeof candidate.name === "string" && candidate.name.trim()
-      ? candidate.name.trim().slice(0, 80) : `直播源 ${index + 1}`;
-    return [{ id: `${kind}-${index}-${name}`, name, url, updatedAt: 0, kind }];
-  });
-}
-
-function attribute(line: string, name: string): string | undefined {
-  const match = line.match(new RegExp(`${name}="([^"]*)"`, "i"));
-  return match?.[1];
-}
-
-export function parseIptvPlaylist(text: string, source: IptvSource): IptvChannel[] {
-  const lines = text.split(/\r?\n/);
-  const channels: IptvChannel[] = [];
-  let metadata: { name: string; group: string; logo?: string; userAgent?: string; referer?: string } | null = null;
-  for (const line of lines) {
-    const value = line.trim();
-    if (value.startsWith("#EXTINF:")) {
-      metadata = {
-        name: value.slice(value.lastIndexOf(",") + 1).trim() || `频道 ${channels.length + 1}`,
-        group: attribute(value, "group-title") || "未分组",
-        logo: attribute(value, "tvg-logo"),
-      };
-    } else if (metadata && value.startsWith("#EXTVLCOPT:http-user-agent=")) {
-      metadata.userAgent = value.slice(value.indexOf("=") + 1).trim();
-    } else if (metadata && value.startsWith("#EXTVLCOPT:http-referrer=")) {
-      metadata.referer = value.slice(value.indexOf("=") + 1).trim();
-    } else if (metadata && value && !value.startsWith("#")) {
-      const url = safeHttpUrl(value, source.url);
-      if (url) channels.push({
-        id: `${source.id}:${channels.length}:${metadata.name}`,
-        ...metadata,
-        url,
-        sourceId: source.id,
-        sourceName: source.name,
-      });
-      metadata = null;
-      if (channels.length >= 5_000) break;
-    }
-  }
-  return channels;
-}
-
-export async function loadIptvPlaylist(source: IptvSource, signal?: AbortSignal): Promise<IptvChannel[]> {
-  const query = new URLSearchParams({ url: source.url });
-  const response = await fetch(`/api/iptv?${query}`, { credentials: "same-origin", signal });
-  if (!response.ok) throw await responseError(response, "无法加载 IPTV 频道。");
-  return parseIptvPlaylist(await response.text(), source);
 }

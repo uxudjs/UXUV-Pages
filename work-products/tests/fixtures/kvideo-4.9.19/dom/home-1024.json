@@ -1,0 +1,457 @@
+{
+  "route": "home",
+  "viewport": {
+    "width": 1024,
+    "height": 900
+  },
+  "lang": "zh-CN",
+  "title": "KVideo - 视频聚合平台",
+  "bodyText": "KVideo 视频聚合平台 搜索 电影 电视剧 管理标签 热门 8.8 示例电影 8.2 示例剧集 9.0 示例纪录片 没有更多内容了 我的收藏 暂无收藏 点击视频上的心形按钮即可收藏 观看历史 暂无观看历史 您观看的视频会自动记录在这里",
+  "headings": [
+    {
+      "tag": "h1",
+      "role": null,
+      "name": "KVideo",
+      "type": null,
+      "disabled": false,
+      "box": [
+        93,
+        33,
+        81,
+        32
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "示例电影",
+      "type": null,
+      "disabled": false,
+      "box": [
+        57,
+        671,
+        123,
+        20
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "示例剧集",
+      "type": null,
+      "disabled": false,
+      "box": [
+        254,
+        671,
+        123,
+        20
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "示例纪录片",
+      "type": null,
+      "disabled": false,
+      "box": [
+        451,
+        671,
+        123,
+        20
+      ]
+    },
+    {
+      "tag": "h2",
+      "role": null,
+      "name": "我的收藏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -360,
+        30,
+        80,
+        28
+      ]
+    },
+    {
+      "tag": "h2",
+      "role": null,
+      "name": "观看历史",
+      "type": null,
+      "disabled": false,
+      "box": [
+        1085,
+        30,
+        80,
+        28
+      ]
+    }
+  ],
+  "interactive": [
+    {
+      "tag": "a",
+      "role": null,
+      "name": "KVideo视频聚合平台",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        33,
+        133,
+        48
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "直播",
+      "type": null,
+      "disabled": false,
+      "box": [
+        657,
+        37,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "GitHub 仓库",
+      "type": null,
+      "disabled": false,
+      "box": [
+        709,
+        37,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "我的收藏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        761,
+        37,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "设置",
+      "type": null,
+      "disabled": false,
+      "box": [
+        813,
+        37,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "设为浅色主题",
+      "type": null,
+      "disabled": false,
+      "box": [
+        870,
+        39,
+        36,
+        36
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "设为深色主题",
+      "type": null,
+      "disabled": false,
+      "box": [
+        906,
+        39,
+        36,
+        36
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "设为系统主题",
+      "type": null,
+      "disabled": false,
+      "box": [
+        941,
+        38,
+        38,
+        38
+      ]
+    },
+    {
+      "tag": "input",
+      "role": null,
+      "name": "搜索视频内容",
+      "type": "text",
+      "disabled": false,
+      "box": [
+        128,
+        130,
+        768,
+        62
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "搜索",
+      "type": "submit",
+      "disabled": true,
+      "box": [
+        780,
+        137,
+        108,
+        48
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "电影",
+      "type": null,
+      "disabled": false,
+      "box": [
+        357,
+        229,
+        155,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "电视剧",
+      "type": null,
+      "disabled": false,
+      "box": [
+        512,
+        229,
+        155,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "管理标签",
+      "type": null,
+      "disabled": false,
+      "box": [
+        32,
+        314,
+        80,
+        20
+      ]
+    },
+    {
+      "tag": "div",
+      "role": "button",
+      "name": "热门",
+      "type": null,
+      "disabled": false,
+      "box": [
+        36,
+        366,
+        76,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "热门",
+      "type": "button",
+      "disabled": false,
+      "box": [
+        34,
+        365,
+        80,
+        42
+      ]
+    },
+    {
+      "tag": "div",
+      "role": "status",
+      "name": "",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -1,
+        -1,
+        1,
+        1
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "8.8示例电影",
+      "type": null,
+      "disabled": false,
+      "box": [
+        32,
+        450,
+        173,
+        266
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "8.2示例剧集",
+      "type": null,
+      "disabled": false,
+      "box": [
+        229,
+        450,
+        173,
+        266
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "9.0示例纪录片",
+      "type": null,
+      "disabled": false,
+      "box": [
+        426,
+        450,
+        173,
+        266
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "打开收藏夹",
+      "type": null,
+      "disabled": false,
+      "box": [
+        16,
+        422,
+        50,
+        50
+      ]
+    },
+    {
+      "tag": "aside",
+      "role": "complementary",
+      "name": "我的收藏暂无收藏点击视频上的心形按钮即可收藏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -420,
+        0,
+        420,
+        900
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "关闭",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -65,
+        24,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "打开观看历史",
+      "type": null,
+      "disabled": false,
+      "box": [
+        952,
+        422,
+        50,
+        50
+      ]
+    },
+    {
+      "tag": "aside",
+      "role": "complementary",
+      "name": "观看历史暂无观看历史您观看的视频会自动记录在这里",
+      "type": null,
+      "disabled": false,
+      "box": [
+        1024,
+        0,
+        420,
+        900
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "关闭",
+      "type": null,
+      "disabled": false,
+      "box": [
+        1380,
+        24,
+        40,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "返回顶部",
+      "type": null,
+      "disabled": false,
+      "box": [
+        955,
+        871,
+        25,
+        25
+      ]
+    },
+    {
+      "tag": "div",
+      "role": "status",
+      "name": "",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -1,
+        915,
+        1,
+        1
+      ]
+    }
+  ],
+  "mainBox": [
+    0,
+    224,
+    1024,
+    692
+  ],
+  "tokens": {
+    "background": "rgb(18, 18, 18)",
+    "color": "rgb(245, 245, 247)",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif",
+    "accent": "#0056b3",
+    "glass": "rgba(255, 255, 255, 0.95)",
+    "radius": "1.5rem"
+  }
+}

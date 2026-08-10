@@ -1,0 +1,1726 @@
+{
+  "schemaVersion": 1,
+  "identities": {
+    "reference": {
+      "commit": "28334f41407082ae1028fa4a4180bcc46d31c52a",
+      "tree": "a3df89abb9bc05a87dc06174bd702c4ed281ee8d",
+      "version": "4.9.19"
+    },
+    "worker": {
+      "commit": "e7e397e520f90433f98eb1f929fc5d135bacfec0",
+      "tree": "f1f3cc50b5bfbc5db3dbec65f932ad3f30dad974",
+      "version": "1.0.0"
+    },
+    "pages": {
+      "commit": "4bc847affa76755a5c99ce249d793aa43e0b83bb",
+      "tree": "c14c3dec1d6aaa38f19d691eed602bc9264f1a89",
+      "version": "0.1.2"
+    }
+  },
+  "categories": {
+    "routes": [
+      "app/favorites/page.tsx",
+      "app/iptv/layout.tsx",
+      "app/iptv/page.tsx",
+      "app/layout.tsx",
+      "app/page.tsx",
+      "app/player/layout.tsx",
+      "app/player/page.tsx",
+      "app/premium/favorites/page.tsx",
+      "app/premium/page.tsx",
+      "app/premium/settings/page.tsx",
+      "app/settings/page.tsx"
+    ],
+    "apiRoutes": [
+      "app/api/app-update/route.ts",
+      "app/api/auth/accounts/[accountId]/route.ts",
+      "app/api/auth/accounts/route.ts",
+      "app/api/auth/route.ts",
+      "app/api/auth/session/route.ts",
+      "app/api/config/route.ts",
+      "app/api/danmaku/route.ts",
+      "app/api/detail/route.ts",
+      "app/api/douban/image/route.ts",
+      "app/api/douban/recommend/route.ts",
+      "app/api/douban/tags/route.ts",
+      "app/api/iptv/route.ts",
+      "app/api/iptv/stream/route.ts",
+      "app/api/ping/route.ts",
+      "app/api/premium/category/route.ts",
+      "app/api/premium/types/route.ts",
+      "app/api/probe-resolution/route.ts",
+      "app/api/proxy/route.ts",
+      "app/api/search-parallel/route.ts",
+      "app/api/user/config/route.ts",
+      "app/api/user/sync/route.ts"
+    ],
+    "components": [
+      "components/AdKeywordsInjector.tsx",
+      "components/AdminGate.tsx",
+      "components/AutoSync.tsx",
+      "components/LocaleProvider.tsx",
+      "components/PasswordGate.tsx",
+      "components/PermissionGate.tsx",
+      "components/PremiumPasswordGate.tsx",
+      "components/RuntimeFeaturesProvider.tsx",
+      "components/ScrollPositionManager.tsx",
+      "components/SearchLoadingAnimation.tsx",
+      "components/ServiceWorkerRegister.tsx",
+      "components/SiteIconProvider.tsx",
+      "components/TVNavigationInitializer.tsx",
+      "components/ThemeProvider.tsx",
+      "components/ThemeSwitcher.tsx",
+      "components/VideoTogetherController.tsx",
+      "components/favorites/FavoriteButton.tsx",
+      "components/favorites/FavoritesEmptyState.tsx",
+      "components/favorites/FavoritesFooter.tsx",
+      "components/favorites/FavoritesGrid.tsx",
+      "components/favorites/FavoritesHeader.tsx",
+      "components/favorites/FavoritesItem.tsx",
+      "components/favorites/FavoritesList.tsx",
+      "components/favorites/FavoritesPageContent.tsx",
+      "components/favorites/FavoritesPageHeader.tsx",
+      "components/favorites/FavoritesSidebar.tsx",
+      "components/history/HistoryEmptyState.tsx",
+      "components/history/HistoryFooter.tsx",
+      "components/history/HistoryHeader.tsx",
+      "components/history/HistoryItem.tsx",
+      "components/history/HistoryList.tsx",
+      "components/history/PosterImage.tsx",
+      "components/history/WatchHistorySidebar.tsx",
+      "components/home/MovieCard.tsx",
+      "components/home/MovieGrid.tsx",
+      "components/home/PopularFeatures.tsx",
+      "components/home/SearchResults.tsx",
+      "components/home/SortableTag.tsx",
+      "components/home/TagInput.tsx",
+      "components/home/TagList.tsx",
+      "components/home/TagManager.tsx",
+      "components/iptv/IPTVChannelGrid.tsx",
+      "components/iptv/IPTVPlayer.tsx",
+      "components/iptv/IPTVSourceManager.tsx",
+      "components/layout/Navbar.tsx",
+      "components/player/CustomVideoPlayer.tsx",
+      "components/player/DanmakuCanvas.tsx",
+      "components/player/DesktopVideoPlayer.tsx",
+      "components/player/EpisodeList.tsx",
+      "components/player/PlayerError.tsx",
+      "components/player/PlayerNavbar.tsx",
+      "components/player/SourceSelector.tsx",
+      "components/player/VideoMetadata.tsx",
+      "components/player/VideoPlayer.tsx",
+      "components/player/VideoPlayerEmpty.tsx",
+      "components/player/VideoPlayerError.tsx",
+      "components/player/desktop/DesktopControls.tsx",
+      "components/player/desktop/DesktopControlsWrapper.tsx",
+      "components/player/desktop/DesktopLeftControls.tsx",
+      "components/player/desktop/DesktopMoreMenu.tsx",
+      "components/player/desktop/DesktopOverlay.tsx",
+      "components/player/desktop/DesktopOverlayWrapper.tsx",
+      "components/player/desktop/DesktopProgressBar.tsx",
+      "components/player/desktop/DesktopRightControls.tsx",
+      "components/player/desktop/DesktopSpeedMenu.tsx",
+      "components/player/desktop/DesktopVolumeControl.tsx",
+      "components/premium/PremiumContent.tsx",
+      "components/premium/PremiumContentGrid.tsx",
+      "components/search/LanguageBadges.tsx",
+      "components/search/NoResults.tsx",
+      "components/search/ResultsHeader.tsx",
+      "components/search/SearchBox.tsx",
+      "components/search/SearchForm.tsx",
+      "components/search/SearchHistoryDropdown.tsx",
+      "components/search/SearchHistoryEmptyState.tsx",
+      "components/search/SearchHistoryHeader.tsx",
+      "components/search/SearchHistoryListItem.tsx",
+      "components/search/SourceBadgeItem.tsx",
+      "components/search/SourceBadgeList.tsx",
+      "components/search/SourceBadges.tsx",
+      "components/search/TypeBadgeItem.tsx",
+      "components/search/TypeBadgeList.tsx",
+      "components/search/TypeBadges.tsx",
+      "components/search/VideoCard.tsx",
+      "components/search/VideoGrid.tsx",
+      "components/search/VideoGroupCard.tsx",
+      "components/settings/AccountSettings.tsx",
+      "components/settings/AddSourceModal.tsx",
+      "components/settings/AppVersionSettings.tsx",
+      "components/settings/DataSettings.tsx",
+      "components/settings/DisplaySettings.tsx",
+      "components/settings/ExportModal.tsx",
+      "components/settings/ImportModal.tsx",
+      "components/settings/PlayerSettings.tsx",
+      "components/settings/PremiumSourceSettings.tsx",
+      "components/settings/SettingsHeader.tsx",
+      "components/settings/SettingsSection.tsx",
+      "components/settings/SortSettings.tsx",
+      "components/settings/SourceManager.tsx",
+      "components/settings/SourceSettings.tsx",
+      "components/settings/UserDanmakuSettings.tsx",
+      "components/settings/UserSourceSettings.tsx",
+      "components/settings/import/FileImportTab.tsx",
+      "components/settings/import/ImportModalTabs.tsx",
+      "components/settings/import/JsonImportTab.tsx",
+      "components/settings/import/LinkImportTab.tsx",
+      "components/settings/import/SubscriptionImportTab.tsx",
+      "components/ui/BackToTop.tsx",
+      "components/ui/Badge.tsx",
+      "components/ui/Button.tsx",
+      "components/ui/Card.tsx",
+      "components/ui/ConfirmDialog.tsx",
+      "components/ui/Icon.tsx",
+      "components/ui/Input.tsx",
+      "components/ui/LatencyBadge.tsx",
+      "components/ui/ModalBackdrop.tsx",
+      "components/ui/ModalHeader.tsx",
+      "components/ui/SegmentedControl.tsx",
+      "components/ui/Switch.tsx",
+      "components/ui/icons/danmaku-icons.tsx",
+      "components/ui/icons/media-icons.tsx",
+      "components/ui/icons/navigation-icons.tsx",
+      "components/ui/icons/types.tsx",
+      "components/ui/icons/utility-icons.tsx"
+    ],
+    "hooks": [
+      "app/premium/settings/hooks/usePremiumSettingsPage.ts",
+      "app/settings/hooks/useSettingsPage.ts",
+      "components/home/hooks/usePersonalizedRecommendations.ts",
+      "components/home/hooks/usePopularMovies.ts",
+      "components/home/hooks/useTagManager.ts",
+      "components/player/hooks/desktop/android-pip-utils.ts",
+      "components/player/hooks/desktop/useCastControls.ts",
+      "components/player/hooks/desktop/useControlsVisibility.ts",
+      "components/player/hooks/desktop/useDesktopShortcuts.ts",
+      "components/player/hooks/desktop/useFullscreenControls.ts",
+      "components/player/hooks/desktop/usePlaybackControls.ts",
+      "components/player/hooks/desktop/useProgressControls.ts",
+      "components/player/hooks/desktop/useSkipControls.ts",
+      "components/player/hooks/desktop/useUtilities.ts",
+      "components/player/hooks/desktop/useVolumeControls.ts",
+      "components/player/hooks/useAutoSkip.ts",
+      "components/player/hooks/useDanmaku.ts",
+      "components/player/hooks/useDesktopPlayerLogic.ts",
+      "components/player/hooks/useDesktopPlayerState.ts",
+      "components/player/hooks/useHlsPlayer.ts",
+      "components/player/hooks/usePlaybackPolling.ts",
+      "components/player/hooks/usePlayerSettings.ts",
+      "components/player/hooks/useResolutionBadge.ts",
+      "components/player/hooks/useStallDetection.ts",
+      "components/player/hooks/useVideoResolution.ts",
+      "components/search/hooks/useSearchBoxHandlers.ts",
+      "components/settings/hooks/useAddSourceForm.ts",
+      "lib/hooks/mobile/useDeviceDetection.ts",
+      "lib/hooks/mobile/useDoubleTap.ts",
+      "lib/hooks/mobile/useScreenOrientation.ts",
+      "lib/hooks/useCloudSync.ts",
+      "lib/hooks/useConfigSync.ts",
+      "lib/hooks/useFloatingButtonPosition.ts",
+      "lib/hooks/useHomePage.ts",
+      "lib/hooks/useInfiniteScroll.ts",
+      "lib/hooks/useKeyboardNavigation.ts",
+      "lib/hooks/useLanguageBadges.ts",
+      "lib/hooks/useLatencyPing.ts",
+      "lib/hooks/useMobilePlayer.ts",
+      "lib/hooks/useParallelSearch.ts",
+      "lib/hooks/usePremiumContent.ts",
+      "lib/hooks/usePremiumHomePage.ts",
+      "lib/hooks/usePremiumTagManager.ts",
+      "lib/hooks/useResolutionProbe.ts",
+      "lib/hooks/useSearchAction.ts",
+      "lib/hooks/useSearchCache.ts",
+      "lib/hooks/useSearchHistory.ts",
+      "lib/hooks/useSearchState.ts",
+      "lib/hooks/useSourceBadges.ts",
+      "lib/hooks/useSpatialNavigation.ts",
+      "lib/hooks/useSubscriptionSync.ts",
+      "lib/hooks/useTVDetection.ts",
+      "lib/hooks/useTypeBadges.ts",
+      "lib/hooks/useVideoPlayer.ts"
+    ],
+    "stores": [
+      "lib/store/auth-store.ts",
+      "lib/store/favorites-store.ts",
+      "lib/store/history-store.ts",
+      "lib/store/iptv-store.ts",
+      "lib/store/premium-mode-settings.ts",
+      "lib/store/search-history-store.ts",
+      "lib/store/settings-helpers.ts",
+      "lib/store/settings-store.ts",
+      "lib/store/user-sources-store.ts"
+    ],
+    "styles": [
+      "app/globals.css",
+      "app/scroll-optimization.css",
+      "app/styles/base.css",
+      "app/styles/effects.css",
+      "app/styles/glass.css",
+      "app/styles/search-history.css",
+      "app/styles/transitions.css",
+      "app/styles/variables.css",
+      "app/styles/video-player.css",
+      "components/player/web-fullscreen.css"
+    ],
+    "tests": [
+      "tests/account-actions-view.test.ts",
+      "tests/android-pip-utils.test.ts",
+      "tests/api-responses.test.ts",
+      "tests/auth.test.ts",
+      "tests/danmaku-canvas-utils.test.ts",
+      "tests/deployment.test.ts",
+      "tests/douban-image-fallback.test.ts",
+      "tests/floating-button-position.test.ts",
+      "tests/lan-access.test.ts",
+      "tests/m3u8-ad-detector.test.ts",
+      "tests/m3u8-duration-grid.test.ts",
+      "tests/m3u8-filter-regression.test.ts",
+      "tests/mobile-player-controls.test.ts",
+      "tests/password-gate-state.test.ts",
+      "tests/player-cursor-visibility.test.ts",
+      "tests/player-settings-snapshot.test.ts",
+      "tests/player-source-list.test.ts",
+      "tests/resolution-probe-utils.test.ts",
+      "tests/search-reliability.test.ts",
+      "tests/sync-records.test.ts",
+      "tests/tag-management-view.test.ts",
+      "tests/webview83-assets.test.ts"
+    ],
+    "publicAssets": [
+      "public/icon.png",
+      "public/manifest.json",
+      "public/placeholder-poster.svg",
+      "public/sw.js"
+    ],
+    "localization": [
+      "components/LocaleProvider.tsx",
+      "components/search/LanguageBadges.tsx",
+      "lib/hooks/useLanguageBadges.ts",
+      "lib/utils/chinese-convert.ts"
+    ],
+    "copyBearingFiles": [
+      "app/favorites/page.tsx",
+      "app/iptv/layout.tsx",
+      "app/iptv/page.tsx",
+      "app/layout.tsx",
+      "app/page.tsx",
+      "app/player/layout.tsx",
+      "app/player/page.tsx",
+      "app/premium/favorites/page.tsx",
+      "app/premium/page.tsx",
+      "app/premium/settings/page.tsx",
+      "app/settings/page.tsx",
+      "components/AdKeywordsInjector.tsx",
+      "components/AdminGate.tsx",
+      "components/AutoSync.tsx",
+      "components/LocaleProvider.tsx",
+      "components/PasswordGate.tsx",
+      "components/PermissionGate.tsx",
+      "components/PremiumPasswordGate.tsx",
+      "components/RuntimeFeaturesProvider.tsx",
+      "components/ScrollPositionManager.tsx",
+      "components/SearchLoadingAnimation.tsx",
+      "components/ServiceWorkerRegister.tsx",
+      "components/SiteIconProvider.tsx",
+      "components/TVNavigationInitializer.tsx",
+      "components/ThemeProvider.tsx",
+      "components/ThemeSwitcher.tsx",
+      "components/VideoTogetherController.tsx",
+      "components/favorites/FavoriteButton.tsx",
+      "components/favorites/FavoritesEmptyState.tsx",
+      "components/favorites/FavoritesFooter.tsx",
+      "components/favorites/FavoritesGrid.tsx",
+      "components/favorites/FavoritesHeader.tsx",
+      "components/favorites/FavoritesItem.tsx",
+      "components/favorites/FavoritesList.tsx",
+      "components/favorites/FavoritesPageContent.tsx",
+      "components/favorites/FavoritesPageHeader.tsx",
+      "components/favorites/FavoritesSidebar.tsx",
+      "components/history/HistoryEmptyState.tsx",
+      "components/history/HistoryFooter.tsx",
+      "components/history/HistoryHeader.tsx",
+      "components/history/HistoryItem.tsx",
+      "components/history/HistoryList.tsx",
+      "components/history/PosterImage.tsx",
+      "components/history/WatchHistorySidebar.tsx",
+      "components/home/MovieCard.tsx",
+      "components/home/MovieGrid.tsx",
+      "components/home/PopularFeatures.tsx",
+      "components/home/SearchResults.tsx",
+      "components/home/SortableTag.tsx",
+      "components/home/TagInput.tsx",
+      "components/home/TagList.tsx",
+      "components/home/TagManager.tsx",
+      "components/iptv/IPTVChannelGrid.tsx",
+      "components/iptv/IPTVPlayer.tsx",
+      "components/iptv/IPTVSourceManager.tsx",
+      "components/layout/Navbar.tsx",
+      "components/player/CustomVideoPlayer.tsx",
+      "components/player/DanmakuCanvas.tsx",
+      "components/player/DesktopVideoPlayer.tsx",
+      "components/player/EpisodeList.tsx",
+      "components/player/PlayerError.tsx",
+      "components/player/PlayerNavbar.tsx",
+      "components/player/SourceSelector.tsx",
+      "components/player/VideoMetadata.tsx",
+      "components/player/VideoPlayer.tsx",
+      "components/player/VideoPlayerEmpty.tsx",
+      "components/player/VideoPlayerError.tsx",
+      "components/player/desktop/DesktopControls.tsx",
+      "components/player/desktop/DesktopControlsWrapper.tsx",
+      "components/player/desktop/DesktopLeftControls.tsx",
+      "components/player/desktop/DesktopMoreMenu.tsx",
+      "components/player/desktop/DesktopOverlay.tsx",
+      "components/player/desktop/DesktopOverlayWrapper.tsx",
+      "components/player/desktop/DesktopProgressBar.tsx",
+      "components/player/desktop/DesktopRightControls.tsx",
+      "components/player/desktop/DesktopSpeedMenu.tsx",
+      "components/player/desktop/DesktopVolumeControl.tsx",
+      "components/premium/PremiumContent.tsx",
+      "components/premium/PremiumContentGrid.tsx",
+      "components/search/LanguageBadges.tsx",
+      "components/search/NoResults.tsx",
+      "components/search/ResultsHeader.tsx",
+      "components/search/SearchBox.tsx",
+      "components/search/SearchForm.tsx",
+      "components/search/SearchHistoryDropdown.tsx",
+      "components/search/SearchHistoryEmptyState.tsx",
+      "components/search/SearchHistoryHeader.tsx",
+      "components/search/SearchHistoryListItem.tsx",
+      "components/search/SourceBadgeItem.tsx",
+      "components/search/SourceBadgeList.tsx",
+      "components/search/SourceBadges.tsx",
+      "components/search/TypeBadgeItem.tsx",
+      "components/search/TypeBadgeList.tsx",
+      "components/search/TypeBadges.tsx",
+      "components/search/VideoCard.tsx",
+      "components/search/VideoGrid.tsx",
+      "components/search/VideoGroupCard.tsx",
+      "components/settings/AccountSettings.tsx",
+      "components/settings/AddSourceModal.tsx",
+      "components/settings/AppVersionSettings.tsx",
+      "components/settings/DataSettings.tsx",
+      "components/settings/DisplaySettings.tsx",
+      "components/settings/ExportModal.tsx",
+      "components/settings/ImportModal.tsx",
+      "components/settings/PlayerSettings.tsx",
+      "components/settings/PremiumSourceSettings.tsx",
+      "components/settings/SettingsHeader.tsx",
+      "components/settings/SettingsSection.tsx",
+      "components/settings/SortSettings.tsx",
+      "components/settings/SourceManager.tsx",
+      "components/settings/SourceSettings.tsx",
+      "components/settings/UserDanmakuSettings.tsx",
+      "components/settings/UserSourceSettings.tsx",
+      "components/settings/import/FileImportTab.tsx",
+      "components/settings/import/ImportModalTabs.tsx",
+      "components/settings/import/JsonImportTab.tsx",
+      "components/settings/import/LinkImportTab.tsx",
+      "components/settings/import/SubscriptionImportTab.tsx",
+      "components/ui/BackToTop.tsx",
+      "components/ui/Badge.tsx",
+      "components/ui/Button.tsx",
+      "components/ui/Card.tsx",
+      "components/ui/ConfirmDialog.tsx",
+      "components/ui/Icon.tsx",
+      "components/ui/Input.tsx",
+      "components/ui/LatencyBadge.tsx",
+      "components/ui/ModalBackdrop.tsx",
+      "components/ui/ModalHeader.tsx",
+      "components/ui/SegmentedControl.tsx",
+      "components/ui/Switch.tsx",
+      "components/ui/icons/danmaku-icons.tsx",
+      "components/ui/icons/media-icons.tsx",
+      "components/ui/icons/navigation-icons.tsx",
+      "components/ui/icons/types.tsx",
+      "components/ui/icons/utility-icons.tsx"
+    ]
+  },
+  "files": [
+    {
+      "path": "app/api/app-update/route.ts",
+      "objectId": "9f52f8f1b1a531d3a08f09c7a6bc6cffe6992219"
+    },
+    {
+      "path": "app/api/auth/accounts/[accountId]/route.ts",
+      "objectId": "c876b69bda0704ee76de7062c14885a5f9025b85"
+    },
+    {
+      "path": "app/api/auth/accounts/route.ts",
+      "objectId": "d13740d7563984db9aef5e11d6e1fe3de1664949"
+    },
+    {
+      "path": "app/api/auth/route.ts",
+      "objectId": "837921f24087ad621cef84f2a9951423b9795ec7"
+    },
+    {
+      "path": "app/api/auth/session/route.ts",
+      "objectId": "0ab58afa7e5ba5eb93525456ff6dd966ad621be5"
+    },
+    {
+      "path": "app/api/config/route.ts",
+      "objectId": "57bc4c5608a20ae6a944acd7c6bbba77fc83db53"
+    },
+    {
+      "path": "app/api/danmaku/route.ts",
+      "objectId": "b3bf439dc18d374a5ac5d00703030c855ca9638d"
+    },
+    {
+      "path": "app/api/detail/route.ts",
+      "objectId": "6f20219f01b90a050dd6f4ca3334deb53fb76b31"
+    },
+    {
+      "path": "app/api/douban/image/route.ts",
+      "objectId": "b11c62b8518aa9db02aa41cec3401d298e37e5ef"
+    },
+    {
+      "path": "app/api/douban/recommend/route.ts",
+      "objectId": "2cc8f541e3b5af7ef676c8328d69b102d5e5a9fa"
+    },
+    {
+      "path": "app/api/douban/tags/route.ts",
+      "objectId": "bfd8baf5f4856a317d49fca4aca9c2f0e82c4aea"
+    },
+    {
+      "path": "app/api/iptv/route.ts",
+      "objectId": "31dc6eb8af781a43821497c73b4cd2cee11fdec9"
+    },
+    {
+      "path": "app/api/iptv/stream/route.ts",
+      "objectId": "ae69048789e59cbe2f9befd31faafb692300de02"
+    },
+    {
+      "path": "app/api/ping/route.ts",
+      "objectId": "e2ef59d2aa165f592bd64ad46a114cc76a3f0941"
+    },
+    {
+      "path": "app/api/premium/category/route.ts",
+      "objectId": "1cd21d353cc27257bdc81b50c29f2b8fe6fd70de"
+    },
+    {
+      "path": "app/api/premium/types/route.ts",
+      "objectId": "f01b70f0c8a3aaaa9e262411c7eeb41cb5430440"
+    },
+    {
+      "path": "app/api/probe-resolution/route.ts",
+      "objectId": "0a6440ff26833f184f1c62acfd033da457285b91"
+    },
+    {
+      "path": "app/api/proxy/route.ts",
+      "objectId": "5aacdb23e0efacc10c5ad5f3a3e16215d6da8cb7"
+    },
+    {
+      "path": "app/api/search-parallel/route.ts",
+      "objectId": "2e8a58d92f786146f05ed28f62da10c7b83f8370"
+    },
+    {
+      "path": "app/api/user/config/route.ts",
+      "objectId": "eb0a22b70ca95c864ae6544e2c708ff51f6bc48a"
+    },
+    {
+      "path": "app/api/user/sync/route.ts",
+      "objectId": "f83032a0869de03f16dab5e688b8b7617653e7bb"
+    },
+    {
+      "path": "app/favorites/page.tsx",
+      "objectId": "2402e978f4b151b9bbfade90ec6e02a0de60d541"
+    },
+    {
+      "path": "app/globals.css",
+      "objectId": "1e192770a48f1092d7336cd19ad8b8de2f4c6e6b"
+    },
+    {
+      "path": "app/iptv/layout.tsx",
+      "objectId": "c53c2b334727c9e2025fc11071b2d966d7dbe440"
+    },
+    {
+      "path": "app/iptv/page.tsx",
+      "objectId": "2562f1706c4dde8ff031051550c7ab1b361a830a"
+    },
+    {
+      "path": "app/layout.tsx",
+      "objectId": "3710c349bf0d65923742251e33c33187d00e95ad"
+    },
+    {
+      "path": "app/page.tsx",
+      "objectId": "ad2fdb9be92a66112881a138e5e538ef6a3c2e56"
+    },
+    {
+      "path": "app/player/layout.tsx",
+      "objectId": "2eee97e64a388f5df5dbb9bf7eaaadae3f257b53"
+    },
+    {
+      "path": "app/player/page.tsx",
+      "objectId": "1ebee38611e49af05fd72f24c0284e74c1e50444"
+    },
+    {
+      "path": "app/premium/favorites/page.tsx",
+      "objectId": "758acbff5a11ffd8f264d5dee3040d76cbde3d34"
+    },
+    {
+      "path": "app/premium/page.tsx",
+      "objectId": "96ff21ea6d5f4f16b31866305e20db75fba6c729"
+    },
+    {
+      "path": "app/premium/settings/hooks/usePremiumSettingsPage.ts",
+      "objectId": "656841e89302fff9ecc73c63a0a8cf7624b959fd"
+    },
+    {
+      "path": "app/premium/settings/page.tsx",
+      "objectId": "ac9ec7c0bee9fb1203d5505504a23898b5525277"
+    },
+    {
+      "path": "app/scroll-optimization.css",
+      "objectId": "80dd5faeafb3a7fc68dcb617f11c29f15134d392"
+    },
+    {
+      "path": "app/settings/hooks/useSettingsPage.ts",
+      "objectId": "5368be933b93ed8d761070a79987778ae490d58e"
+    },
+    {
+      "path": "app/settings/page.tsx",
+      "objectId": "d5aba8ebc36dde1a5370e8bbec17cd15246af7b4"
+    },
+    {
+      "path": "app/styles/base.css",
+      "objectId": "027aa6963017fdc950d84659beb363075ab0d4c8"
+    },
+    {
+      "path": "app/styles/effects.css",
+      "objectId": "3a49490ba4791f7823512aca174d22f8198f19ff"
+    },
+    {
+      "path": "app/styles/glass.css",
+      "objectId": "828dece4ef209635d3d024e758cba0bc5b1cdb2a"
+    },
+    {
+      "path": "app/styles/search-history.css",
+      "objectId": "bc087a049cb94277cc68d0aea27a7e76cc6197fa"
+    },
+    {
+      "path": "app/styles/transitions.css",
+      "objectId": "9c156c53123945b56927f8f8aa573ac6b707cc6a"
+    },
+    {
+      "path": "app/styles/variables.css",
+      "objectId": "57ea282af126b1c2796910df7ebf4d89a58c5180"
+    },
+    {
+      "path": "app/styles/video-player.css",
+      "objectId": "c66958bfebceeb116af162f94eb699ff0904f2b3"
+    },
+    {
+      "path": "components/AdKeywordsInjector.tsx",
+      "objectId": "966619b9065c78ab0f053735c4571f7512f37052"
+    },
+    {
+      "path": "components/AdminGate.tsx",
+      "objectId": "0cbbb2bc55ad03a936f9c04887eb1d7439c020d5"
+    },
+    {
+      "path": "components/AutoSync.tsx",
+      "objectId": "b56659fde8aa3b1694c54f4c01ab166dc7c381e2"
+    },
+    {
+      "path": "components/LocaleProvider.tsx",
+      "objectId": "8b0d937ddc35e78533afc4b43aff8434cf7067e1"
+    },
+    {
+      "path": "components/PasswordGate.tsx",
+      "objectId": "45fd71875c993183d4961d0823f82ecd437f4a5a"
+    },
+    {
+      "path": "components/PermissionGate.tsx",
+      "objectId": "e85da65f89e50f7c333b9b3f1a735640e32d6d5f"
+    },
+    {
+      "path": "components/PremiumPasswordGate.tsx",
+      "objectId": "ad8fa6e2283b36530bd5f51ac7ac0ef61e141704"
+    },
+    {
+      "path": "components/RuntimeFeaturesProvider.tsx",
+      "objectId": "71332310e4a30e3b0f4033822c7897910c8a829c"
+    },
+    {
+      "path": "components/ScrollPositionManager.tsx",
+      "objectId": "78471b3cf5db62feb9bc05f9d86c14644ec49aa4"
+    },
+    {
+      "path": "components/SearchLoadingAnimation.tsx",
+      "objectId": "28f47e3674fc44965062ea5f287c611141ccd8b0"
+    },
+    {
+      "path": "components/ServiceWorkerRegister.tsx",
+      "objectId": "4537f12a50c32fb62a451c82db76e58cd6929a8a"
+    },
+    {
+      "path": "components/SiteIconProvider.tsx",
+      "objectId": "910f8b6029a457990d4242ce12e5983506307687"
+    },
+    {
+      "path": "components/TVNavigationInitializer.tsx",
+      "objectId": "f2286d116a6824e1a665cce1568e68b60d825219"
+    },
+    {
+      "path": "components/ThemeProvider.tsx",
+      "objectId": "38997181d2f53a935ea55b12fadff4d957e3903d"
+    },
+    {
+      "path": "components/ThemeSwitcher.tsx",
+      "objectId": "52dd67f0465504950290e6c315bff0d8ce4d38d7"
+    },
+    {
+      "path": "components/VideoTogetherController.tsx",
+      "objectId": "f66150327972086f8c371fd95778112d502b6db0"
+    },
+    {
+      "path": "components/favorites/FavoriteButton.tsx",
+      "objectId": "5cd665e5f2796298945aa47c0a4fc56270781435"
+    },
+    {
+      "path": "components/favorites/FavoritesEmptyState.tsx",
+      "objectId": "8ca45b418901faf9acca4a060b32bdce57ef6e68"
+    },
+    {
+      "path": "components/favorites/FavoritesFooter.tsx",
+      "objectId": "b0d511fd5b73b1fdb591572f8ff2f0b96efc464d"
+    },
+    {
+      "path": "components/favorites/FavoritesGrid.tsx",
+      "objectId": "6ca3ec90977de6aeb1daa1f5eeb83e532ea00267"
+    },
+    {
+      "path": "components/favorites/FavoritesHeader.tsx",
+      "objectId": "f05d80f1c49e9c381e02b4ff3b31ff92c22711e7"
+    },
+    {
+      "path": "components/favorites/FavoritesItem.tsx",
+      "objectId": "ba036939462b7210e9f32246b65c244e66fdc743"
+    },
+    {
+      "path": "components/favorites/FavoritesList.tsx",
+      "objectId": "9be1b236b298d68bf473d559454689a1e26b6c60"
+    },
+    {
+      "path": "components/favorites/FavoritesPageContent.tsx",
+      "objectId": "33fcbe0aad38f8f6cbaa134308e5dfe7a0a88fd6"
+    },
+    {
+      "path": "components/favorites/FavoritesPageHeader.tsx",
+      "objectId": "0d039d1568144ad4bec18dd57de50f3affd1be17"
+    },
+    {
+      "path": "components/favorites/FavoritesSidebar.tsx",
+      "objectId": "9cd7007b89ba92595806cbc3a1fc8c0f722d027b"
+    },
+    {
+      "path": "components/history/HistoryEmptyState.tsx",
+      "objectId": "276d36fe49195222545f7358c412722b78256845"
+    },
+    {
+      "path": "components/history/HistoryFooter.tsx",
+      "objectId": "abae6196b8fc917405c1b688fa074d604f8f698c"
+    },
+    {
+      "path": "components/history/HistoryHeader.tsx",
+      "objectId": "844e28ede3a991155b5c73c8f58b5850e2d1ade3"
+    },
+    {
+      "path": "components/history/HistoryItem.tsx",
+      "objectId": "74f0a5a662d53d448808a07b70b31472e70ad09e"
+    },
+    {
+      "path": "components/history/HistoryList.tsx",
+      "objectId": "3bd0553f0cbf1cbd24a70e395d0ed52a463f04d5"
+    },
+    {
+      "path": "components/history/PosterImage.tsx",
+      "objectId": "d03133a333234fcccbdb9a21caaa0638b7ddba07"
+    },
+    {
+      "path": "components/history/WatchHistorySidebar.tsx",
+      "objectId": "ad072b72b445d59c28b4b7d1dc2cb606b0b44759"
+    },
+    {
+      "path": "components/home/MovieCard.tsx",
+      "objectId": "e3b4adaf759183b03798fe061c3d8da8a2778492"
+    },
+    {
+      "path": "components/home/MovieGrid.tsx",
+      "objectId": "50c5ee0fe5d899def57c5f3af13c2c8262693580"
+    },
+    {
+      "path": "components/home/PopularFeatures.tsx",
+      "objectId": "60921ae42a9e6e059681a9ff2233a76bf217fbd3"
+    },
+    {
+      "path": "components/home/SearchResults.tsx",
+      "objectId": "edc9c382d66835346718516c5867b7265491d2b9"
+    },
+    {
+      "path": "components/home/SortableTag.tsx",
+      "objectId": "9455486a7809233c11adf2efffdc2f41ad8da1c4"
+    },
+    {
+      "path": "components/home/TagInput.tsx",
+      "objectId": "6e401e0f199de8f657f9654a1e561d2bc76a9a80"
+    },
+    {
+      "path": "components/home/TagList.tsx",
+      "objectId": "2795f141c666fb93d38af431812dfba9844b1ca4"
+    },
+    {
+      "path": "components/home/TagManager.tsx",
+      "objectId": "f7fc858b9795499462ad44a0f92e2e72506dc750"
+    },
+    {
+      "path": "components/home/hooks/usePersonalizedRecommendations.ts",
+      "objectId": "afa18ad217b98d9666d63f7db9065e3793a638af"
+    },
+    {
+      "path": "components/home/hooks/usePopularMovies.ts",
+      "objectId": "89d7163ccd43f4247db4efe84f606815610e532e"
+    },
+    {
+      "path": "components/home/hooks/useTagManager.ts",
+      "objectId": "cdc62aa49497430ed60f52ea913bb3d863d92921"
+    },
+    {
+      "path": "components/iptv/IPTVChannelGrid.tsx",
+      "objectId": "917d70825e9747fedff868497012af4bae7a8e39"
+    },
+    {
+      "path": "components/iptv/IPTVPlayer.tsx",
+      "objectId": "3b9cef208332bf39d2397583e5b63af3cfa5bd45"
+    },
+    {
+      "path": "components/iptv/IPTVSourceManager.tsx",
+      "objectId": "127c1037092fd6b8c8418d1da6604fb488b940aa"
+    },
+    {
+      "path": "components/layout/Navbar.tsx",
+      "objectId": "9d1c9107e9dcb60e6c19ec5aa00e8a5ad8c0dfe6"
+    },
+    {
+      "path": "components/player/CustomVideoPlayer.tsx",
+      "objectId": "4cc9b47d8906687ab2986a5db09157c2a9259a8e"
+    },
+    {
+      "path": "components/player/DanmakuCanvas.tsx",
+      "objectId": "c214508544a7a19d89ea97f8a06ecef755d131f6"
+    },
+    {
+      "path": "components/player/DesktopVideoPlayer.tsx",
+      "objectId": "1129717bdb2d1b100f206fad82aacad622d96727"
+    },
+    {
+      "path": "components/player/EpisodeList.tsx",
+      "objectId": "41bea55e868ad77f8e5eb881bb59bae9610b6eaf"
+    },
+    {
+      "path": "components/player/PlayerError.tsx",
+      "objectId": "b058245beeb8a30001c8f11cff2fb7374106586e"
+    },
+    {
+      "path": "components/player/PlayerNavbar.tsx",
+      "objectId": "1f136ffe65417488b0b097654bc526dba061d724"
+    },
+    {
+      "path": "components/player/SourceSelector.tsx",
+      "objectId": "1c48aa59a958ab322632f6a51bdcac7a35b7f451"
+    },
+    {
+      "path": "components/player/VideoMetadata.tsx",
+      "objectId": "bd06426f83cd2f88bffdbee5fc3be9eff0b9fe0c"
+    },
+    {
+      "path": "components/player/VideoPlayer.tsx",
+      "objectId": "c5d8c024c82c05897a6ffa5d2257850b7af6b136"
+    },
+    {
+      "path": "components/player/VideoPlayerEmpty.tsx",
+      "objectId": "05afb9ab6288bf9c9dda04668dd9b66ea439c259"
+    },
+    {
+      "path": "components/player/VideoPlayerError.tsx",
+      "objectId": "8f949e6ef4e11472198e82e5ae66092933e875dc"
+    },
+    {
+      "path": "components/player/desktop/DesktopControls.tsx",
+      "objectId": "1474e57c29ae779322e8af8b49729e44dcf6d4f9"
+    },
+    {
+      "path": "components/player/desktop/DesktopControlsWrapper.tsx",
+      "objectId": "83880b2ccc590e9a6438e1742ac0c63fd988f9f0"
+    },
+    {
+      "path": "components/player/desktop/DesktopLeftControls.tsx",
+      "objectId": "ffd670b61c2dcec4ee9392495901a3773229874a"
+    },
+    {
+      "path": "components/player/desktop/DesktopMoreMenu.tsx",
+      "objectId": "b39ba849a6df9a74ecb54fbabc478d6d185b2dac"
+    },
+    {
+      "path": "components/player/desktop/DesktopOverlay.tsx",
+      "objectId": "ce0c628e391649da8e52ee88738e663c095b8476"
+    },
+    {
+      "path": "components/player/desktop/DesktopOverlayWrapper.tsx",
+      "objectId": "88c712e0f73144da1d105e4fe11ec735bb38b6a8"
+    },
+    {
+      "path": "components/player/desktop/DesktopProgressBar.tsx",
+      "objectId": "80696bde79ab3133fc37cf59286efbb193ca2f91"
+    },
+    {
+      "path": "components/player/desktop/DesktopRightControls.tsx",
+      "objectId": "9e1d37fe361045cabb8d31f8201fa71f4954c9d6"
+    },
+    {
+      "path": "components/player/desktop/DesktopSpeedMenu.tsx",
+      "objectId": "ee155f0a75cda732f91595868aac777ed58f7640"
+    },
+    {
+      "path": "components/player/desktop/DesktopVolumeControl.tsx",
+      "objectId": "af2b95cd6c9da15c051d3c1e6da55fef08d96840"
+    },
+    {
+      "path": "components/player/hooks/desktop/android-pip-utils.ts",
+      "objectId": "16559021f14f7e90d36c0427c1f8dcfb65c93501"
+    },
+    {
+      "path": "components/player/hooks/desktop/useCastControls.ts",
+      "objectId": "0e322f89b8bf2d60f77566fa3415a6fd048231b4"
+    },
+    {
+      "path": "components/player/hooks/desktop/useControlsVisibility.ts",
+      "objectId": "2a1cc08fc890352242e2fa1b1e5623a6bc899ca3"
+    },
+    {
+      "path": "components/player/hooks/desktop/useDesktopShortcuts.ts",
+      "objectId": "94fe194e5380a5f8b8802c9fe22a38c7c8b39271"
+    },
+    {
+      "path": "components/player/hooks/desktop/useFullscreenControls.ts",
+      "objectId": "c4c317d9db9c957bf7a3701c22a85697725c0a75"
+    },
+    {
+      "path": "components/player/hooks/desktop/usePlaybackControls.ts",
+      "objectId": "0bc7f43d2768cfdd7b3e34eeda1e73452a0cf42a"
+    },
+    {
+      "path": "components/player/hooks/desktop/useProgressControls.ts",
+      "objectId": "4a7f3b1df6f302f7656442698c7928d55bb59dbc"
+    },
+    {
+      "path": "components/player/hooks/desktop/useSkipControls.ts",
+      "objectId": "734febc243916ffc75ef62d482a3d693a950f5b8"
+    },
+    {
+      "path": "components/player/hooks/desktop/useUtilities.ts",
+      "objectId": "cf90d6c093846d90eac1d0165994d6b259ae05e3"
+    },
+    {
+      "path": "components/player/hooks/desktop/useVolumeControls.ts",
+      "objectId": "a6777d5261eac299b2a8879b761d51c45d24e00b"
+    },
+    {
+      "path": "components/player/hooks/useAutoSkip.ts",
+      "objectId": "f6ba0b756310c31f2ae17a30a046f36e4a191925"
+    },
+    {
+      "path": "components/player/hooks/useDanmaku.ts",
+      "objectId": "d56ffd6a6cc674f4700ae230ed4623cf72d3ce12"
+    },
+    {
+      "path": "components/player/hooks/useDesktopPlayerLogic.ts",
+      "objectId": "bb1545585b86f24b7740d9fb0d93f833c7b74ae5"
+    },
+    {
+      "path": "components/player/hooks/useDesktopPlayerState.ts",
+      "objectId": "6a6b3990aaaa3be82d7eee3cdd56b3c204c0ee24"
+    },
+    {
+      "path": "components/player/hooks/useHlsPlayer.ts",
+      "objectId": "4f4c194a89360b0dd945872a56b455ff6b754ea8"
+    },
+    {
+      "path": "components/player/hooks/usePlaybackPolling.ts",
+      "objectId": "d3143a67577fd2ce5ec8a678a1866734051f7bed"
+    },
+    {
+      "path": "components/player/hooks/usePlayerSettings.ts",
+      "objectId": "2834462229ebe3dbd8bacea57ba1fb03f4f9c30e"
+    },
+    {
+      "path": "components/player/hooks/useResolutionBadge.ts",
+      "objectId": "a90c9ebb0711c727da0ab6deb9350f6e51e294ca"
+    },
+    {
+      "path": "components/player/hooks/useStallDetection.ts",
+      "objectId": "6d0f6af69b156a400fa3895214d3f472d88dbcc6"
+    },
+    {
+      "path": "components/player/hooks/useVideoResolution.ts",
+      "objectId": "529151d58e2ec3970cddbdc27cc274061d44ed2c"
+    },
+    {
+      "path": "components/player/utils/urlUtils.ts",
+      "objectId": "3349650dd50ab35abd4f515676a7f629b5911459"
+    },
+    {
+      "path": "components/player/web-fullscreen.css",
+      "objectId": "5918ea547961d297d058bb6bda70c74d4dfe258d"
+    },
+    {
+      "path": "components/premium/PremiumContent.tsx",
+      "objectId": "e0724ad62f27de62e59727b28256c5af5ffc1628"
+    },
+    {
+      "path": "components/premium/PremiumContentGrid.tsx",
+      "objectId": "dc189e92ea5267330153989b137e64932f344d88"
+    },
+    {
+      "path": "components/search/LanguageBadges.tsx",
+      "objectId": "83b643c1ce89fe7a01797ddfc162694ed1133c59"
+    },
+    {
+      "path": "components/search/NoResults.tsx",
+      "objectId": "e3db4f1299c9d031c22c818fc673cfe1f7103878"
+    },
+    {
+      "path": "components/search/ResultsHeader.tsx",
+      "objectId": "fbcc52a64bfdda9a91c1ccb89808f89d488006a8"
+    },
+    {
+      "path": "components/search/SearchBox.tsx",
+      "objectId": "8c1d3111b4360b2f421ce3efe7bf72ac64dc6fc2"
+    },
+    {
+      "path": "components/search/SearchForm.tsx",
+      "objectId": "57364039218643b99325a0f0833b206f9a7ef46a"
+    },
+    {
+      "path": "components/search/SearchHistoryDropdown.tsx",
+      "objectId": "66ac4f93cd9402a32dedbdcd72c37ce653eafeea"
+    },
+    {
+      "path": "components/search/SearchHistoryEmptyState.tsx",
+      "objectId": "d24216ff052f6316a58d3a17d68ccaada19a66e2"
+    },
+    {
+      "path": "components/search/SearchHistoryHeader.tsx",
+      "objectId": "e4f9efc4b56f8c3d3f054442c34f859f4f0b36bd"
+    },
+    {
+      "path": "components/search/SearchHistoryListItem.tsx",
+      "objectId": "7a0edbf9c3a778115de0e65aadb0e175a17757e1"
+    },
+    {
+      "path": "components/search/SourceBadgeItem.tsx",
+      "objectId": "14039ecce355a73b43f3a09e4d28df329bea1d5c"
+    },
+    {
+      "path": "components/search/SourceBadgeList.tsx",
+      "objectId": "3e76d4f3416e22ab1696dbe8699f7137270fd456"
+    },
+    {
+      "path": "components/search/SourceBadges.tsx",
+      "objectId": "994a625feb386cc69c8878945b7e79daf89e0858"
+    },
+    {
+      "path": "components/search/TypeBadgeItem.tsx",
+      "objectId": "579c4522fcab77abbfd75baa59c205beb506a633"
+    },
+    {
+      "path": "components/search/TypeBadgeList.tsx",
+      "objectId": "32f1819fdfb0ffef1714ad5025cfdbc5ffe583f5"
+    },
+    {
+      "path": "components/search/TypeBadges.tsx",
+      "objectId": "61f606feff7028e7b6f32cdd98b09edee3bff13d"
+    },
+    {
+      "path": "components/search/VideoCard.tsx",
+      "objectId": "7cdc6b0e9f5451bd7aedb0bd6a82bc14b3b48454"
+    },
+    {
+      "path": "components/search/VideoGrid.tsx",
+      "objectId": "963ecea3c4082cc82aba6947e086ce7a6d9b4cee"
+    },
+    {
+      "path": "components/search/VideoGroupCard.tsx",
+      "objectId": "a1b7add461ee61cb917b43b5b68df8209761f719"
+    },
+    {
+      "path": "components/search/hooks/useSearchBoxHandlers.ts",
+      "objectId": "f94d7a289959a2b9e669bfe548e6f9f6fc39967e"
+    },
+    {
+      "path": "components/settings/AccountSettings.tsx",
+      "objectId": "5a48794539552bf0829142a6fb436287310a6218"
+    },
+    {
+      "path": "components/settings/AddSourceModal.tsx",
+      "objectId": "5866e77753e294c82137a310a14ea2af3297befa"
+    },
+    {
+      "path": "components/settings/AppVersionSettings.tsx",
+      "objectId": "23f3cb99171955b90c3c7ad36926748c683d132a"
+    },
+    {
+      "path": "components/settings/DataSettings.tsx",
+      "objectId": "3a98d3ea6889347406b62afe88693144710398cb"
+    },
+    {
+      "path": "components/settings/DisplaySettings.tsx",
+      "objectId": "62dfe0abe6a860c15aa82d6f31ac5468c2aacbd8"
+    },
+    {
+      "path": "components/settings/ExportModal.tsx",
+      "objectId": "045413d986e3de59211fdd972efb392c9da58cea"
+    },
+    {
+      "path": "components/settings/ImportModal.tsx",
+      "objectId": "0bfb6dbd1db9363f6a701ae907e1b69a71db781d"
+    },
+    {
+      "path": "components/settings/PlayerSettings.tsx",
+      "objectId": "aaa8dfeaa7570442e06a3935288a5add4c736633"
+    },
+    {
+      "path": "components/settings/PremiumSourceSettings.tsx",
+      "objectId": "3a237c0b004fa384866029f54edaefafd3d0e593"
+    },
+    {
+      "path": "components/settings/SettingsHeader.tsx",
+      "objectId": "de72f2b508b8f79e4314236e28f5146ade99585f"
+    },
+    {
+      "path": "components/settings/SettingsSection.tsx",
+      "objectId": "4bd0e8bd89b937b4c3aaa00451cf9d9eb3ac76cf"
+    },
+    {
+      "path": "components/settings/SortSettings.tsx",
+      "objectId": "f4cfbf5bf855713500fa6f035731a0df2516f405"
+    },
+    {
+      "path": "components/settings/SourceManager.tsx",
+      "objectId": "e76f603d823787aa2323ec8fad7b36ab454bfb17"
+    },
+    {
+      "path": "components/settings/SourceSettings.tsx",
+      "objectId": "573dbeb361be9d78b372cde14a9d67b585226f5a"
+    },
+    {
+      "path": "components/settings/UserDanmakuSettings.tsx",
+      "objectId": "3b73bd0ac5bf6bfc60b1bbebeae7e5329286c7d5"
+    },
+    {
+      "path": "components/settings/UserSourceSettings.tsx",
+      "objectId": "983355bbe126ff48bf13b6a598928bf00b93b012"
+    },
+    {
+      "path": "components/settings/hooks/useAddSourceForm.ts",
+      "objectId": "8f0dd1446d326833b9924533e2c67218056309e9"
+    },
+    {
+      "path": "components/settings/import/FileImportTab.tsx",
+      "objectId": "8f9a1c353f590cb6ae9f9a0c964b9d88bf9d12f8"
+    },
+    {
+      "path": "components/settings/import/ImportModalTabs.tsx",
+      "objectId": "e14f5ffa8e42e5ae29d0c3a3bcfafa192778cdd9"
+    },
+    {
+      "path": "components/settings/import/JsonImportTab.tsx",
+      "objectId": "65c1c90ed07d2bb25848b02c6b269a750fa9c041"
+    },
+    {
+      "path": "components/settings/import/LinkImportTab.tsx",
+      "objectId": "1118c36aa6ef316043b8ef204c4c42d6b2992dc8"
+    },
+    {
+      "path": "components/settings/import/SubscriptionImportTab.tsx",
+      "objectId": "1f117d291350676707535ac9a23d77931a9f1edf"
+    },
+    {
+      "path": "components/ui/BackToTop.tsx",
+      "objectId": "ffbb249b73b1d887371819c5e3b071758cd42a11"
+    },
+    {
+      "path": "components/ui/Badge.tsx",
+      "objectId": "7bbfc1d5604cd2e13abfef521fdb7e013fb3aff3"
+    },
+    {
+      "path": "components/ui/Button.tsx",
+      "objectId": "6d537ea39f165788686299a1f880fde322688290"
+    },
+    {
+      "path": "components/ui/Card.tsx",
+      "objectId": "dc3918dc8c43fa539988e33dd06d226b5def60ce"
+    },
+    {
+      "path": "components/ui/ConfirmDialog.tsx",
+      "objectId": "de3d3ef45b15db75e57eb0331a4391bbbbfbed9c"
+    },
+    {
+      "path": "components/ui/Icon.tsx",
+      "objectId": "50f84810aa2614e5e6367355201e44d5448b6146"
+    },
+    {
+      "path": "components/ui/Input.tsx",
+      "objectId": "1f101659b756e54f1cb62a9460e2e59a6ab0aa19"
+    },
+    {
+      "path": "components/ui/LatencyBadge.tsx",
+      "objectId": "0bd2366002985629ec03bb62cdbd788c21269080"
+    },
+    {
+      "path": "components/ui/ModalBackdrop.tsx",
+      "objectId": "0ed46fe8e183ea181da940efba0f3d8c36865cc7"
+    },
+    {
+      "path": "components/ui/ModalHeader.tsx",
+      "objectId": "379f814a9e59594da961284c79d778bb1ac0d85f"
+    },
+    {
+      "path": "components/ui/SegmentedControl.tsx",
+      "objectId": "456132a7af8f4ff76b0fa281ed39a099aee4396b"
+    },
+    {
+      "path": "components/ui/Switch.tsx",
+      "objectId": "eddbf92c2553dd74b79d4cc044ef288397a8359d"
+    },
+    {
+      "path": "components/ui/icons/danmaku-icons.tsx",
+      "objectId": "1d24a7e79b0800663fbe63fb96085b1c4e3ac53f"
+    },
+    {
+      "path": "components/ui/icons/media-icons.tsx",
+      "objectId": "a9053b5f9e5a78c44545b279f83321b4a666dd9d"
+    },
+    {
+      "path": "components/ui/icons/navigation-icons.tsx",
+      "objectId": "e46c537a2c2c4b7cbb60e8b99f8530d90fac1360"
+    },
+    {
+      "path": "components/ui/icons/types.tsx",
+      "objectId": "4b2748bbfe8d15048ace51b56e7d14b96fb68df7"
+    },
+    {
+      "path": "components/ui/icons/utility-icons.tsx",
+      "objectId": "46d3f2fc7c36cc28ac7b7b725864fe29b50c0726"
+    },
+    {
+      "path": "lib/accessibility/focus-management.ts",
+      "objectId": "61a711f45e1ae17802e20d52245eddd8f385d069"
+    },
+    {
+      "path": "lib/api/client.ts",
+      "objectId": "aab466d3ba107dfe50e349de953fb7241ad6a914"
+    },
+    {
+      "path": "lib/api/default-sources.ts",
+      "objectId": "ebdf1972a492c05dc170064a3589dea8d88b2653"
+    },
+    {
+      "path": "lib/api/detail-api.ts",
+      "objectId": "efafe9e541a1d33a5d8147b0b90100988c0bf1f0"
+    },
+    {
+      "path": "lib/api/http-utils.ts",
+      "objectId": "2b3ec8d7740d481c3d71b225d67364f6595120ee"
+    },
+    {
+      "path": "lib/api/parsers.ts",
+      "objectId": "ec10a2e594b0a26249c85ff3dad551a3b89600f7"
+    },
+    {
+      "path": "lib/api/premium-sources.ts",
+      "objectId": "ad36fdc04bdfa2c26bb4019a02358ad78e2a5548"
+    },
+    {
+      "path": "lib/api/search-api.ts",
+      "objectId": "19efe98846f424467dbc15feb4ff0609f0cd3a69"
+    },
+    {
+      "path": "lib/api/source-latency.ts",
+      "objectId": "33b3095f301db3f1fcf5def808b3f0f065596e74"
+    },
+    {
+      "path": "lib/api/video-sources.ts",
+      "objectId": "eae4049d7793bd53f430e63e0448297644546910"
+    },
+    {
+      "path": "lib/app-release.ts",
+      "objectId": "67e8cf596754da0562769396bb66e991775ba547"
+    },
+    {
+      "path": "lib/auth/password-gate-state.ts",
+      "objectId": "6a56a13b7751c91497efb9f2f000d3e20a9741c8"
+    },
+    {
+      "path": "lib/auth/permissions.ts",
+      "objectId": "ddaa8464781d662f416a4cde5da9bc1679e59887"
+    },
+    {
+      "path": "lib/config/deployment.ts",
+      "objectId": "c507ccaf41e83ab95c0cd909213fd61d99503674"
+    },
+    {
+      "path": "lib/config/lan-access.ts",
+      "objectId": "3475363d6d4f8e414c5fd1149b8bea85de1e374b"
+    },
+    {
+      "path": "lib/config/runtime-features.ts",
+      "objectId": "57cbd36edff064c275b9dd210238cf7e00ee00aa"
+    },
+    {
+      "path": "lib/config/site-config.ts",
+      "objectId": "e7a73ee4035b55d9befe76157816df5a35d76301"
+    },
+    {
+      "path": "lib/constants/premium-tags.ts",
+      "objectId": "249332fb755478258e96d385f2d00733f17784b2"
+    },
+    {
+      "path": "lib/contexts/TVContext.tsx",
+      "objectId": "a8e3379ea24d36ef7d10174a17a611ead71fe1ba"
+    },
+    {
+      "path": "lib/hooks/mobile/useDeviceDetection.ts",
+      "objectId": "6047bb724ea335bea01f6b2a8b6c09fe3f251f3a"
+    },
+    {
+      "path": "lib/hooks/mobile/useDoubleTap.ts",
+      "objectId": "ad4f2c76068f38a5c657ab21ceda7f86d1dac7bb"
+    },
+    {
+      "path": "lib/hooks/mobile/useScreenOrientation.ts",
+      "objectId": "49d2af0da62f68ccdb1494a12de2bee596ce7eb2"
+    },
+    {
+      "path": "lib/hooks/useCloudSync.ts",
+      "objectId": "bd4fa9a92c5c9feabbb591526ddb44111d3610e1"
+    },
+    {
+      "path": "lib/hooks/useConfigSync.ts",
+      "objectId": "aa3efee2b05975f1d00819d956d451ddaacf7511"
+    },
+    {
+      "path": "lib/hooks/useFloatingButtonPosition.ts",
+      "objectId": "6c2e24c93f13667fe3591bd117b8e59283ab93c9"
+    },
+    {
+      "path": "lib/hooks/useHomePage.ts",
+      "objectId": "b845f60befd97d0d7af13df16c157d25430e115f"
+    },
+    {
+      "path": "lib/hooks/useInfiniteScroll.ts",
+      "objectId": "5b3c1623dc2b9033dfc086e6a6311b4c4f9bd0fa"
+    },
+    {
+      "path": "lib/hooks/useKeyboardNavigation.ts",
+      "objectId": "a99e010b5ad0294551798163692ddb89ecf9a41e"
+    },
+    {
+      "path": "lib/hooks/useLanguageBadges.ts",
+      "objectId": "28dd36d9dda4ea4c8b9770fc2dd87ba541cf8c40"
+    },
+    {
+      "path": "lib/hooks/useLatencyPing.ts",
+      "objectId": "d5ddfb25048fde32e5904a9e77cdc681d1f3a7b2"
+    },
+    {
+      "path": "lib/hooks/useMobilePlayer.ts",
+      "objectId": "051d8e8ee8865cad4e79aa7ef44979ee6b4cdb6c"
+    },
+    {
+      "path": "lib/hooks/useParallelSearch.ts",
+      "objectId": "da3f5df52ed525fb3d549f5dac487d3ce1dc9a46"
+    },
+    {
+      "path": "lib/hooks/usePremiumContent.ts",
+      "objectId": "c9bbf5da8d455439feb85e968d6d3f032b895a46"
+    },
+    {
+      "path": "lib/hooks/usePremiumHomePage.ts",
+      "objectId": "38d741f7260ac1cb2e9b9222aa62f31507ddeb66"
+    },
+    {
+      "path": "lib/hooks/usePremiumTagManager.ts",
+      "objectId": "dd1aff3e91e7f485a5feb2ed114b398b7627f93c"
+    },
+    {
+      "path": "lib/hooks/useResolutionProbe.ts",
+      "objectId": "6e53e217c0e15281cea67e98b773cdb6cb538d5d"
+    },
+    {
+      "path": "lib/hooks/useSearchAction.ts",
+      "objectId": "0e6277c872d64d3201259fb4d02584f5a96c72a8"
+    },
+    {
+      "path": "lib/hooks/useSearchCache.ts",
+      "objectId": "fccafdaff70383d4ddf6cb9652cac9fb9857be6c"
+    },
+    {
+      "path": "lib/hooks/useSearchHistory.ts",
+      "objectId": "89369d2f939ef45bcccfec7a45b06f750a097555"
+    },
+    {
+      "path": "lib/hooks/useSearchState.ts",
+      "objectId": "2651c47399f0d17108aa435e90294e63c71d9d4b"
+    },
+    {
+      "path": "lib/hooks/useSourceBadges.ts",
+      "objectId": "cc83d48177d59087c7c4a723007053b917a90dd6"
+    },
+    {
+      "path": "lib/hooks/useSpatialNavigation.ts",
+      "objectId": "5390d9fcb85eaaff299c5bb6bfb3a42324cb78cc"
+    },
+    {
+      "path": "lib/hooks/useSubscriptionSync.ts",
+      "objectId": "731765cf7c9813999ab83b20fc0d1a89ac4aeead"
+    },
+    {
+      "path": "lib/hooks/useTVDetection.ts",
+      "objectId": "e20125d5c1cd730e3d877c06b66f7b2ccadb1609"
+    },
+    {
+      "path": "lib/hooks/useTypeBadges.ts",
+      "objectId": "0e82cdf8954c33b4f9809502f9be523c9a52fca3"
+    },
+    {
+      "path": "lib/hooks/useVideoPlayer.ts",
+      "objectId": "66746d7b87621e113660b29b0bbc515340364ddc"
+    },
+    {
+      "path": "lib/player/cursor-visibility.ts",
+      "objectId": "741d71c42c1e271d5abdffe29dad57c03f7d4dcd"
+    },
+    {
+      "path": "lib/player/danmaku-canvas-utils.ts",
+      "objectId": "8f7f135359ccaaf1105957c63ff800fad315b9b3"
+    },
+    {
+      "path": "lib/player/resolution-cache.ts",
+      "objectId": "015cac4a14c7515eef9adb5f73ad690f223f7378"
+    },
+    {
+      "path": "lib/player/resolution-probe-utils.ts",
+      "objectId": "bc35ca1712df6c8dae5ec8f41f774c4bdfd381fe"
+    },
+    {
+      "path": "lib/player/source-list-utils.ts",
+      "objectId": "aa34528b762eb178c5855edeb66c07ca059e3a38"
+    },
+    {
+      "path": "lib/server/api-responses.ts",
+      "objectId": "81f55aab12586e0d61e937178b222dcf4f6342fb"
+    },
+    {
+      "path": "lib/server/auth-helpers.ts",
+      "objectId": "79d7b8770f86aac60783c51f89415c9cf0150070"
+    },
+    {
+      "path": "lib/server/auth.ts",
+      "objectId": "d2611da6c9c07e942f95e2c616e2e74c2611577c"
+    },
+    {
+      "path": "lib/server/douban-image.ts",
+      "objectId": "8367ac545787ceba51571ca619afc0f313553c58"
+    },
+    {
+      "path": "lib/server/redis.ts",
+      "objectId": "171aad34b480859495cc6d4502e65f4e97d6c0f0"
+    },
+    {
+      "path": "lib/server/runtime-env.ts",
+      "objectId": "0898045d39109449235291329938e12d2df6d9b8"
+    },
+    {
+      "path": "lib/server/runtime-features.ts",
+      "objectId": "5c76c9df13475e99a71d180abe6e8b0dc470f0b7"
+    },
+    {
+      "path": "lib/server/site-icon.ts",
+      "objectId": "8d3958a2058c73849055be85b394115aa3c62a6d"
+    },
+    {
+      "path": "lib/store/auth-store.ts",
+      "objectId": "d8c2d7ae4e3887375cb5b806967642a9bb386b1e"
+    },
+    {
+      "path": "lib/store/favorites-store.ts",
+      "objectId": "3e539625727b7c4b9ab88af09585f9d6b6086b89"
+    },
+    {
+      "path": "lib/store/history-store.ts",
+      "objectId": "99ce17c0bbf62faeb1cfb2cbd10b971e4ed7eea2"
+    },
+    {
+      "path": "lib/store/iptv-store.ts",
+      "objectId": "be256df12124e712358b198d30c389b2b0dd94e1"
+    },
+    {
+      "path": "lib/store/premium-mode-settings.ts",
+      "objectId": "e0e529ce86b3cc9a467018880354c3b7c1f89716"
+    },
+    {
+      "path": "lib/store/search-history-store.ts",
+      "objectId": "0041435711228a621a2f2296ca2c90e63e0f5134"
+    },
+    {
+      "path": "lib/store/settings-helpers.ts",
+      "objectId": "0ffec262b2e44164ef34edc3378a2f2a94cbf892"
+    },
+    {
+      "path": "lib/store/settings-store.ts",
+      "objectId": "b89e2b5483891b2fc9ba146bfa62401fb4f3c384"
+    },
+    {
+      "path": "lib/store/user-sources-store.ts",
+      "objectId": "2afbaf8187399f76e4dce3fcbf022af9da0d0432"
+    },
+    {
+      "path": "lib/types/app-update.ts",
+      "objectId": "b0412a25de1cde97546e04be499549b8c47f3bec"
+    },
+    {
+      "path": "lib/types/danmaku.ts",
+      "objectId": "cc7c856a7b3884b67f2ad4c6e3ea7e309e44c837"
+    },
+    {
+      "path": "lib/types/index.ts",
+      "objectId": "1b022c499e7c14e64cc0e5ed59fe4facc2d0f241"
+    },
+    {
+      "path": "lib/utils/cacheManager.ts",
+      "objectId": "504942de85c44b128823b93cacdaaab2aa9e9adc"
+    },
+    {
+      "path": "lib/utils/chinese-convert.ts",
+      "objectId": "b2136cc0f676c3d6575ecf0f73938ec774464597"
+    },
+    {
+      "path": "lib/utils/danmaku-utils.ts",
+      "objectId": "0587a6a55e87a381a5ebdbdaf416dab380bbd67f"
+    },
+    {
+      "path": "lib/utils/fetch-with-retry.ts",
+      "objectId": "dbeb5d1cb1a82649cc0d7ff96f95da2f18c7d23e"
+    },
+    {
+      "path": "lib/utils/floating-button-position.ts",
+      "objectId": "d2bd63b697cc6e8ed9dd451460feb18813a0564a"
+    },
+    {
+      "path": "lib/utils/format-utils.ts",
+      "objectId": "26100e6a32320947878ba8fd4b688b9234af4c74"
+    },
+    {
+      "path": "lib/utils/grouped-sources-cache.ts",
+      "objectId": "8f6c4f8f347589b414737161137909d8ea759922"
+    },
+    {
+      "path": "lib/utils/latency.ts",
+      "objectId": "a3fb1efd700a5845b41e45961c06b4f6c17cb781"
+    },
+    {
+      "path": "lib/utils/m3u-parser.ts",
+      "objectId": "391e0b4dc959b8ccbac0a415081c846b8b9d483d"
+    },
+    {
+      "path": "lib/utils/m3u8-ad-detector.ts",
+      "objectId": "f11e353708c9a30d587b9b03c20691fb2b030878"
+    },
+    {
+      "path": "lib/utils/m3u8-ad-pattern.ts",
+      "objectId": "435cdd7f7efbf91943c24c053d1d9525272a956f"
+    },
+    {
+      "path": "lib/utils/m3u8-ad-scoring.ts",
+      "objectId": "eed5021a9dfb8d2cf42a69518409931e159b24d9"
+    },
+    {
+      "path": "lib/utils/m3u8-ad-signatures.ts",
+      "objectId": "685d9eec0b069f903aaf41f30aa836f115a7eebf"
+    },
+    {
+      "path": "lib/utils/m3u8-ad-types.ts",
+      "objectId": "3f1dfbd4444b2c9f4fdb9d84f689b4198d3cae97"
+    },
+    {
+      "path": "lib/utils/m3u8-duration-grid.ts",
+      "objectId": "11253e8deec4a08f8f45aee52ab20a8a8d9f9dd1"
+    },
+    {
+      "path": "lib/utils/m3u8-utils.ts",
+      "objectId": "3b46c7cb641f72f7014b389bfa7fbb1a40f1e736"
+    },
+    {
+      "path": "lib/utils/profile-storage.ts",
+      "objectId": "961fadaa0328f2ed24580bc15854be43b2ebbada"
+    },
+    {
+      "path": "lib/utils/proxy-utils.ts",
+      "objectId": "8a275b41635df6988b6bd246429d9ffa9842eff3"
+    },
+    {
+      "path": "lib/utils/recommendation-engine.ts",
+      "objectId": "3e67506c0e9ae0abf6b67ff44a40a746c6c184e5"
+    },
+    {
+      "path": "lib/utils/search-stream.ts",
+      "objectId": "8887043cc8badf503ad76e29cd3c4fc6160827dd"
+    },
+    {
+      "path": "lib/utils/search.ts",
+      "objectId": "ce16460388bf31c2620af919b7cec6760914fae3"
+    },
+    {
+      "path": "lib/utils/sort.ts",
+      "objectId": "02ab63da4605b2c07a544c8265fb50f440f780f7"
+    },
+    {
+      "path": "lib/utils/sorted-insert.ts",
+      "objectId": "b969e54857819dad721e0e1b5366e25304b075c2"
+    },
+    {
+      "path": "lib/utils/source-import-utils.ts",
+      "objectId": "de8a5a41b2890dc35efc0583ee5d1553c3b15639"
+    },
+    {
+      "path": "lib/utils/source-names.ts",
+      "objectId": "73141f6c4fab2099821888aa5e3199420dd78bf9"
+    },
+    {
+      "path": "lib/utils/sync-records.ts",
+      "objectId": "c260a9ff7c5f2f9bbab61346e222723b043af3c8"
+    },
+    {
+      "path": "lib/utils/video.ts",
+      "objectId": "8312adec4080cdf755026a60ed7f3da0243c4c27"
+    },
+    {
+      "path": "next.config.ts",
+      "objectId": "0b46ff32d7f89b24dd49f15aff5f943e6e4ade32"
+    },
+    {
+      "path": "package-lock.json",
+      "objectId": "a77a4c5ded831f5b1a8f8c8af6c34fa02f621d6a"
+    },
+    {
+      "path": "package.json",
+      "objectId": "6f3e5da46f1a1379c9feef43568c3b36327aaee9"
+    },
+    {
+      "path": "public/icon.png",
+      "objectId": "b346b5f0a9d7b6edcd8deac76d4f4fc4b27fe0ae"
+    },
+    {
+      "path": "public/manifest.json",
+      "objectId": "b4b2b33f8adc469d05530c8883cb74edbc7223cf"
+    },
+    {
+      "path": "public/placeholder-poster.svg",
+      "objectId": "ec8f0493c71a183a9df5d888ea03199ed871010b"
+    },
+    {
+      "path": "public/sw.js",
+      "objectId": "2277237cf14f66dd77e48100e64a1ffb75a785f2"
+    },
+    {
+      "path": "tests/account-actions-view.test.ts",
+      "objectId": "225541f144bce038c02b59f591f2d5c3d14a0e79"
+    },
+    {
+      "path": "tests/android-pip-utils.test.ts",
+      "objectId": "5d625786c58820ab33852c24ba31c3fe30d597f1"
+    },
+    {
+      "path": "tests/api-responses.test.ts",
+      "objectId": "e794aaa0860697832dddc1a2b8a00f629e31ab55"
+    },
+    {
+      "path": "tests/auth.test.ts",
+      "objectId": "65be61195646c0c163ee7f850dfd861137d2788b"
+    },
+    {
+      "path": "tests/danmaku-canvas-utils.test.ts",
+      "objectId": "98bad211639c4edddc393b291ff8b2b18a5294d4"
+    },
+    {
+      "path": "tests/deployment.test.ts",
+      "objectId": "34b2a73e97445b53ca3780e6cdf5f526074629b5"
+    },
+    {
+      "path": "tests/douban-image-fallback.test.ts",
+      "objectId": "c15f1214b653e50415663a25217efd2a9337db85"
+    },
+    {
+      "path": "tests/floating-button-position.test.ts",
+      "objectId": "fd74e8b1c4755fa6f1db585ea911cee0f88b0ec2"
+    },
+    {
+      "path": "tests/lan-access.test.ts",
+      "objectId": "431341d5b4fb073bce02985db13a6ff6b6f736d2"
+    },
+    {
+      "path": "tests/m3u8-ad-detector.test.ts",
+      "objectId": "4d587b6f18155ea3156aea64fefb688497d0b01c"
+    },
+    {
+      "path": "tests/m3u8-duration-grid.test.ts",
+      "objectId": "b68564c9e94e949e3e837263d007cb68bcebb903"
+    },
+    {
+      "path": "tests/m3u8-filter-regression.test.ts",
+      "objectId": "65fa625f93a77e65f811dbec8c42f6eb4e183323"
+    },
+    {
+      "path": "tests/mobile-player-controls.test.ts",
+      "objectId": "3d7002094643fe0eacf69375b33896b19818f946"
+    },
+    {
+      "path": "tests/password-gate-state.test.ts",
+      "objectId": "e7b43cab8ade986c0e3b9e68899505faac8ee247"
+    },
+    {
+      "path": "tests/player-cursor-visibility.test.ts",
+      "objectId": "7ce955623c0814457d882eb7125fcf67805458b7"
+    },
+    {
+      "path": "tests/player-settings-snapshot.test.ts",
+      "objectId": "a0374a489f12e626822bcccaa757865e7bcc22cd"
+    },
+    {
+      "path": "tests/player-source-list.test.ts",
+      "objectId": "07ba346ab14875dc959231613878071883d29af7"
+    },
+    {
+      "path": "tests/resolution-probe-utils.test.ts",
+      "objectId": "e31287eaf031eae606d8975cf3cd493a2f648808"
+    },
+    {
+      "path": "tests/search-reliability.test.ts",
+      "objectId": "6f922c5e76d37d6a82ce02b43d3f507ac85d2baa"
+    },
+    {
+      "path": "tests/sync-records.test.ts",
+      "objectId": "963f7ec66d860096be00ccc950658ccdceb9bfb2"
+    },
+    {
+      "path": "tests/tag-management-view.test.ts",
+      "objectId": "4980aadc74de2d8a6afb02efbfa5ea9c003a96da"
+    },
+    {
+      "path": "tests/webview83-assets.test.ts",
+      "objectId": "085e9d4d417bca1741c5428168cfad20a015f271"
+    },
+    {
+      "path": "tsconfig.json",
+      "objectId": "3a13f90a773b0facb675bf5b1a8239c8f33d36f5"
+    }
+  ]
+}

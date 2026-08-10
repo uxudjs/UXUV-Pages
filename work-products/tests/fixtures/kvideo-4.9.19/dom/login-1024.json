@@ -1,0 +1,88 @@
+{
+  "route": "login",
+  "viewport": {
+    "width": 1024,
+    "height": 900
+  },
+  "lang": "zh-CN",
+  "title": "KVideo - 视频聚合平台",
+  "bodyText": "访问受限 请输入用户名和密码以继续 登录",
+  "headings": [
+    {
+      "tag": "h2",
+      "role": null,
+      "name": "访问受限",
+      "type": null,
+      "disabled": false,
+      "box": [
+        416,
+        364,
+        192,
+        32
+      ]
+    }
+  ],
+  "interactive": [
+    {
+      "tag": "input",
+      "role": null,
+      "name": "",
+      "type": "text",
+      "disabled": false,
+      "box": [
+        337,
+        452,
+        350,
+        50
+      ]
+    },
+    {
+      "tag": "input",
+      "role": null,
+      "name": "",
+      "type": "password",
+      "disabled": false,
+      "box": [
+        337,
+        518,
+        350,
+        50
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "登录",
+      "type": "submit",
+      "disabled": false,
+      "box": [
+        337,
+        584,
+        350,
+        48
+      ]
+    },
+    {
+      "tag": "div",
+      "role": "status",
+      "name": "",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -1,
+        -1,
+        1,
+        1
+      ]
+    }
+  ],
+  "mainBox": null,
+  "tokens": {
+    "background": "rgb(18, 18, 18)",
+    "color": "rgb(245, 245, 247)",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif",
+    "accent": "#0056b3",
+    "glass": "rgba(255, 255, 255, 0.95)",
+    "radius": "1.5rem"
+  }
+}

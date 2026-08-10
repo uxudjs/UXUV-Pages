@@ -1,12 +1,89 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, type AppLocale } from "@/components/LocaleProvider";
 import { useUsageAlert } from "@/components/UsageAlertProvider";
+import { SettingsSection } from "@/components/settings/SettingsSection";
 import type { ConfiguredUsage, UsageLevel } from "@/lib/hooks/useCloudflareUsage";
 
 const number = new Intl.NumberFormat("en-US");
-const levelLabels: Record<UsageLevel, string> = {
-  normal: "正常", notice: "提示", warning: "警告", critical: "严重", exhausted: "已耗尽",
+
+interface UsageCopy {
+  title: string;
+  description: string;
+  refresh: string;
+  loading: string;
+  error: string;
+  unconfiguredTitle: string;
+  unconfiguredDescription: string;
+  missing: string;
+  summary: string;
+  reset: string;
+  calculating: string;
+  unknown: string;
+  stale: string;
+  observed: string;
+  observedNote: string;
+  workerAccount: string;
+  d1AccountRead: string;
+  d1AccountWrite: string;
+  d1DatabaseStorage: string;
+  levels: Record<UsageLevel, string>;
+  duration: (days: number, hours: number, minutes: number) => string;
+  scriptDetail: (value: string) => string;
+  databaseGuardrailDetail: (value: string, guardrail: string) => string;
+  accountStorageDetail: (value: string) => string;
+}
+
+const COPY: Record<AppLocale, UsageCopy> = {
+  "zh-CN": {
+    title: "Cloudflare 用量",
+    description: "只读展示 Cloudflare 账户总量与本项目用量；Analytics Token 仅保留在 Worker。",
+    refresh: "刷新用量", loading: "正在读取 Cloudflare 用量…", error: "无法读取 Cloudflare 用量，请稍后重试。",
+    unconfiguredTitle: "尚未配置 Cloudflare 用量分析",
+    unconfiguredDescription: "业务功能不受影响。请在 Worker 中配置只读 Analytics Token 与三个项目标识。",
+    missing: "缺少", summary: "总体状态", reset: "UTC 重置倒计时", calculating: "计算中…", unknown: "未知",
+    stale: "数据可能已陈旧；当前显示最近一小时内的安全快照。", observed: "观测时间",
+    observedNote: "Analytics 指标可能延迟，请以 Cloudflare Dashboard 和实际配额错误为准。",
+    workerAccount: "Workers 账户请求", d1AccountRead: "D1 账户读取", d1AccountWrite: "D1 账户写入", d1DatabaseStorage: "D1 本数据库存储",
+    levels: { normal: "正常", notice: "提示", warning: "警告", critical: "严重", exhausted: "已耗尽" },
+    duration: (days, hours, minutes) => `${days > 0 ? `${days} 天 ` : ""}${hours} 小时 ${minutes} 分`,
+    scriptDetail: (value) => `本脚本 ${value} 次`,
+    databaseGuardrailDetail: (value, guardrail) => `本数据库 ${value} 行 · 项目警戒线 ${guardrail} 行`,
+    accountStorageDetail: (value) => `账户总存储 ${value} MB`,
+  },
+  "zh-TW": {
+    title: "Cloudflare 用量",
+    description: "唯讀顯示 Cloudflare 帳戶總量與本專案用量；Analytics Token 僅保留在 Worker。",
+    refresh: "重新整理用量", loading: "正在讀取 Cloudflare 用量…", error: "無法讀取 Cloudflare 用量，請稍後重試。",
+    unconfiguredTitle: "尚未設定 Cloudflare 用量分析",
+    unconfiguredDescription: "業務功能不受影響。請在 Worker 中設定唯讀 Analytics Token 與三個專案識別碼。",
+    missing: "缺少", summary: "整體狀態", reset: "UTC 重設倒數", calculating: "計算中…", unknown: "未知",
+    stale: "資料可能已過期；目前顯示最近一小時內的安全快照。", observed: "觀測時間",
+    observedNote: "Analytics 指標可能延遲，請以 Cloudflare Dashboard 與實際配額錯誤為準。",
+    workerAccount: "Workers 帳戶請求", d1AccountRead: "D1 帳戶讀取", d1AccountWrite: "D1 帳戶寫入", d1DatabaseStorage: "D1 本資料庫儲存",
+    levels: { normal: "正常", notice: "提示", warning: "警告", critical: "嚴重", exhausted: "已耗盡" },
+    duration: (days, hours, minutes) => `${days > 0 ? `${days} 天 ` : ""}${hours} 小時 ${minutes} 分`,
+    scriptDetail: (value) => `本腳本 ${value} 次`,
+    databaseGuardrailDetail: (value, guardrail) => `本資料庫 ${value} 列 · 專案警戒線 ${guardrail} 列`,
+    accountStorageDetail: (value) => `帳戶總儲存 ${value} MB`,
+  },
+  en: {
+    title: "Cloudflare usage",
+    description: "Read-only Cloudflare account totals and project usage; the Analytics Token stays in the Worker.",
+    refresh: "Refresh usage", loading: "Reading Cloudflare usage…", error: "Cloudflare usage is unavailable. Try again later.",
+    unconfiguredTitle: "Cloudflare usage analytics is not configured",
+    unconfiguredDescription: "Core features are unaffected. Configure a read-only Analytics Token and the three project identifiers in the Worker.",
+    missing: "Missing", summary: "Overall status", reset: "UTC reset countdown", calculating: "Calculating…", unknown: "Unknown",
+    stale: "This data may be stale; the latest safe snapshot from the past hour is shown.", observed: "Observed at",
+    observedNote: "Analytics metrics may be delayed. Confirm with the Cloudflare Dashboard and actual quota errors.",
+    workerAccount: "Workers account requests", d1AccountRead: "D1 account reads", d1AccountWrite: "D1 account writes", d1DatabaseStorage: "D1 database storage",
+    levels: { normal: "Normal", notice: "Notice", warning: "Warning", critical: "Critical", exhausted: "Exhausted" },
+    duration: (days, hours, minutes) => `${days > 0 ? `${days}d ` : ""}${hours}h ${minutes}m`,
+    scriptDetail: (value) => `This script: ${value}`,
+    databaseGuardrailDetail: (value, guardrail) => `This database: ${value} rows · project guardrail: ${guardrail} rows`,
+    accountStorageDetail: (value) => `Account storage: ${value} MB`,
+  },
 };
 
 function warningLevel(data: ConfiguredUsage, prefix: string): UsageLevel {
@@ -16,16 +93,16 @@ function warningLevel(data: ConfiguredUsage, prefix: string): UsageLevel {
     ? suffix as UsageLevel : "normal";
 }
 
-function Metric({ label, value, limit, level, detail, bytes = false }: {
-  label: string; value: number; limit: number; level: UsageLevel; detail: string; bytes?: boolean;
+function Metric({ label, value, limit, level, detail, copy, bytes = false }: {
+  label: string; value: number; limit: number; level: UsageLevel; detail: string; copy: UsageCopy; bytes?: boolean;
 }) {
   const shown = bytes ? `${number.format(Math.round(value / 1_000_000))} MB` : number.format(value);
   const maximum = bytes ? `${number.format(Math.round(limit / 1_000_000))} MB` : number.format(limit);
   const percent = limit > 0 ? Math.min(100, (value / limit) * 100) : 0;
-  const readable = `${label}：${levelLabels[level]}，${shown} / ${maximum}`;
+  const readable = `${label}: ${copy.levels[level]}, ${shown} / ${maximum}`;
   return (
     <li className="usage-metric" data-level={level}>
-      <div><strong>{label}</strong><span>{levelLabels[level]}</span></div>
+      <div><strong>{label}</strong><span>{copy.levels[level]}</span></div>
       <progress aria-label={readable} aria-valuetext={readable} max={limit} value={Math.min(value, limit)} />
       <p><b>{shown} / {maximum}</b><span>{percent.toFixed(1)}%</span></p>
       <small>{detail}</small>
@@ -33,22 +110,24 @@ function Metric({ label, value, limit, level, detail, bytes = false }: {
   );
 }
 
-function utcCountdown(resetsAt: string, now: number): string {
-  if (!now) return "计算中…";
+function utcCountdown(resetsAt: string, now: number, copy: UsageCopy): string {
+  if (!now) return copy.calculating;
   const remaining = Math.max(0, Date.parse(resetsAt) - now);
   const days = Math.floor(remaining / 86_400_000);
   const hours = Math.floor((remaining % 86_400_000) / 3_600_000);
   const minutes = Math.floor((remaining % 3_600_000) / 60_000);
-  return `${days > 0 ? `${days} 天 ` : ""}${hours} 小时 ${minutes} 分`;
+  return copy.duration(days, hours, minutes);
 }
 
-function observed(value: string): string {
+function observed(value: string, copy: UsageCopy): string {
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "未知" : `${date.toISOString().replace("T", " ").slice(0, 19)} UTC`;
+  return Number.isNaN(date.getTime()) ? copy.unknown : `${date.toISOString().replace("T", " ").slice(0, 19)} UTC`;
 }
 
 export function CloudflareUsageSettings() {
   const usage = useUsageAlert();
+  const { locale } = useLocale();
+  const copy = COPY[locale];
   const [now, setNow] = useState(0);
   useEffect(() => {
     queueMicrotask(() => setNow(Date.now()));
@@ -57,43 +136,41 @@ export function CloudflareUsageSettings() {
   }, []);
 
   return (
-    <section className="settings-section usage-settings" id="cloudflare-usage-settings" aria-labelledby="usage-settings-title">
-      <div className="section-heading">
-        <div><p className="public-kicker">运行配额</p><h2 id="usage-settings-title">Cloudflare 用量</h2></div>
-        <button type="button" onClick={usage.refresh} disabled={usage.status === "loading"}>刷新用量</button>
-      </div>
-      {usage.status === "loading" && <p role="status">正在读取 Cloudflare 用量…</p>}
-      {usage.status === "error" && <p className="form-error" role="alert">{usage.error}</p>}
+    <SettingsSection id="usage" title={copy.title} description={copy.description} summary={
+      <button className="usage-refresh" type="button" data-focusable onClick={usage.refresh} disabled={usage.status === "loading"}>{copy.refresh}</button>
+    }>
+      {usage.status === "loading" && <p role="status">{copy.loading}</p>}
+      {usage.status === "error" && <p className="form-error" role="alert">{copy.error}</p>}
       {usage.status === "ready" && usage.data && !usage.data.configured && (
         <div className="usage-empty">
-          <h3>尚未配置 Cloudflare 用量分析</h3>
-          <p>业务功能不受影响。请在 Worker 中配置只读 Analytics Token 与三个项目标识。</p>
-          <p>缺少：{usage.data.missing.join("、")}</p>
+          <h3>{copy.unconfiguredTitle}</h3>
+          <p>{copy.unconfiguredDescription}</p>
+          <p>{copy.missing}: {usage.data.missing.join(", ")}</p>
         </div>
       )}
-      {usage.status === "ready" && usage.data?.configured && <UsageMetrics data={usage.data} now={now} />}
-    </section>
+      {usage.status === "ready" && usage.data?.configured && <UsageMetrics data={usage.data} now={now} copy={copy} />}
+    </SettingsSection>
   );
 }
 
-function UsageMetrics({ data, now }: { data: ConfiguredUsage; now: number }) {
+function UsageMetrics({ data, now, copy }: { data: ConfiguredUsage; now: number; copy: UsageCopy }) {
   const d1 = data.d1;
   return <>
     <div className="usage-summary" data-level={data.level}>
-      <strong>总体状态：{levelLabels[data.level]}</strong>
-      <span>UTC 重置倒计时：{utcCountdown(data.period.resetsAt, now)}</span>
+      <strong>{copy.summary}: {copy.levels[data.level]}</strong>
+      <span>{copy.reset}: {utcCountdown(data.period.resetsAt, now, copy)}</span>
     </div>
-    {data.stale && <p className="usage-stale" role="status">数据可能已陈旧；当前显示最近一小时内的安全快照。</p>}
+    {data.stale && <p className="usage-stale" role="status">{copy.stale}</p>}
     <ul className="usage-grid">
-      <Metric label="Workers 账户请求" value={data.workers.accountRequests} limit={data.workers.accountLimit}
-        level={warningLevel(data, "WORKERS_ACCOUNT")} detail={`本脚本 ${number.format(data.workers.scriptRequests)} 次`} />
-      <Metric label="D1 账户读取" value={d1.accountRowsRead} limit={d1.accountRowsReadLimit}
-        level={warningLevel(data, "D1_ACCOUNT_READ")} detail={`本数据库 ${number.format(d1.databaseRowsRead)} 行 · 项目警戒线 ${number.format(d1.projectRowsReadGuardrail)} 行`} />
-      <Metric label="D1 账户写入" value={d1.accountRowsWritten} limit={d1.accountRowsWrittenLimit}
-        level={warningLevel(data, "D1_ACCOUNT_WRITE")} detail={`本数据库 ${number.format(d1.databaseRowsWritten)} 行 · 项目警戒线 ${number.format(d1.projectRowsWrittenGuardrail)} 行`} />
-      <Metric label="D1 本数据库存储" value={d1.databaseStorageBytes} limit={d1.databaseStorageBytesLimit}
-        level={warningLevel(data, "D1_DATABASE_STORAGE")} bytes detail={`账户总存储 ${number.format(Math.round(d1.accountStorageBytes / 1_000_000))} MB`} />
+      <Metric label={copy.workerAccount} value={data.workers.accountRequests} limit={data.workers.accountLimit}
+        level={warningLevel(data, "WORKERS_ACCOUNT")} copy={copy} detail={copy.scriptDetail(number.format(data.workers.scriptRequests))} />
+      <Metric label={copy.d1AccountRead} value={d1.accountRowsRead} limit={d1.accountRowsReadLimit}
+        level={warningLevel(data, "D1_ACCOUNT_READ")} copy={copy} detail={copy.databaseGuardrailDetail(number.format(d1.databaseRowsRead), number.format(d1.projectRowsReadGuardrail))} />
+      <Metric label={copy.d1AccountWrite} value={d1.accountRowsWritten} limit={d1.accountRowsWrittenLimit}
+        level={warningLevel(data, "D1_ACCOUNT_WRITE")} copy={copy} detail={copy.databaseGuardrailDetail(number.format(d1.databaseRowsWritten), number.format(d1.projectRowsWrittenGuardrail))} />
+      <Metric label={copy.d1DatabaseStorage} value={d1.databaseStorageBytes} limit={d1.databaseStorageBytesLimit}
+        level={warningLevel(data, "D1_DATABASE_STORAGE")} copy={copy} bytes detail={copy.accountStorageDetail(number.format(Math.round(d1.accountStorageBytes / 1_000_000)))} />
     </ul>
-    <p className="usage-observed">观测时间：{observed(data.observedAt)}。Analytics 指标可能延迟，请以 Cloudflare Dashboard 和实际配额错误为准。</p>
+    <p className="usage-observed">{copy.observed}: {observed(data.observedAt, copy)}. {copy.observedNote}</p>
   </>;
 }

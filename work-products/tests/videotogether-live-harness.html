@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UXUVideo VideoTogether T39 live harness</title>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; margin: 24px; }
+    video { width: min(720px, 100%); aspect-ratio: 16/9; background: #111; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+  </style>
+  <script>
+    window.videoTogetherWebsiteSettingUrl = "https://2gether.video/zh-cn/guide/website_setting.html";
+    window.__t39 = { violations: [], messages: [], network: [] };
+    const summarizeUrl = (value) => {
+      try {
+        const url = new URL(String(value), location.href);
+        return { target: `${url.origin}${url.pathname}`, queryKeys: [...new Set(url.searchParams.keys())].sort() };
+      } catch {
+        return { target: "invalid", queryKeys: [] };
+      }
+    };
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = (input, init = {}) => {
+      const url = typeof input === "string" || input instanceof URL ? input : input.url;
+      window.__t39.network.push({ kind: "fetch", method: init.method || "GET", ...summarizeUrl(url) });
+      return nativeFetch(input, init);
+    };
+    const NativeWebSocket = window.WebSocket;
+    window.WebSocket = new Proxy(NativeWebSocket, {
+      construct(target, args) {
+        window.__t39.network.push({ kind: "websocket", method: "CONNECT", ...summarizeUrl(args[0]) });
+        return Reflect.construct(target, args);
+      },
+    });
+    document.addEventListener("securitypolicyviolation", (event) => {
+      window.__t39.violations.push({ directive: event.effectiveDirective, blocked: event.blockedURI });
+    });
+    window.addEventListener("message", (event) => {
+      if (event.data?.source === "VideoTogether") window.__t39.messages.push(event.data.type);
+    });
+    setInterval(() => {
+      const extension = window.videoTogetherExtension;
+      document.querySelector("#status").textContent = JSON.stringify({
+        loading: window.VideoTogetherLoading === true,
+        ready: typeof extension?.CreateRoom === "function" && typeof extension?.JoinRoom === "function",
+        role: extension?.role ?? null,
+        roomName: extension?.roomName ?? null,
+        violations: window.__t39.violations,
+        messageTypes: [...new Set(window.__t39.messages)],
+        network: window.__t39.network.slice(-25),
+        environment: {
+          userAgent: navigator.userAgent,
+          platform: navigator.platform,
+          chromeCast: typeof window.chrome?.cast,
+          presentation: typeof navigator.presentation,
+          remotePlayback: "remote" in HTMLMediaElement.prototype,
+        },
+      }, null, 2);
+    }, 250);
+  </script>
+</head>
+<body>
+  <h1>VideoTogether T39 live harness</h1>
+  <p>仅使用非敏感临时房间名；测试结束后关闭页面。</p>
+  <video controls muted></video>
+  <pre id="status">loading</pre>
+  <script async referrerpolicy="no-referrer"
+    src="https://fastly.jsdelivr.net/gh/VideoTogether/VideoTogether@5bf6d155db7bdd19f02e7867036e98eee21f62fc/release/extension.website.user.js"></script>
+</body>
+</html>

@@ -1,0 +1,738 @@
+{
+  "route": "premium-settings",
+  "viewport": {
+    "width": 320,
+    "height": 900
+  },
+  "lang": "zh-CN",
+  "title": "KVideo - 视频聚合平台",
+  "bodyText": "高级模式设置 管理高级模式的内容源和偏好设置 版本与更新 检查更新 查看当前版本、最近更新内容，并手动检查 GitHub 上是否已有新版本。 当前版本 4.9.19 KVideo 4.9.19 · 2026-08-08 已是最新版本 当前实例版本 4.9.19 与 GitHub 最新版本一致。 上次检查：2026/08/08 08:00 检查来源：KuekHaoYang/KVideo · main 查看更新日志 查看仓库 当前版本更新内容 4.9.19 · KVideo 4.9.19 · 2026-08-08 固定参考版本 播放器设置 默认全屏方式 选择在桌面端点击播放器全屏按钮时的行为 系统全屏 进入浏览器原生全屏状态 网页全屏 播放器填满当前浏览器窗口 快进 / 快退间隔 控制键盘 J / L、方向键和双击手势每次跳转的秒数 5 秒 10 秒 15 秒 30 秒 60 秒 自定义秒数 秒 范围 1-120 秒，默认 10 秒 代理播放模式 控制视频播放时的网络请求策略 智能重试 (推荐) 直连优先，失败时尝试代理 仅直连 不使用代理，失败则报错 总是代理 所有请求都通过代理转发 内置代理端点 /api/proxy?url=<encoded-video-url> 此处不是第三方 HTTP/SOCKS 代理配置。播放器会按上方模式把播放地址交给当前 KVideo 部署的内置代理；该能力只在传统 Node.js 自托管完整模式下启用。 弹幕设置 配置弹幕聚合 API 地址，在播放器菜单中开关弹幕 API 地址 兼容 danmu_api 格式的弹幕聚合服务 弹幕透明度：70% 弹幕字号 14px 18px 20px 24px 28px 弹幕显示区域 1/4屏 半屏 3/4屏 全屏 显示设置 记住滚动位置 退出或刷新页面后，自动恢复到之前的滚动位置 实时延迟显示 开启后，搜索结果中的延迟数值会每 5 秒更新一次 搜索结果显示方式 选择搜索结果的展示模式 默认显示 每个源的结果单独显示 合并同名源 相同名称的视频合并为一个卡片 界面语言 切换界面显示的中文字体（简体/繁体） 简体中文 使用简体中文显示界面 繁體中文 使用繁體中文顯示界面 内容类目过滤 添加要从搜索结果中隐藏的类目关键词（如\"伦理\"），匹配的视频将不会显示 添加 高级源管理 恢复默认 + 添加源 管理高级内容来源，调整优先级和启用状态",
+  "headings": [
+    {
+      "tag": "h1",
+      "role": null,
+      "name": "高级模式设置",
+      "type": null,
+      "disabled": false,
+      "box": [
+        93,
+        57,
+        186,
+        32
+      ]
+    },
+    {
+      "tag": "h2",
+      "role": null,
+      "name": "版本与更新",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        216,
+        100,
+        28
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "当前版本更新内容",
+      "type": null,
+      "disabled": false,
+      "box": [
+        58,
+        697,
+        183,
+        20
+      ]
+    },
+    {
+      "tag": "h2",
+      "role": null,
+      "name": "播放器设置",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        864,
+        238,
+        28
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "默认全屏方式",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        908,
+        122,
+        24
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "快进 / 快退间隔",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        1205,
+        137,
+        24
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "代理播放模式",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        1526,
+        122,
+        24
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "弹幕设置",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        2127,
+        90,
+        24
+      ]
+    },
+    {
+      "tag": "h2",
+      "role": null,
+      "name": "显示设置",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        2689,
+        238,
+        28
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "记住滚动位置",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        2733,
+        188,
+        24
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "实时延迟显示",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        2825,
+        188,
+        24
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "搜索结果显示方式",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        2917,
+        238,
+        24
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "界面语言",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        3169,
+        238,
+        24
+      ]
+    },
+    {
+      "tag": "h3",
+      "role": null,
+      "name": "内容类目过滤",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        3441,
+        238,
+        24
+      ]
+    },
+    {
+      "tag": "h2",
+      "role": null,
+      "name": "高级源管理",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        3684,
+        83,
+        56
+      ]
+    }
+  ],
+  "interactive": [
+    {
+      "tag": "a",
+      "role": null,
+      "name": "返回",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        73,
+        36,
+        40
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "检查更新",
+      "type": "button",
+      "disabled": false,
+      "box": [
+        167,
+        211,
+        112,
+        38
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "查看更新日志",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        648,
+        88,
+        16
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "查看仓库",
+      "type": null,
+      "disabled": false,
+      "box": [
+        141,
+        648,
+        64,
+        16
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "系统全屏进入浏览器原生全屏状态",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        996,
+        238,
+        74
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "网页全屏播放器填满当前浏览器窗口",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        1082,
+        238,
+        74
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "5 秒",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        1293,
+        52,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "10 秒",
+      "type": null,
+      "disabled": false,
+      "box": [
+        101,
+        1293,
+        57,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "15 秒",
+      "type": null,
+      "disabled": false,
+      "box": [
+        166,
+        1293,
+        57,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "30 秒",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        1335,
+        59,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "60 秒",
+      "type": null,
+      "disabled": false,
+      "box": [
+        108,
+        1335,
+        59,
+        34
+      ]
+    },
+    {
+      "tag": "input",
+      "role": null,
+      "name": "",
+      "type": "number",
+      "disabled": false,
+      "box": [
+        41,
+        1413,
+        216,
+        42
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "智能重试 (推荐)直连优先，失败时尝试代理",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        1594,
+        238,
+        74
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "仅直连不使用代理，失败则报错",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        1680,
+        238,
+        74
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "总是代理所有请求都通过代理转发",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        1766,
+        238,
+        74
+      ]
+    },
+    {
+      "tag": "input",
+      "role": null,
+      "name": "",
+      "type": "text",
+      "disabled": false,
+      "box": [
+        41,
+        2243,
+        238,
+        42
+      ]
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "name": "danmu_api",
+      "type": null,
+      "disabled": false,
+      "box": [
+        68,
+        2291,
+        58,
+        16
+      ]
+    },
+    {
+      "tag": "input",
+      "role": null,
+      "name": "",
+      "type": "range",
+      "disabled": false,
+      "box": [
+        41,
+        2361,
+        238,
+        8
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "14px",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        2419,
+        55,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "18px",
+      "type": null,
+      "disabled": false,
+      "box": [
+        104,
+        2419,
+        55,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "20px",
+      "type": null,
+      "disabled": false,
+      "box": [
+        167,
+        2419,
+        57,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "24px",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        2461,
+        57,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "28px",
+      "type": null,
+      "disabled": false,
+      "box": [
+        106,
+        2461,
+        57,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "1/4屏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        2539,
+        60,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "半屏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        109,
+        2539,
+        54,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "3/4屏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        171,
+        2539,
+        62,
+        34
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "全屏",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        2581,
+        54,
+        34
+      ]
+    },
+    {
+      "tag": "input",
+      "role": null,
+      "name": "记住滚动位置开关",
+      "type": "checkbox",
+      "disabled": false,
+      "box": [
+        228,
+        2766,
+        1,
+        1
+      ]
+    },
+    {
+      "tag": "input",
+      "role": null,
+      "name": "实时延迟显示开关",
+      "type": "checkbox",
+      "disabled": false,
+      "box": [
+        228,
+        2858,
+        1,
+        1
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "默认显示每个源的结果单独显示",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        2985,
+        238,
+        74
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "合并同名源相同名称的视频合并为一个卡片",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        3071,
+        238,
+        74
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "简体中文使用简体中文显示界面",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        3257,
+        238,
+        74
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "繁體中文使用繁體中文顯示界面",
+      "type": null,
+      "disabled": false,
+      "box": [
+        41,
+        3343,
+        238,
+        74
+      ]
+    },
+    {
+      "tag": "input",
+      "role": null,
+      "name": "",
+      "type": "text",
+      "disabled": false,
+      "box": [
+        41,
+        3529,
+        185,
+        56
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "添加",
+      "type": null,
+      "disabled": true,
+      "box": [
+        234,
+        3529,
+        46,
+        56
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "恢复默认",
+      "type": null,
+      "disabled": false,
+      "box": [
+        124,
+        3671,
+        90,
+        38
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "+ 添加源",
+      "type": null,
+      "disabled": false,
+      "box": [
+        124,
+        3717,
+        88,
+        36
+      ]
+    },
+    {
+      "tag": "input",
+      "role": null,
+      "name": "",
+      "type": "text",
+      "disabled": false,
+      "box": [
+        41,
+        3833,
+        238,
+        42
+      ]
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "name": "返回顶部",
+      "type": null,
+      "disabled": false,
+      "box": [
+        251,
+        871,
+        25,
+        25
+      ]
+    },
+    {
+      "tag": "div",
+      "role": "status",
+      "name": "",
+      "type": null,
+      "disabled": false,
+      "box": [
+        -1,
+        3971,
+        1,
+        1
+      ]
+    }
+  ],
+  "mainBox": null,
+  "tokens": {
+    "background": "rgb(18, 18, 18)",
+    "color": "rgb(245, 245, 247)",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif",
+    "accent": "#0056b3",
+    "glass": "rgba(255, 255, 255, 0.95)",
+    "radius": "1.5rem"
+  }
+}

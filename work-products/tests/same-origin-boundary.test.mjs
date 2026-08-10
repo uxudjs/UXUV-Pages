@@ -77,7 +77,7 @@ test("premium and probe clients stay same-origin and pages render static experie
   assert.match(premiumClient + probeClient, /credentials:\s*["']same-origin["']/);
   assert.match(premium, /useSync\(\)/);
   assert.match(premium, /capability/);
-  assert.match(settings, /upsertRecord\(["']config["'],\s*["']sources["']/);
+  assert.match(settings, /<SourceSettings\s+mode=["']premium["']/);
   assert.match(read("app/premium/page.tsx"), /<PremiumExperience\s*\/>/);
   assert.match(read("app/premium/favorites/page.tsx"), /<FavoritesExperience\s+mode=["']premium["']/);
   assert.match(read("app/premium/settings/page.tsx"), /<PremiumSettingsExperience\s*\/>/);

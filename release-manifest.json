@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "pagesVersion": "0.2.0",
-  "gitCommit": "88c83a006832ea49d702df23f9260cd6c9cf7119",
+  "gitCommit": "3e11e631248edfe547018023352e40d0147a660b",
   "apiContract": 1,
   "workerRange": ">=1.0.0 <2.0.0",
   "routes": {
@@ -35,14 +35,14 @@
     },
     "/__next.__PAGE__.txt": {
       "path": "__next.__PAGE__.txt",
-      "sha256": "Hg5ujroijUAzl0jPFrtD1/YTUlY2vHRJNstlJBDog28=",
-      "sri": "sha256-Hg5ujroijUAzl0jPFrtD1/YTUlY2vHRJNstlJBDog28=",
+      "sha256": "OGOLS4wfN2DPJhWwKJD6YIu5zeEN5noLM1OvP0xw614=",
+      "sri": "sha256-OGOLS4wfN2DPJhWwKJD6YIu5zeEN5noLM1OvP0xw614=",
       "contentType": "text/plain; charset=utf-8"
     },
     "/__next._full.txt": {
       "path": "__next._full.txt",
-      "sha256": "RNbLBqH+6+QA4sLpJ2+yNfQcc0uA6mx5k3j8Kmoj/vk=",
-      "sri": "sha256-RNbLBqH+6+QA4sLpJ2+yNfQcc0uA6mx5k3j8Kmoj/vk=",
+      "sha256": "Lzi8jr8jO7PePwbL1t1EHCChK/eQik8xoY5JYEdDofc=",
+      "sri": "sha256-Lzi8jr8jO7PePwbL1t1EHCChK/eQik8xoY5JYEdDofc=",
       "contentType": "text/plain; charset=utf-8"
     },
     "/__next._tree.txt": {
@@ -61,12 +61,6 @@
       "path": "_next/static/chunks/02n8lkuno3o3k.js",
       "sha256": "A8MKP744C47D8E8kF90EiWK5HyXKEpJNP0fmJEbk3TA=",
       "sri": "sha256-A8MKP744C47D8E8kF90EiWK5HyXKEpJNP0fmJEbk3TA=",
-      "contentType": "text/javascript; charset=utf-8"
-    },
-    "/_next/static/chunks/063h3dudpuj1s.js": {
-      "path": "_next/static/chunks/063h3dudpuj1s.js",
-      "sha256": "OzJWvCC5Recu75ei+tYWTTtwoqkIJ3027inulTQdmis=",
-      "sri": "sha256-OzJWvCC5Recu75ei+tYWTTtwoqkIJ3027inulTQdmis=",
       "contentType": "text/javascript; charset=utf-8"
     },
     "/_next/static/chunks/07_q47s8b8pr4.js": {
@@ -183,6 +177,12 @@
       "sri": "sha256-x1Ot7aBvV6XC80ke2th4wGCLuHlHz2eM/RTuCiaX1BM=",
       "contentType": "text/javascript; charset=utf-8"
     },
+    "/_next/static/chunks/3uxqvftvlt_s-.js": {
+      "path": "_next/static/chunks/3uxqvftvlt_s-.js",
+      "sha256": "saavo1h2SDl9cybbCV+r/lUCn4Dp5MM2NsAXX/kboEw=",
+      "sri": "sha256-saavo1h2SDl9cybbCV+r/lUCn4Dp5MM2NsAXX/kboEw=",
+      "contentType": "text/javascript; charset=utf-8"
+    },
     "/_next/static/chunks/3vwo3jxmt6xz5.js": {
       "path": "_next/static/chunks/3vwo3jxmt6xz5.js",
       "sha256": "+FhiWzAPR41eIPDWpdcH6qS7QKuDnMFhTXiUtaSMpOw=",
@@ -287,14 +287,14 @@
     },
     "/index.html": {
       "path": "index.html",
-      "sha256": "xyvmQsQbJEMgT1Div0pPm/YBLnAR4LtW7MCyIj4BWV8=",
-      "sri": "sha256-xyvmQsQbJEMgT1Div0pPm/YBLnAR4LtW7MCyIj4BWV8=",
+      "sha256": "afLwcUQECxQmwBFkB+E007N7NY/H6K6ebFfvBHg9mak=",
+      "sri": "sha256-afLwcUQECxQmwBFkB+E007N7NY/H6K6ebFfvBHg9mak=",
       "contentType": "text/html; charset=utf-8"
     },
     "/index.txt": {
       "path": "index.txt",
-      "sha256": "RNbLBqH+6+QA4sLpJ2+yNfQcc0uA6mx5k3j8Kmoj/vk=",
-      "sri": "sha256-RNbLBqH+6+QA4sLpJ2+yNfQcc0uA6mx5k3j8Kmoj/vk=",
+      "sha256": "Lzi8jr8jO7PePwbL1t1EHCChK/eQik8xoY5JYEdDofc=",
+      "sri": "sha256-Lzi8jr8jO7PePwbL1t1EHCChK/eQik8xoY5JYEdDofc=",
       "contentType": "text/plain; charset=utf-8"
     },
     "/iptv/__next._full.txt": {

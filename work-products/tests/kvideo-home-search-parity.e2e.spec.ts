@@ -200,6 +200,16 @@ test.describe("reviewed KVideo basic home", () => {
     await expect(page.getByText("不相关影片", { exact: true })).toBeVisible();
   });
 
+  test("opens a decorated title returned for the selected home movie", async ({ page }) => {
+    const worker = await mockHomeWorker(page.context(), "success", false, "示例电影（2026）");
+    await page.goto("./");
+
+    await page.getByRole("button", { name: "播放 示例电影" }).click();
+
+    await expect.poll(() => worker.searchRequests.length).toBe(1);
+    await expect(page).toHaveURL(/\/player\?id=video-1&source=source-home&title=/);
+  });
+
   test("switches movie, TV, and server-provided Douban categories inside the reviewed home shell", async ({ page }) => {
     const worker = await mockHomeWorker(page.context());
     await page.setViewportSize({ width: 1024, height: 900 });

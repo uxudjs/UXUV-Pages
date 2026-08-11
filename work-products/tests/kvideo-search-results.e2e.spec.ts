@@ -184,9 +184,6 @@ test.describe("KVideo T11 streamed result cards", () => {
 
     const target = group.getByRole("link", { name: /同名电影/ });
     await target.click();
-    await expect(page).not.toHaveURL(/\/player/);
-    await expect(group).toContainText("再次点击播放");
-    await target.click();
     await expect(page).toHaveURL(/\/player\?.*id=a-1.*source=source-a/);
   });
 

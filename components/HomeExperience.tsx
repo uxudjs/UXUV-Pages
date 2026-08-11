@@ -41,6 +41,12 @@ function historyPlayerHref(item: HistoryRecord): string {
   return `/player?${query}`;
 }
 
+function normalizedMovieTitle(value: string): string {
+  const normalized = traditionalToSimplified(value).trim().toLocaleLowerCase();
+  const withoutReleaseYear = normalized.replace(/\s*[（(]\s*(?:19|20)\d{2}\s*[）)]\s*$/u, "").trim();
+  return withoutReleaseYear || normalized;
+}
+
 function dedupeMovies(existing: HomeMovie[], incoming: HomeMovie[]): HomeMovie[] {
   const ids = new Set(existing.map(({ id }) => id));
   const titles = new Set(existing.map(({ title }) => title.trim().toLocaleLowerCase()));
@@ -375,9 +381,9 @@ export function HomeExperience() {
 
   const openHomeMovie = async (movie: HomeMovie) => {
     const found = await runSearch(movie.title);
-    const normalizedTitle = traditionalToSimplified(movie.title).trim().toLocaleLowerCase();
+    const normalizedTitle = normalizedMovieTitle(movie.title);
     const exactMatches = found.filter((video) => (
-      traditionalToSimplified(video.vod_name).trim().toLocaleLowerCase() === normalizedTitle
+      normalizedMovieTitle(video.vod_name) === normalizedTitle
     ));
     const matches = exactMatches;
     const representative = matches[0];

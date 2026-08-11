@@ -38,13 +38,7 @@ export function VideoGrid({ videos, sources, latencies, accountId, mode, favorit
       return { ...group, representative: ranked[0], videos: ranked };
     });
   }, [latencies, videos]);
-  const activate = (event: MouseEvent<HTMLAnchorElement>, cardId: string) => {
-    if (!window.matchMedia("(max-width: 1023px)").matches) return;
-    if (activeCardId !== cardId) {
-      event.preventDefault();
-      setActiveCardId(cardId);
-    }
-  };
+  const activate = (_event: MouseEvent<HTMLAnchorElement>, cardId: string) => setActiveCardId(cardId);
 
   return <div className="kvideo-result-grid" role="list" aria-label={labels.view}>
     {displayMode === "grouped" ? groups.map((group) => {

@@ -4,7 +4,7 @@ export interface AndroidPiPBridge {
 }
 
 export function getAndroidPiPBridge(): AndroidPiPBridge | null {
-  return (window as Window & { KVideoAndroid?: AndroidPiPBridge }).KVideoAndroid ?? null;
+  return (window as Window & { UXUVideoAndroid?: AndroidPiPBridge }).UXUVideoAndroid ?? null;
 }
 
 export function isAndroidPiPAvailable(): boolean {

@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const PAGES_BASE_PATH = "/UXUV-Pages/0.2.0";
+const PAGES_BASE_PATH = "/UXUV-Pages";
 
 const nextConfig: NextConfig = {
   basePath: PAGES_BASE_PATH,

@@ -37,7 +37,7 @@ const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
     name: "UXUVideo",
     title: "UXUVideo",
     description: "UXUVideo 公共静态前端入口",
-    iconUrl: "/UXUV-Pages/0.2.0/icon.png",
+    iconUrl: "/UXUV-Pages/icon.png",
   },
   capabilities: { premium: false, iptv: false, danmaku: false },
   adKeywords: [],

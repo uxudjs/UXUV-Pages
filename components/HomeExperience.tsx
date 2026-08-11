@@ -19,6 +19,7 @@ import { searchVideos, type SearchProgress } from "@/lib/content/search-client";
 import { favoritesForMode, MAX_FAVORITES } from "@/lib/content/favorites-policy";
 import { historyForMode } from "@/lib/content/history-policy";
 import { orderedSources } from "@/lib/content/source-settings-policy";
+import { storeGroupedSources } from "@/lib/media/grouped-sources-cache";
 import { useAuth } from "@/lib/store/auth-store";
 import { traditionalToSimplified } from "@/lib/utils/chinese-convert";
 import {
@@ -63,7 +64,7 @@ const HOME_COPY = {
     deleteHistory: "删除",
     cancel: "取消",
     sourceMissing: "尚未配置可用视频源，请先前往设置。",
-    action: "搜索",
+    action: "播放",
     loading: "正在加载热门内容…",
     empty: "暂无内容",
     error: "无法加载热门内容。",
@@ -115,7 +116,7 @@ const HOME_COPY = {
     deleteHistory: "刪除",
     cancel: "取消",
     sourceMissing: "尚未設定可用影片來源，請先前往設定。",
-    action: "搜尋",
+    action: "播放",
     loading: "正在載入熱門內容…",
     empty: "暫無內容",
     error: "無法載入熱門內容。",
@@ -167,7 +168,7 @@ const HOME_COPY = {
     deleteHistory: "Delete",
     cancel: "Cancel",
     sourceMissing: "No video source is configured. Open Settings first.",
-    action: "Search",
+    action: "Play",
     loading: "Loading popular titles…",
     empty: "No titles yet",
     error: "Unable to load popular titles.",
@@ -344,7 +345,7 @@ export function HomeExperience() {
 
   const runSearch = async (searchQuery: string) => {
     const originalQuery = searchQuery.trim();
-    if (!originalQuery || sources.length === 0) return;
+    if (!originalQuery || sources.length === 0) return [];
     const normalized = traditionalToSimplified(originalQuery);
     searchController.current?.abort();
     const controller = new AbortController();
@@ -362,12 +363,42 @@ export function HomeExperience() {
       });
       setResults(found);
       setState(found.length > 0 ? "ready" : "empty");
+      return found;
     } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") return;
+      if (error instanceof Error && error.name === "AbortError") return [];
       if (error instanceof ContentApiError && error.status === 401) auth?.markSessionExpired();
       setMessage(error instanceof Error ? error.message : copy.searchError);
       setState("error");
+      return [];
     }
+  };
+
+  const openHomeMovie = async (movie: HomeMovie) => {
+    const found = await runSearch(movie.title);
+    const normalizedTitle = traditionalToSimplified(movie.title).trim().toLocaleLowerCase();
+    const exactMatches = found.filter((video) => (
+      traditionalToSimplified(video.vod_name).trim().toLocaleLowerCase() === normalizedTitle
+    ));
+    const matches = exactMatches;
+    const representative = matches[0];
+    if (!representative) return;
+    const parameters = new URLSearchParams({
+      id: String(representative.vod_id),
+      source: representative.source,
+      title: representative.vod_name,
+    });
+    if (matches.length > 1) {
+      const groupedSourcesKey = storeGroupedSources(matches.map((video) => ({
+        id: video.vod_id,
+        source: video.source,
+        sourceName: video.sourceName,
+        pic: video.vod_pic,
+        typeName: video.type_name,
+        remarks: video.vod_remarks,
+      })));
+      if (groupedSourcesKey) parameters.set("gs", groupedSourcesKey);
+    }
+    router.push(`/player?${parameters.toString()}`);
   };
 
   const cancelSearch = () => {
@@ -472,7 +503,7 @@ export function HomeExperience() {
                 emptyLabel={copy.empty}
                 errorLabel={copy.error}
                 retryLabel={copy.retry}
-                onMovieClick={(movie) => void runSearch(movie.title)}
+                onMovieClick={(movie) => void openHomeMovie(movie)}
                 onRetry={() => void loadHome()}
                 hasMore={effectiveRecommendationSelected ? personalized.hasMore : hasMoreHomeMovies}
                 loadingMore={effectiveRecommendationSelected ? personalized.loading : loadingMoreHomeMovies}

@@ -67,32 +67,18 @@ jobs:
           overwrite: false
           include-hidden-files: true
 
-      - name: Check out published releases
+      - name: Check out published site
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: gh-pages
           path: published
 
-      - name: Publish immutable release
+      - name: Publish current release at the repository root
         shell: bash
         run: |
           set -euo pipefail
           source="release/$PAGES_VERSION"
-          target="published/$PAGES_VERSION"
-
-          if [ -e "$target" ]; then
-            diff --recursive --brief "$source" "$target"
-          else
-            cp -R "$source" "$target"
-          fi
-
-          printf '%s\n' \
-            '<!doctype html>' \
-            '<meta charset="utf-8">' \
-            '<meta http-equiv="refresh" content="0; url=./'$PAGES_VERSION'/">' \
-            '<title>UXUV-Pages</title>' \
-            '<a href="./'$PAGES_VERSION'/">Open UXUV-Pages '$PAGES_VERSION'</a>' \
-            > published/index.html
+          rsync --archive --delete --filter='protect /0.2.0/***' --exclude='.git/' "$source/" published/
           touch published/.nojekyll
 
           cd published

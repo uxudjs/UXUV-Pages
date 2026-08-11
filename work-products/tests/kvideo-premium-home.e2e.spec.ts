@@ -116,7 +116,7 @@ test.describe("KVideo T29 Premium home", () => {
       const context = await browser.newContext({ locale: scenario.locale });
       await mockPremiumWorker(context);
       const page = await context.newPage();
-      await page.goto("http://127.0.0.1:4173/UXUV-Pages/0.2.0/premium/");
+      await page.goto("http://127.0.0.1:4173/UXUV-Pages/premium/");
       await expect(page.getByRole("heading", { name: scenario.heading })).toBeVisible();
       await expect(page.getByLabel(scenario.search)).toBeVisible();
       await context.close();

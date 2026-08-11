@@ -56,8 +56,8 @@ const DANMAKU_COPY = {
 } as const;
 
 const BASELINE_COPY = {
-  "zh-CN": { seekRange: "范围 1-120 秒，默认 10 秒", endpoint: "内置代理端点", endpointHelp: "此处不是第三方 HTTP/SOCKS 代理配置。播放器会按上方模式把播放地址交给当前 KVideo 部署的内置代理；该能力只在传统 Node.js 自托管完整模式下启用。" },
-  "zh-TW": { seekRange: "範圍 1-120 秒，預設 10 秒", endpoint: "內建代理端點", endpointHelp: "此處不是第三方 HTTP/SOCKS 代理設定。播放器會依上方模式把播放位址交給目前 KVideo 部署的內建代理；此功能只在傳統 Node.js 自架完整模式下啟用。" },
+  "zh-CN": { seekRange: "范围 1-120 秒，默认 10 秒", endpoint: "内置代理端点", endpointHelp: "此处不是第三方 HTTP/SOCKS 代理配置。播放器会按上方模式把播放地址交给当前 UXUVideo 部署的内置代理；该能力只在传统 Node.js 自托管完整模式下启用。" },
+  "zh-TW": { seekRange: "範圍 1-120 秒，預設 10 秒", endpoint: "內建代理端點", endpointHelp: "此處不是第三方 HTTP/SOCKS 代理設定。播放器會依上方模式把播放位址交給目前 UXUVideo 部署的內建代理；此功能只在傳統 Node.js 自架完整模式下啟用。" },
   en: { seekRange: "Range 1-120 seconds; default 10 seconds", endpoint: "Built-in proxy endpoint", endpointHelp: "This is not a third-party HTTP/SOCKS proxy setting. Playback passes media URLs to the current UXUVideo Worker while the browser remains on the same-origin boundary." },
 } as const;
 
@@ -101,7 +101,7 @@ export function PlayerSettings({ mode = "standard" }: Readonly<{ mode?: "standar
     const id = activeDanmakuApi?.id ?? "legacy-danmaku-api";
     sync.updateConfigField(fieldName("danmakuApis"), [
       ...danmakuApis.filter((api) => api.id !== id),
-      { id, name: activeDanmakuApi?.name ?? "KVideo", url: value },
+      { id, name: activeDanmakuApi?.name ?? "UXUVideo", url: value },
     ]);
     sync.updateConfigField(fieldName("activeDanmakuApiId"), id);
   };

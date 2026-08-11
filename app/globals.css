@@ -1684,9 +1684,16 @@ html[data-theme="dark"] .search-history-header button { color: #74a7ff; }
   position: relative;
   z-index: 1;
   display: block;
+  width: 100%;
   min-width: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
   color: inherit;
+  font: inherit;
+  text-align: inherit;
   text-decoration: none;
+  cursor: pointer;
   transition: transform 200ms ease-out;
 }
 

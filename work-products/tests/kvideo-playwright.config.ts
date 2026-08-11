@@ -3,7 +3,7 @@ import { defineConfig } from "@playwright/test";
 
 const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url));
 const port = 4173;
-const baseURL = `http://127.0.0.1:${port}/UXUV-Pages/0.2.0/`;
+const baseURL = `http://127.0.0.1:${port}/UXUV-Pages/`;
 
 export default defineConfig({
   testDir: ".",

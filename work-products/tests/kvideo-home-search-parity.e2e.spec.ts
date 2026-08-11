@@ -43,7 +43,12 @@ async function json(route: Route, body: unknown, status = 200) {
   await route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 }
 
-async function mockHomeWorker(context: BrowserContext, initialMode: HomeMode = "success", deferred = false) {
+async function mockHomeWorker(
+  context: BrowserContext,
+  initialMode: HomeMode = "success",
+  deferred = false,
+  searchResultTitle?: string,
+) {
   let mode = initialMode;
   let releaseRequest = () => {};
   let pending = deferred ? new Promise<void>((resolve) => { releaseRequest = resolve; }) : Promise.resolve();
@@ -80,11 +85,16 @@ async function mockHomeWorker(context: BrowserContext, initialMode: HomeMode = "
       return json(route, { subjects: mode === "empty" ? [] : subjects });
     }
     if (url.pathname === "/api/search-parallel") {
-      searchRequests.push(request.postDataJSON());
+      const searchRequest = request.postDataJSON() as { query: string };
+      searchRequests.push(searchRequest);
       return route.fulfill({
         status: 200,
         contentType: "text/event-stream",
-        body: `data: ${JSON.stringify({ type: "start", totalSources: 0 })}\n\ndata: ${JSON.stringify({ type: "complete" })}\n\n`,
+        body: [
+          { type: "start", totalSources: 1 },
+          { type: "videos", source: source.id, videos: [{ vod_id: "video-1", vod_name: searchResultTitle ?? searchRequest.query }] },
+          { type: "complete", totalVideosFound: 1 },
+        ].map((event) => `data: ${JSON.stringify(event)}\n\n`).join(""),
       });
     }
     return json(route, { error: { code: "NOT_FOUND" } }, 404);
@@ -111,8 +121,8 @@ test.describe("reviewed KVideo basic home", () => {
     await page.goto("./");
     await expect(page.locator(".kvideo-home-state[role=status]")).toContainText("正在加载热门内容");
     worker.release();
-    await expect(page.getByRole("link", { name: "搜索 示例电影" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "搜索 示例电影" }).locator("img"))
+    await expect(page.getByRole("button", { name: "播放 示例电影" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "播放 示例电影" }).locator("img"))
       .toHaveAttribute("src", /placeholder-poster\.svg$/);
 
     const request = new URL(worker.homeRequests[0]);
@@ -157,10 +167,11 @@ test.describe("reviewed KVideo basic home", () => {
     await page.keyboard.press("Tab");
     await expect(page.getByRole("button", { name: "高级", exact: true })).toBeFocused();
     await page.keyboard.press("Tab");
-    await expect(page.getByRole("link", { name: "搜索 示例电影" })).toBeFocused();
+    await expect(page.getByRole("button", { name: "播放 示例电影" })).toBeFocused();
     await page.keyboard.press("Enter");
     await expect.poll(() => worker.searchRequests.length).toBe(1);
     expect(worker.searchRequests[0]).toMatchObject({ query: "示例电影" });
+    await expect(page).toHaveURL(/\/player\?id=video-1&source=source-home&title=/);
   });
 
   test("keeps empty, failure, and retry states deterministic", async ({ page }) => {
@@ -175,7 +186,18 @@ test.describe("reviewed KVideo basic home", () => {
 
     worker.setMode("success");
     await page.getByRole("button", { name: "重试" }).click();
-    await expect(page.getByRole("link", { name: "搜索 示例电影" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "播放 示例电影" })).toBeVisible();
+  });
+
+  test("keeps unrelated search results visible instead of opening the wrong home movie", async ({ page }) => {
+    const worker = await mockHomeWorker(page.context(), "success", false, "不相关影片");
+    await page.goto("./");
+
+    await page.getByRole("button", { name: "播放 示例电影" }).click();
+
+    await expect.poll(() => worker.searchRequests.length).toBe(1);
+    await expect(page).not.toHaveURL(/\/player\?/);
+    await expect(page.getByText("不相关影片", { exact: true })).toBeVisible();
   });
 
   test("switches movie, TV, and server-provided Douban categories inside the reviewed home shell", async ({ page }) => {
@@ -198,14 +220,14 @@ test.describe("reviewed KVideo basic home", () => {
 
     await television.click();
     await expect(television).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByRole("link", { name: "搜索 示例电视剧" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "播放 示例电视剧" })).toBeVisible();
     const tvRequest = new URL(worker.homeRequests.at(-1)!);
     expect(tvRequest.searchParams.get("type")).toBe("tv");
     expect(tvRequest.searchParams.get("tag")).toBe("热门");
     expect(new URL(worker.tagRequests.at(-1)!).searchParams.get("type")).toBe("tv");
 
     await page.getByRole("button", { name: "纪录片", exact: true }).click();
-    await expect(page.getByRole("link", { name: "搜索 纪录片精选" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "播放 纪录片精选" })).toBeVisible();
     expect(new URL(worker.homeRequests.at(-1)!).searchParams.get("tag")).toBe("纪录片");
 
     await movie.focus();

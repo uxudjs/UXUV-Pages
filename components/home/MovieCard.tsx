@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { memo, useState, type MouseEvent } from "react";
+import { memo, useState } from "react";
 import { Star } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
@@ -18,20 +17,13 @@ export const MovieCard = memo(function MovieCard({ movie, actionLabel, onMovieCl
   const [fallbackError, setFallbackError] = useState(false);
   const poster = imageError ? "placeholder-poster.svg" : movie.cover;
 
-  const selectMovie = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    onMovieClick(movie);
-  };
-
   return (
-    <Link
+    <button
+      type="button"
       className="kvideo-movie-link"
-      href={`/?q=${encodeURIComponent(movie.title)}`}
-      prefetch={false}
       data-focusable
       aria-label={`${actionLabel} ${movie.title}`}
-      onClick={selectMovie}
+      onClick={() => onMovieClick(movie)}
     >
       <Card className="kvideo-movie-card">
         <div className="kvideo-poster-frame">
@@ -58,6 +50,6 @@ export const MovieCard = memo(function MovieCard({ movie, actionLabel, onMovieCl
         </div>
         <div className="kvideo-movie-copy"><h3>{movie.title}</h3></div>
       </Card>
-    </Link>
+    </button>
   );
 });

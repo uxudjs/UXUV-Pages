@@ -240,7 +240,7 @@ test("direct Pages entry never requests the usage API", async ({ page, request }
     const response = await request.get(`http://127.0.0.1:4173${requested.pathname}${requested.search}`);
     await route.fulfill({ status: response.status(), headers: response.headers(), body: await response.body() });
   });
-  await page.goto("https://uxudjs.github.io:4173/UXUV-Pages/0.2.0/settings/");
+  await page.goto("https://uxudjs.github.io:4173/UXUV-Pages/settings/");
   await expect(page.locator(".public-guidance")).toBeVisible();
   expect(usageRequests).toBe(0);
   await page.unrouteAll({ behavior: "wait" });

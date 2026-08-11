@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page, type Route } from "@playwright/test";
 
-const baseURL = "http://127.0.0.1:4173/UXUV-Pages/0.2.0/";
+const baseURL = "http://127.0.0.1:4173/UXUV-Pages/";
 const fixedTime = "2026-08-08T08:00:00.000+08:00";
 const widths = [320, 768, 1024, 1440];
 const routes = [
@@ -30,7 +30,7 @@ const session = {
 };
 const config = {
   release: { worker: "1.0.0", pages: "0.2.0", apiContract: 1 },
-  site: { name: "KVideo", title: "KVideo - 视频聚合平台", description: "视频聚合平台", iconUrl: "/UXUV-Pages/0.2.0/icon.png" },
+  site: { name: "UXUVideo", title: "UXUVideo - 视频聚合平台", description: "视频聚合平台", iconUrl: "/UXUV-Pages/icon.png" },
   capabilities: { premium: true, iptv: true, danmaku: true },
   adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
@@ -43,6 +43,12 @@ const source = {
   baseUrl: "https://media.example",
   enabled: true,
 };
+
+function currentExpectedName(name: string): string {
+  return name
+    .replaceAll("KVideo", config.site.name)
+    .replace(/^搜索 (?=示例(?:电影|剧集|纪录片)$)/, "播放 ");
+}
 const homeSubjects = [
   { id: "movie-1", title: "示例电影", cover: "/placeholder-poster.svg", rate: "8.8", url: "" },
   { id: "movie-2", title: "示例剧集", cover: "/placeholder-poster.svg", rate: "8.2", url: "" },
@@ -80,9 +86,9 @@ async function mockWorker(page: Page) {
     }
     if (url.pathname === "/api/app-update") return json(route, {
       status: "up-to-date", currentVersion: "4.9.19", latestVersion: "4.9.19", checkedAt: "2026-08-08T08:00:00.000Z",
-      currentRelease: { version: "4.9.19", title: "KVideo 4.9.19", publishedAt: "2026-08-08", notes: ["固定参考版本"] },
-      latestRelease: { version: "4.9.19", title: "KVideo 4.9.19", publishedAt: "2026-08-08", notes: ["固定参考版本"] },
-      source: { repository: "KuekHaoYang/KVideo", branch: "main", changelogUrl: "https://github.com/KuekHaoYang/KVideo/blob/main/CHANGELOG.md", repositoryUrl: "https://github.com/KuekHaoYang/KVideo" },
+      currentRelease: { version: "4.9.19", title: "UXUVideo 4.9.19", publishedAt: "2026-08-08", notes: ["固定参考版本"] },
+      latestRelease: { version: "4.9.19", title: "UXUVideo 4.9.19", publishedAt: "2026-08-08", notes: ["固定参考版本"] },
+      source: { repository: "uxudjs/UXUVideo", branch: "main", changelogUrl: "https://github.com/uxudjs/UXUVideo/blob/main/CHANGELOG.md", repositoryUrl: "https://github.com/uxudjs/UXUVideo" },
     });
     if (url.pathname === "/api/douban/tags") return json(route, { tags: ["热门"] });
     if (url.pathname === "/api/douban/recommend") return json(route, { subjects: homeSubjects });
@@ -90,7 +96,7 @@ async function mockWorker(page: Page) {
       return json(route, { success: true, data: {
         vod_id: "fixture-video",
         vod_name: "示例影片",
-        vod_pic: "/UXUV-Pages/0.2.0/placeholder-poster.svg",
+        vod_pic: "/UXUV-Pages/placeholder-poster.svg",
         vod_content: "用于固定界面基线的合成简介。",
         vod_actor: "示例演员",
         vod_director: "示例导演",
@@ -167,7 +173,7 @@ for (const route of routes) {
           },
         };
       });
-      expect(actualDom.title).toBe(expectedDom.title);
+      expect(actualDom.title).toBe(currentExpectedName(expectedDom.title));
       const actualMainBox = actualDom.mainBox;
       const compareStructure = !["player", "premium", "premium-settings", "settings"].includes(route.id);
       if (compareStructure && expectedDom.mainBox !== null) {
@@ -194,14 +200,18 @@ for (const route of routes) {
           box,
         }));
       if (compareStructure) {
-        expect(actualDom.headings.map(({ name }) => name)).toEqual(expectedHeadings.map(({ name }: { name: string }) => name));
+        expect(actualDom.headings.map(({ name }) => name)).toEqual(expectedHeadings.map(({ name }: { name: string }) => currentExpectedName(name)));
         expect(actualDom.headings).toHaveLength(expectedHeadings.length);
         actualDom.headings.forEach(({ box }, headingIndex) => box.forEach((value, boxIndex) => {
+          const expectedName = expectedHeadings[headingIndex].name as string;
+          if (boxIndex === 2 && currentExpectedName(expectedName) !== expectedName) return;
           expect(Math.abs(value - expectedHeadings[headingIndex].box[boxIndex]), `heading ${headingIndex} box[${boxIndex}]`).toBeLessThanOrEqual(2);
         }));
-        expect(actualDom.interactiveBoxes.map(({ name }) => name)).toEqual(expectedInteractiveBoxes.map(({ name }: { name: string }) => name));
+        expect(actualDom.interactiveBoxes.map(({ name }) => name)).toEqual(expectedInteractiveBoxes.map(({ name }: { name: string }) => currentExpectedName(name)));
         expect(actualDom.interactiveBoxes).toHaveLength(expectedInteractiveBoxes.length);
         actualDom.interactiveBoxes.forEach(({ box }, interactiveIndex) => box.forEach((value, boxIndex) => {
+          const expectedName = expectedInteractiveBoxes[interactiveIndex].name as string;
+          if (boxIndex === 2 && currentExpectedName(expectedName) !== expectedName) return;
           expect(Math.abs(value - expectedInteractiveBoxes[interactiveIndex].box[boxIndex]), `interactive ${interactiveIndex} box[${boxIndex}]`).toBeLessThanOrEqual(2);
         }));
       }

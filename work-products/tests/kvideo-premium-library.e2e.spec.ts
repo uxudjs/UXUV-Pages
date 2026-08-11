@@ -147,7 +147,7 @@ test.describe("KVideo T30 Premium library", () => {
       const context = await browser.newContext({ locale: scenario.locale });
       await mockWorker(context);
       const page = await context.newPage();
-      await page.goto("http://127.0.0.1:4173/UXUV-Pages/0.2.0/premium/favorites/");
+      await page.goto("http://127.0.0.1:4173/UXUV-Pages/premium/favorites/");
       await expect(page.getByRole("heading", { name: scenario.heading })).toBeVisible();
       await expect(page.getByRole("button", { name: scenario.favorites })).toBeVisible();
       await expect(page.getByRole("button", { name: scenario.history })).toBeVisible();

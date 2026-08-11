@@ -143,7 +143,7 @@ async function installDeviceCapabilities(context: BrowserContext, capabilities: 
     } });
 
     if (options.androidPiP) {
-      Object.defineProperty(window, "KVideoAndroid", { configurable: true, value: {
+      Object.defineProperty(window, "UXUVideoAndroid", { configurable: true, value: {
         isPictureInPictureSupported: () => true,
         enterPictureInPicture: () => { evidence.androidPiPRequests += 1; return true; },
       } });

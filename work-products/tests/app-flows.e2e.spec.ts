@@ -471,7 +471,7 @@ test("auth: direct GitHub Pages shows guidance and makes no authentication reque
     if (new URL(request.url()).pathname.startsWith("/api/")) apiRequests += 1;
   });
 
-  await page.goto("https://uxudjs.github.io:4173/UXUV-Pages/0.2.0/");
+  await page.goto("https://uxudjs.github.io:4173/UXUV-Pages/");
   await expect(page.getByText("请从你的 UXUVideo Worker 域名访问完整应用。")).toBeVisible();
   await expect(page.getByRole("heading", { name: "访问受限" })).toHaveCount(0);
   await page.waitForTimeout(100);

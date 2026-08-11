@@ -40,7 +40,7 @@ export function ContentNavigation({ premium = false }: Readonly<{ premium?: bool
               <Icon source={Tv} size={20} />
             </Link>
           )}
-          <a className="nav-icon nav-github" href="https://github.com/KuekHaoYang/KVideo" target="_blank" rel="noopener noreferrer"
+          <a className="nav-icon nav-github" href="https://github.com/uxudjs/UXUVideo" target="_blank" rel="noopener noreferrer"
             aria-label={copy.repository} title={copy.repository} data-focusable><Icon source={Github} size={20} /></a>
           <Link className="nav-icon" href={favoritesHref} prefetch={false} aria-label={copy.favorites} title={copy.favorites} data-focusable>
             <Icon source={Heart} size={20} />

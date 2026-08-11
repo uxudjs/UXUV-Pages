@@ -70,7 +70,7 @@ for (const [locale, guidance] of publicCopy) {
 
     for (const width of [320, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto("https://uxudjs.github.io:4173/UXUV-Pages/0.2.0/");
+      await page.goto("https://uxudjs.github.io:4173/UXUV-Pages/");
       await expect(page.getByText(guidance)).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
@@ -138,7 +138,7 @@ test("account permission fallback is localized and never requests account data",
     const context = await browser.newContext({ locale });
     const page = await context.newPage();
     const accountRequests = await readyWorker(page, "viewer");
-    await page.goto("http://127.0.0.1:4173/UXUV-Pages/0.2.0/settings/");
+    await page.goto("http://127.0.0.1:4173/UXUV-Pages/settings/");
     await expect(page.getByText(message)).toBeVisible();
     expect(accountRequests()).toBe(0);
     await context.close();

@@ -116,7 +116,7 @@ test.describe("KVideo T31 PWA", () => {
       const requests = await Promise.all(names.map(async (name) => (await caches.open(name)).keys()));
       return requests.flat().map(({ url }) => new URL(url).pathname);
     });
-    expect(cachedPaths).toContain("/UXUV-Pages/0.2.0/settings/");
+    expect(cachedPaths).toContain("/UXUV-Pages/settings/");
     expect(cachedPaths).toContain("/icon.png");
     expect(cachedPaths.some((path) => path.startsWith("/api/"))).toBe(false);
     expect(cachedPaths.some((path) => path.endsWith("media-test.mp4"))).toBe(false);

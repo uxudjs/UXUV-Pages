@@ -93,7 +93,7 @@ export function AppVersionSettings() {
         : `Version ${result.currentVersion ?? "—"} matches the latest GitHub release.`
     : `${result.currentVersion ?? "—"} / ${result.latestVersion ?? "—"}`;
   const currentRelease = result.currentRelease;
-  const sourceName = `${result.source?.repository ?? "KuekHaoYang/KVideo"} · ${result.source?.branch ?? "main"}`;
+  const sourceName = `${result.source?.repository ?? "uxudjs/UXUVideo"} · ${result.source?.branch ?? "main"}`;
 
   return <SettingsSection id="app-version" title={copy.title} description={copy.description} summary={
     <button className="version-refresh" type="button" data-focusable disabled={result.status === "loading"} onClick={refresh}><Icon source={RefreshCw} size={14} />{copy.refresh}</button>

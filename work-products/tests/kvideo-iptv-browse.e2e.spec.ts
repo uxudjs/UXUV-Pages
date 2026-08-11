@@ -153,7 +153,7 @@ test.describe("KVideo T27 IPTV browse", () => {
       const context = await browser.newContext({ locale: scenario.locale });
       const evidence = await mockIptvBrowseWorker(context, false);
       const page = await context.newPage();
-      await page.goto("http://127.0.0.1:4173/UXUV-Pages/0.2.0/iptv/");
+      await page.goto("http://127.0.0.1:4173/UXUV-Pages/iptv/");
       await expect(page.getByRole("heading", { name: scenario.heading })).toBeVisible();
       expect(evidence.iptvRequests).toBe(0);
       await context.close();

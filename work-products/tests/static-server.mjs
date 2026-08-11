@@ -5,7 +5,7 @@ import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const port = Number(process.env.PORT ?? 4173);
-const basePath = "/UXUV-Pages/0.2.0";
+const basePath = "/UXUV-Pages";
 const outRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..", "out");
 const mimeTypes = new Map([
   [".css", "text/css; charset=utf-8"],

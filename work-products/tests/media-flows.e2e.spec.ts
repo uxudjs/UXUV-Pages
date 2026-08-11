@@ -120,7 +120,7 @@ test("IPTV enforces permission, loads channels, switches streams, and exposes to
   const deniedContext = await browser.newContext({ locale: "zh-CN" });
   const deniedWorker = await mockMediaWorker(deniedContext);
   const deniedPage = await deniedContext.newPage();
-  await deniedPage.goto("http://127.0.0.1:4173/UXUV-Pages/0.2.0/iptv/");
+  await deniedPage.goto("http://127.0.0.1:4173/UXUV-Pages/iptv/");
   await expect(deniedPage.getByRole("heading", { name: "无权访问 IPTV" })).toBeVisible();
   expect(deniedWorker.getIptvRequests()).toBe(0);
   await deniedContext.close();
@@ -131,7 +131,7 @@ test("IPTV enforces permission, loads channels, switches streams, and exposes to
     iptvSources: JSON.stringify([{ name: "内置直播", url: "https://iptv.example/list.m3u" }]),
   });
   const page = await allowedContext.newPage();
-  await page.goto("http://127.0.0.1:4173/UXUV-Pages/0.2.0/iptv/");
+  await page.goto("http://127.0.0.1:4173/UXUV-Pages/iptv/");
   await expect(page.getByRole("button", { name: /新闻一台/ })).toBeVisible();
   await page.getByRole("button", { name: /新闻一台/ }).click();
   const video = page.getByLabel("视频播放器");

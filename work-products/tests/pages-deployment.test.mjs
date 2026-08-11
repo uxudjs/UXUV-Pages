@@ -10,16 +10,22 @@ test("advances the candidate without storing historic releases in the source che
   const packageJson = JSON.parse(read("package.json"));
   const packageLock = JSON.parse(read("package-lock.json"));
   const nextConfig = read("next.config.ts");
+  const playwrightConfig = read("playwright.config.ts");
+  const visualPlaywrightConfig = read("work-products/tests/kvideo-playwright.config.ts");
   const gitignore = read(".gitignore");
 
   assert.equal(packageJson.version, "0.2.0");
   assert.equal(packageLock.version, "0.2.0");
   assert.equal(packageLock.packages[""].version, "0.2.0");
   assert.match(gitignore, /^release\/$/m);
-  assert.match(nextConfig, /const PAGES_BASE_PATH = ["']\/UXUV-Pages\/0\.2\.0["']/);
+  assert.match(nextConfig, /const PAGES_BASE_PATH = ["']\/UXUV-Pages["']/);
   assert.match(nextConfig, /basePath:\s*PAGES_BASE_PATH/);
   assert.match(nextConfig, /generateBuildId:\s*async\s*\(\)\s*=>\s*["']uxuv-pages-0\.2\.0["']/);
-  assert.doesNotMatch(nextConfig, /UXUV-Pages\/(?:main|master|latest)/i);
+  assert.doesNotMatch(nextConfig, /UXUV-Pages\/(?:0\.2\.0|main|master|latest)/i);
+  assert.match(playwrightConfig, /baseURL = `http:\/\/127\.0\.0\.1:\$\{port\}\/UXUV-Pages\/`/);
+  assert.match(visualPlaywrightConfig, /baseURL = `http:\/\/127\.0\.0\.1:\$\{port\}\/UXUV-Pages\/`/);
+  assert.doesNotMatch(playwrightConfig, /UXUV-Pages\/(?:0\.2\.0|main|master|latest)/i);
+  assert.doesNotMatch(visualPlaywrightConfig, /UXUV-Pages\/(?:0\.2\.0|main|master|latest)/i);
 });
 
 test("rejects a release identity that does not match the workflow trigger commit", () => {
@@ -70,8 +76,9 @@ test("publishes Pages from main pushes or a pinned manual dispatch", () => {
   assert.match(workflow, /name:\s*uxuv-pages-\$\{\{\s*env\.PAGES_VERSION\s*\}\}-\$\{\{\s*github\.sha\s*\}\}/);
   assert.match(workflow, /path:\s*release\/\$\{\{\s*env\.PAGES_VERSION\s*\}\}/);
   assert.match(workflow, /if-no-files-found:\s*error/);
-  assert.match(workflow, /target="published\/\$PAGES_VERSION"/);
-  assert.match(workflow, /diff --recursive --brief "\$source" "\$target"/);
+  assert.match(workflow, /rsync --archive --delete --filter='protect \/0\.2\.0\/\*\*\*' --exclude='\.git\/' "\$source\/" published\//);
+  assert.doesNotMatch(workflow, /published\/\$PAGES_VERSION/);
+  assert.doesNotMatch(workflow, /http-equiv="refresh"/);
   assert.match(workflow, /touch published\/\.nojekyll/);
   assert.match(workflow, /git diff --cached --quiet/);
   assert.match(workflow, /git push origin gh-pages/);

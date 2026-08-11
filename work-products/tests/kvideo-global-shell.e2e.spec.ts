@@ -3,7 +3,7 @@ import { expect, test, type BrowserContext, type Route } from "@playwright/test"
 const session = { accountId: "viewer-shell", profileId: "viewer-shell", username: "viewer", name: "Viewer", role: "viewer", customPermissions: [], mode: "managed" };
 const config = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
-  site: { name: "KVideo", title: "KVideo", description: "视频聚合平台", iconUrl: "/icon.png" },
+  site: { name: "UXUVideo", title: "UXUVideo", description: "视频聚合平台", iconUrl: "/icon.png" },
   capabilities: { premium: true, iptv: true, danmaku: false },
   adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
@@ -47,7 +47,7 @@ test.describe("KVideo global shell", () => {
     await page.goto("./");
     await expect(page.getByRole("navigation", { name: "主导航" })).toBeVisible();
     await expect(page.getByRole("link", { name: "直播" })).toHaveAttribute("href", /\/iptv$/);
-    await expect(page.getByRole("link", { name: "GitHub 仓库" })).toHaveAttribute("href", "https://github.com/KuekHaoYang/KVideo");
+    await expect(page.getByRole("link", { name: "GitHub 仓库" })).toHaveAttribute("href", "https://github.com/uxudjs/UXUVideo");
     await expect(page.getByRole("button", { name: "高级" })).toBeVisible();
     await expect(page.getByRole("link", { name: "我的收藏" })).toBeVisible();
     await expect(page.getByRole("link", { name: "设置" })).toBeVisible();

@@ -20,7 +20,7 @@ const files = [
 test("T23 supplies bounded device capability modules", () => {
   for (const path of files) assert.equal(existsSync(join(root, path)), true, `${path} must exist`);
   const combined = files.map(read).join("\n");
-  for (const token of ["requestFullscreen", "exitFullscreen", "requestPictureInPicture", "KVideoAndroid",
+  for (const token of ["requestFullscreen", "exitFullscreen", "requestPictureInPicture", "UXUVideoAndroid",
     "requestSession", "ORIGIN_SCOPED", "orientation.lock", "orientation.unlock", "DOUBLE_TAP_WINDOW_MS"]) {
     assert.match(combined, new RegExp(token.replace(".", "\\.")));
   }

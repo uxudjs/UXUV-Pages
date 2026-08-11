@@ -35,6 +35,26 @@ test("loads the basic home feed through the authenticated same-origin Worker rou
   assert.doesNotMatch(client, /https?:\/\//);
 });
 
+test("opens a home poster directly in the matching player route", () => {
+  const home = read("components/HomeExperience.tsx");
+
+  assert.match(home, /const openHomeMovie = async \(movie: HomeMovie\)/);
+  assert.match(home, /const found = await runSearch\(movie\.title\)/);
+  assert.match(home, /router\.push\(`\/player\?\$\{parameters\.toString\(\)\}`\)/);
+  assert.match(home, /onMovieClick=\{\(movie\) => void openHomeMovie\(movie\)\}/);
+  assert.doesNotMatch(home, /onMovieClick=\{\(movie\) => void runSearch\(movie\.title\)\}/);
+});
+
+test("uses UXUVideo for every user-visible brand reference", () => {
+  const navigation = read("components/ContentNavigation.tsx");
+  const playerSettings = read("components/settings/PlayerSettings.tsx");
+  const versionSettings = read("components/settings/AppVersionSettings.tsx");
+  const visibleBranding = `${navigation}\n${playerSettings}\n${versionSettings}`;
+
+  assert.doesNotMatch(visibleBranding, /KVideo/);
+  assert.match(navigation, /github\.com\/uxudjs\/UXUVideo/);
+});
+
 test("drives KVideo discovery through typed same-origin tag and recommendation requests", () => {
   const home = read("components/HomeExperience.tsx");
   const controls = read("components/home/DiscoverControls.tsx");

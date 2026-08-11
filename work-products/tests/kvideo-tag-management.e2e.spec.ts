@@ -112,16 +112,16 @@ test.describe("KVideo T09 tags, recommendations, and pagination", () => {
       .toEqual({ x: 20, y: 336, height: 40 });
     await page.getByRole("button", { name: "为你推荐", exact: true }).click();
     await expect(page.getByRole("button", { name: "电影", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "搜索 推荐甲" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "搜索 推荐乙" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "搜索 看过甲" })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "搜索 共同推荐" })).toHaveCount(1);
+    await expect(page.getByRole("button", { name: "播放 推荐甲" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "播放 推荐乙" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "播放 看过甲" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "播放 共同推荐" })).toHaveCount(1);
     await page.locator("[data-infinite-sentinel]").scrollIntoViewIfNeeded();
     await expect.poll(() => worker.recommendationRequests.some((request) => {
       const url = new URL(request);
       return url.searchParams.get("tag") === "看过甲" && url.searchParams.get("page_start") === "8";
     })).toBe(true);
-    await expect(page.getByRole("link", { name: "搜索 推荐更多甲" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "播放 推荐更多甲" })).toBeVisible();
     await page.getByRole("button", { name: "热门", exact: true }).click();
     await expect(page.getByRole("button", { name: "电影", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Premium仅", exact: true })).toHaveCount(0);
@@ -186,8 +186,8 @@ test.describe("KVideo T09 tags, recommendations, and pagination", () => {
     await expect.poll(() => worker.recommendationRequests.some((request) => new URL(request).searchParams.get("page_start") === "20")).toBe(true);
 
     await page.getByRole("button", { name: "电视剧", exact: true }).click();
-    await expect(page.getByRole("link", { name: "搜索 电视剧 0" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "播放 电视剧 0" })).toBeVisible();
     worker.releaseSecondPage();
-    await expect(page.getByRole("link", { name: "搜索 过期电影" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "播放 过期电影" })).toHaveCount(0);
   });
 });

@@ -176,7 +176,6 @@ test("production export recalculates a complete eight-route PWA release manifest
     releaseRoot: workRoot,
     licensePath: join(root, "LICENSE"),
     version: "0.1.2",
-    gitCommit: "a".repeat(40),
     apiContract: 1,
     workerRange: ">=1.0.0 <2.0.0",
   });

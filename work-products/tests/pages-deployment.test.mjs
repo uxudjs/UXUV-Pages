@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { verifyReleaseIdentity } from "../../scripts/verify-release-identity.mjs";
 
-const read = (path) => readFileSync(fileURLToPath(new URL(`../../${path}`, import.meta.url)), "utf8");
+const path = (relative) => fileURLToPath(new URL(`../../${relative}`, import.meta.url));
+const read = (relative) => readFileSync(path(relative), "utf8");
 
-test("advances the candidate without storing historic releases in the source checkout", () => {
+test("advances the current candidate without storing versioned releases in the source checkout", () => {
   const packageJson = JSON.parse(read("package.json"));
   const packageLock = JSON.parse(read("package-lock.json"));
   const nextConfig = read("next.config.ts");
@@ -28,38 +28,27 @@ test("advances the candidate without storing historic releases in the source che
   assert.doesNotMatch(visualPlaywrightConfig, /UXUV-Pages\/(?:0\.2\.0|main|master|latest)/i);
 });
 
-test("rejects a release identity that does not match the workflow trigger commit", () => {
-  const commit = "a".repeat(40);
-  assert.equal(verifyReleaseIdentity({ expectedCommit: commit, githubSha: commit, headCommit: commit }), commit);
-  assert.throws(() => verifyReleaseIdentity({
-    expectedCommit: "b".repeat(40),
-    githubSha: commit,
-    headCommit: commit,
-  }), /expectedCommit must equal GITHUB_SHA/);
-  assert.throws(() => verifyReleaseIdentity({ expectedCommit: commit, githubSha: commit, headCommit: "c".repeat(40) }), /checked-out HEAD/);
-  assert.throws(() => verifyReleaseIdentity({ expectedCommit: "abc1234", githubSha: commit, headCommit: commit }), /full 40-character commit/);
+test("removes the custom commit-SHA release identity helper", () => {
+  assert.equal(existsSync(path("scripts/verify-release-identity.mjs")), false);
 });
 
-test("publishes Pages from main pushes or a pinned manual dispatch", () => {
+test("publishes one current release at the repository root without SHA or version directories", () => {
   const workflow = read(".github/workflows/pages.yml");
   const releaseBuild = workflow.indexOf("npm run release:build");
   const staticBuild = workflow.indexOf("npm run build");
   const testGate = workflow.indexOf("npm test");
   const pagesCheckout = workflow.indexOf("ref: gh-pages");
-  const identityGate = workflow.indexOf("node scripts/verify-release-identity.mjs");
   const artifactUpload = workflow.indexOf("actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02");
 
-  assert.match(workflow, /^on:\s*\r?\n\s+push:\s*\r?\n\s+branches:\s*\["main"\]\s*\r?\n\s+workflow_dispatch:/m);
-  assert.match(workflow, /expectedCommit:\s*\r?\n\s+description:/);
-  assert.match(workflow, /expectedCommit:[\s\S]*?required:\s*true/);
+  assert.match(workflow, /^on:\s*\r?\n\s+push:\s*\r?\n\s+branches:\s*\["main"\]\s*\r?\n\s+workflow_dispatch:\s*\{\}/m);
+  assert.match(workflow, /^concurrency:\s*\r?\n\s+group:\s*uxuv-pages-production\s*\r?\n\s+cancel-in-progress:\s*true/m);
+  assert.doesNotMatch(workflow, /expectedCommit|EXPECTED_COMMIT|GITHUB_SHA|verify-release-identity/i);
+  assert.doesNotMatch(workflow, /\bsecrets\./i);
   assert.doesNotMatch(workflow, /^\s{2}pull_request:/m);
   assert.match(workflow, /contents:\s*write/);
   assert.match(workflow, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
   assert.match(workflow, /actions\/setup-node@820762786026740c76f36085b0efc47a31fe5020/);
   assert.match(workflow, /node-version:\s*["']?24["']?/);
-  assert.match(workflow, /ref:\s*\$\{\{\s*github\.event_name\s*==\s*'workflow_dispatch'\s*&&\s*inputs\.expectedCommit\s*\|\|\s*github\.sha\s*\}\}/);
-  assert.match(workflow, /EXPECTED_COMMIT:\s*\$\{\{\s*github\.event_name\s*==\s*'workflow_dispatch'\s*&&\s*inputs\.expectedCommit\s*\|\|\s*github\.sha\s*\}\}/);
-  assert.ok(identityGate >= 0 && identityGate < workflow.indexOf("npm ci"), "commit identity must be checked before dependencies and build");
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /npm test/);
   assert.match(workflow, /npm run lint/);
@@ -67,17 +56,17 @@ test("publishes Pages from main pushes or a pinned manual dispatch", () => {
   assert.match(workflow, /npm run build/);
   assert.ok(staticBuild >= 0 && testGate > staticBuild, "static export must be built before tests that inspect out/");
   assert.ok(releaseBuild >= 0 && pagesCheckout > releaseBuild, "release must be built before checking out gh-pages");
-  assert.ok(artifactUpload > releaseBuild && artifactUpload < pagesCheckout, "artifact must bind the verified release before gh-pages checkout");
+  assert.ok(artifactUpload > releaseBuild && artifactUpload < pagesCheckout, "artifact must be uploaded before gh-pages checkout");
   assert.match(
     workflow,
     /PAGES_VERSION=\$\(node -p "require\('\.\/package\.json'\)\.version"\)\r?\n\s+echo "PAGES_VERSION=\$PAGES_VERSION" >> "\$GITHUB_ENV"/,
   );
-  assert.match(workflow, /path:\s*published/);
-  assert.match(workflow, /name:\s*uxuv-pages-\$\{\{\s*env\.PAGES_VERSION\s*\}\}-\$\{\{\s*github\.sha\s*\}\}/);
-  assert.match(workflow, /path:\s*release\/\$\{\{\s*env\.PAGES_VERSION\s*\}\}/);
+  assert.match(workflow, /name:\s*uxuv-pages-\$\{\{\s*env\.PAGES_VERSION\s*\}\}-\$\{\{\s*github\.run_id\s*\}\}-\$\{\{\s*github\.run_attempt\s*\}\}/);
+  assert.match(workflow, /path:\s*release\/current/);
   assert.match(workflow, /if-no-files-found:\s*error/);
-  assert.match(workflow, /rsync --archive --delete --filter='protect \/0\.2\.0\/\*\*\*' --exclude='\.git\/' "\$source\/" published\//);
-  assert.doesNotMatch(workflow, /published\/\$PAGES_VERSION/);
+  assert.match(workflow, /source="release\/current"/);
+  assert.match(workflow, /rsync --archive --delete --exclude='\.git\/' "\$source\/" published\//);
+  assert.doesNotMatch(workflow, /release\/\$\{\{\s*env\.PAGES_VERSION|release\/\$PAGES_VERSION|protect \/0\.2\.0|published\/\$PAGES_VERSION/);
   assert.doesNotMatch(workflow, /http-equiv="refresh"/);
   assert.match(workflow, /touch published\/\.nojekyll/);
   assert.match(workflow, /git diff --cached --quiet/);

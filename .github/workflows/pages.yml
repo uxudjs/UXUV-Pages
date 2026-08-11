@@ -3,12 +3,11 @@ name: Publish GitHub Pages
 on:
   push:
     branches: ["main"]
-  workflow_dispatch:
-    inputs:
-      expectedCommit:
-        description: Full commit SHA expected from this workflow trigger
-        required: true
-        type: string
+  workflow_dispatch: {}
+
+concurrency:
+  group: uxuv-pages-production
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -19,13 +18,6 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.expectedCommit || github.sha }}
-
-      - name: Verify trigger and checkout identity
-        env:
-          EXPECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.expectedCommit || github.sha }}
-        run: node scripts/verify-release-identity.mjs
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
@@ -48,7 +40,7 @@ jobs:
       - name: Type-check
         run: npx tsc --noEmit
 
-      - name: Build immutable release
+      - name: Build current release
         run: npm run release:build
 
       - name: Read release version
@@ -57,11 +49,11 @@ jobs:
           PAGES_VERSION=$(node -p "require('./package.json').version")
           echo "PAGES_VERSION=$PAGES_VERSION" >> "$GITHUB_ENV"
 
-      - name: Upload commit-bound release artifact
+      - name: Upload release artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: uxuv-pages-${{ env.PAGES_VERSION }}-${{ github.sha }}
-          path: release/${{ env.PAGES_VERSION }}
+          name: uxuv-pages-${{ env.PAGES_VERSION }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: release/current
           if-no-files-found: error
           compression-level: 0
           overwrite: false
@@ -77,8 +69,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          source="release/$PAGES_VERSION"
-          rsync --archive --delete --filter='protect /0.2.0/***' --exclude='.git/' "$source/" published/
+          source="release/current"
+          rsync --archive --delete --exclude='.git/' "$source/" published/
           touch published/.nojekyll
 
           cd published

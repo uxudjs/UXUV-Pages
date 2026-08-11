@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,7 +8,6 @@ import { buildRelease, validateReleaseManifest } from "../../scripts/build-relea
 const root = fileURLToPath(new URL("../..", import.meta.url));
 const workRoot = join(root, "work-products/tests/work/release-manifest");
 const version = "1.2.3";
-const gitCommit = "a".repeat(40);
 const routes = {
   "/": "index.html",
   "/favorites": "favorites/index.html",
@@ -49,51 +47,48 @@ function options(paths, overrides = {}) {
   return {
     ...paths,
     version,
-    gitCommit,
     apiContract: 1,
     workerRange: ">=1.0.0 <2.0.0",
     ...overrides,
   };
 }
 
-function sha256(path) {
-  return createHash("sha256").update(readFileSync(path)).digest("base64");
-}
-
-test("release manifest is complete, reproducible, and byte-verifiable", () => {
+test("builds one current release manifest without commit, SHA, or SRI identity fields", () => {
   const first = fixture("complete-a");
   const second = fixture("complete-b");
   const firstResult = buildRelease(options(first));
   const secondResult = buildRelease(options(second));
   const manifest = JSON.parse(readFileSync(firstResult.manifestPath, "utf8"));
 
+  assert.equal(firstResult.releaseDir, join(first.releaseRoot, "current"));
   assert.deepEqual(manifest.routes, routes);
   assert.equal(manifest.pagesVersion, version);
-  assert.equal(manifest.gitCommit, gitCommit);
+  assert.equal(manifest.apiContract, 1);
+  assert.equal(manifest.workerRange, ">=1.0.0 <2.0.0");
+  assert.equal(Object.hasOwn(manifest, "gitCommit"), false);
   assert.ok(manifest.assets["/LICENSE"]);
   assert.equal(Object.keys(manifest.assets).length, 12);
 
   for (const [urlPath, asset] of Object.entries(manifest.assets)) {
-    const absolute = join(firstResult.releaseDir, asset.path);
-    assert.ok(existsSync(absolute), `${urlPath} is missing`);
-    assert.equal(asset.sha256, sha256(absolute));
-    assert.equal(asset.sri, `sha256-${asset.sha256}`);
+    assert.ok(existsSync(join(firstResult.releaseDir, asset.path)), `${urlPath} is missing`);
+    assert.deepEqual(Object.keys(asset).sort(), ["contentType", "path"]);
     assert.notEqual(asset.contentType, "application/octet-stream");
   }
 
   assert.deepEqual(readFileSync(firstResult.manifestPath), readFileSync(secondResult.manifestPath));
 });
 
-test("release identity rejects mutable versions and non-full commits", () => {
+test("rejects invalid version, API contract, and Worker range", () => {
   const paths = fixture("identity");
   for (const invalid of ["latest", "main", "1.2", "1.2.3-beta.1"]) {
-    assert.throws(() => buildRelease(options(paths, { version: invalid })), /immutable semantic version/);
+    assert.throws(() => buildRelease(options(paths, { version: invalid })), /semantic version/);
   }
-  assert.throws(() => buildRelease(options(paths, { gitCommit: "abc1234" })), /40-character commit/);
+  assert.throws(() => buildRelease(options(paths, { apiContract: 0 })), /API contract/);
+  assert.throws(() => buildRelease(options(paths, { workerRange: "latest" })), /Worker range/);
 });
 
-test("manifest validation detects missing files, MIME drift, and hash drift", () => {
-  const paths = fixture("tamper");
+test("manifest validation rejects missing files, MIME drift, unsafe paths, and sensitive text", () => {
+  const paths = fixture("validation");
   const result = buildRelease(options(paths));
   const original = JSON.parse(readFileSync(result.manifestPath, "utf8"));
   const assetKey = "/_next/static/app.js";
@@ -102,21 +97,29 @@ test("manifest validation detects missing files, MIME drift, and hash drift", ()
   badMime.assets[assetKey].contentType = "text/css; charset=utf-8";
   assert.throws(() => validateReleaseManifest(badMime, result.releaseDir), /MIME mismatch/);
 
-  const badHash = structuredClone(original);
-  badHash.assets[assetKey].sha256 = "invalid";
-  assert.throws(() => validateReleaseManifest(badHash, result.releaseDir), /SHA-256 mismatch/);
+  const unsafe = structuredClone(original);
+  unsafe.assets[assetKey].path = "../app.js";
+  assert.throws(() => validateReleaseManifest(unsafe, result.releaseDir), /unsafe|missing asset/i);
 
-  rmSync(join(result.releaseDir, original.assets[assetKey].path));
-  assert.throws(() => validateReleaseManifest(original, result.releaseDir), /missing asset/);
+  const missing = structuredClone(original);
+  delete missing.assets[assetKey];
+  assert.throws(() => validateReleaseManifest(missing, result.releaseDir), /missing asset|unlisted resource/i);
+
+  const sensitive = fixture("sensitive");
+  write(join(sensitive.sourceDir, "notice.txt"), "ADMIN_PASSWORD=must-not-ship\n");
+  assert.throws(() => buildRelease(options(sensitive)), /sensitive content/i);
 });
 
-test("an immutable version allows identical rebuilds but rejects changed bytes", () => {
-  const paths = fixture("overwrite");
+test("the same version can replace the current release after a content revision", () => {
+  const paths = fixture("replace-current");
   const first = buildRelease(options(paths));
-  const before = readFileSync(join(first.releaseDir, "_next/static/app.js"));
   assert.equal(buildRelease(options(paths)).unchanged, true);
 
-  write(join(paths.sourceDir, "_next/static/app.js"), "console.log('changed');\n");
-  assert.throws(() => buildRelease(options(paths)), /refusing to overwrite immutable release/i);
-  assert.deepEqual(readFileSync(join(first.releaseDir, "_next/static/app.js")), before);
+  const changed = "console.log('changed');\n";
+  write(join(paths.sourceDir, "_next/static/app.js"), changed);
+  const second = buildRelease(options(paths));
+
+  assert.equal(second.releaseDir, first.releaseDir);
+  assert.equal(second.unchanged, false);
+  assert.equal(readFileSync(join(second.releaseDir, "_next/static/app.js"), "utf8"), changed);
 });

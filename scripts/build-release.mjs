@@ -1,5 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import {
   copyFileSync,
   existsSync,
@@ -44,10 +43,8 @@ const MIME = {
 };
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
-const COMMIT = /^[0-9a-f]{40}$/i;
 const FORBIDDEN = /\b(?:ADMIN_PASSWORD|AUTH_SECRET|CF_API_TOKEN)\b|set-cookie\s*:/i;
 const slash = (path) => path.replaceAll("\\", "/");
-const digest = (path) => createHash("sha256").update(readFileSync(path)).digest("base64");
 
 function files(root, directory = root) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -65,15 +62,18 @@ function contentType(path) {
 }
 
 function validateIdentity(manifest) {
-  if (!VERSION.test(manifest.pagesVersion)) throw new Error("Release requires an immutable semantic version");
-  if (!COMMIT.test(manifest.gitCommit)) throw new Error("Release requires a full 40-character commit");
+  if (!VERSION.test(manifest.pagesVersion)) throw new Error("Release requires a semantic version");
   if (!Number.isInteger(manifest.apiContract) || manifest.apiContract < 1) throw new Error("Invalid API contract");
   if (!/^>=\d+\.\d+\.\d+ <\d+\.\d+\.\d+$/.test(manifest.workerRange)) throw new Error("Invalid Worker range");
 }
 
 export function validateReleaseManifest(manifest, releaseDir) {
   validateIdentity(manifest);
+  if (manifest.schemaVersion !== 1) throw new Error("Invalid release manifest schema");
   if (JSON.stringify(manifest.routes) !== JSON.stringify(ROUTES)) throw new Error("Static route manifest mismatch");
+  if (!manifest.assets || Array.isArray(manifest.assets) || typeof manifest.assets !== "object") {
+    throw new Error("Invalid release manifest assets");
+  }
 
   const listed = Object.values(manifest.assets).map((asset) => asset.path).sort();
   const actual = files(releaseDir).filter((path) => path !== "release-manifest.json");
@@ -86,8 +86,6 @@ export function validateReleaseManifest(manifest, releaseDir) {
     const absolute = resolve(releaseDir, asset.path);
     if (!absolute.startsWith(`${resolve(releaseDir)}${sep}`) || !existsSync(absolute)) throw new Error(`Manifest references missing asset: ${asset.path}`);
     if (asset.contentType !== contentType(asset.path)) throw new Error(`MIME mismatch for ${asset.path}`);
-    const sha256 = digest(absolute);
-    if (asset.sha256 !== sha256 || asset.sri !== `sha256-${sha256}`) throw new Error(`SHA-256 mismatch for ${asset.path}`);
     if (asset.contentType.includes("charset") && FORBIDDEN.test(readFileSync(absolute, "utf8"))) throw new Error(`Sensitive content in ${asset.path}`);
   }
 
@@ -104,12 +102,30 @@ function sameTree(left, right) {
     && leftFiles.every((path) => readFileSync(join(left, path)).equals(readFileSync(join(right, path))));
 }
 
-export function buildRelease({ sourceDir, releaseRoot, licensePath, version, gitCommit, apiContract, workerRange }) {
-  validateIdentity({ pagesVersion: version, gitCommit, apiContract, workerRange });
+function replaceCurrent(staging, target, backup) {
+  if (!existsSync(target)) {
+    renameSync(staging, target);
+    return;
+  }
+
+  renameSync(target, backup);
+  try {
+    renameSync(staging, target);
+    rmSync(backup, { force: true, recursive: true });
+  } catch (error) {
+    if (!existsSync(target) && existsSync(backup)) renameSync(backup, target);
+    throw error;
+  }
+}
+
+export function buildRelease({ sourceDir, releaseRoot, licensePath, version, apiContract, workerRange }) {
+  validateIdentity({ pagesVersion: version, apiContract, workerRange });
   if (!existsSync(sourceDir) || !existsSync(licensePath)) throw new Error("Release source and LICENSE are required");
   mkdirSync(releaseRoot, { recursive: true });
-  const staging = join(releaseRoot, `.tmp-${version}-${process.pid}-${randomUUID()}`);
-  const target = join(releaseRoot, version);
+  const suffix = `${process.pid}-${randomUUID()}`;
+  const staging = join(releaseRoot, `.tmp-current-${suffix}`);
+  const target = join(releaseRoot, "current");
+  const backup = join(releaseRoot, `.previous-current-${suffix}`);
   mkdirSync(staging, { recursive: true });
 
   try {
@@ -119,20 +135,26 @@ export function buildRelease({ sourceDir, releaseRoot, licensePath, version, git
       copyFileSync(join(sourceDir, path), destination);
     }
     copyFileSync(licensePath, join(staging, "LICENSE"));
-    const assets = Object.fromEntries(files(staging).map((path) => {
-      const sha256 = digest(join(staging, path));
-      return [`/${path}`, { path, sha256, sri: `sha256-${sha256}`, contentType: contentType(path) }];
-    }));
-    const manifest = { schemaVersion: 1, pagesVersion: version, gitCommit: gitCommit.toLowerCase(), apiContract, workerRange, routes: ROUTES, assets };
+    const assets = Object.fromEntries(files(staging).map((path) => [
+      `/${path}`,
+      { path, contentType: contentType(path) },
+    ]));
+    const manifest = {
+      schemaVersion: 1,
+      pagesVersion: version,
+      apiContract,
+      workerRange,
+      routes: ROUTES,
+      assets,
+    };
     validateReleaseManifest(manifest, staging);
     const manifestPath = join(staging, "release-manifest.json");
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
-    if (existsSync(target)) {
-      if (!sameTree(staging, target)) throw new Error(`Refusing to overwrite immutable release ${version}`);
+    if (existsSync(target) && sameTree(staging, target)) {
       return { releaseDir: target, manifestPath: join(target, "release-manifest.json"), unchanged: true };
     }
-    renameSync(staging, target);
+    replaceCurrent(staging, target, backup);
     return { releaseDir: target, manifestPath: join(target, "release-manifest.json"), unchanged: false };
   } finally {
     if (existsSync(staging)) rmSync(staging, { force: true, recursive: true });
@@ -141,9 +163,14 @@ export function buildRelease({ sourceDir, releaseRoot, licensePath, version, git
 
 if (resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-  if (execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" }).trim()) throw new Error("Release build requires a clean Git worktree");
   const packageJson = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-  const gitCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
-  const result = buildRelease({ sourceDir: join(root, "out"), releaseRoot: join(root, "release"), licensePath: join(root, "LICENSE"), version: packageJson.version, gitCommit, apiContract: 1, workerRange: ">=1.0.0 <2.0.0" });
-  console.log(`${result.unchanged ? "Verified" : "Created"} release ${packageJson.version} at ${relative(root, result.releaseDir)}`);
+  const result = buildRelease({
+    sourceDir: join(root, "out"),
+    releaseRoot: join(root, "release"),
+    licensePath: join(root, "LICENSE"),
+    version: packageJson.version,
+    apiContract: 1,
+    workerRange: ">=1.0.0 <2.0.0",
+  });
+  console.log(`${result.unchanged ? "Verified" : "Updated"} current Pages release at ${relative(root, result.releaseDir)}`);
 }

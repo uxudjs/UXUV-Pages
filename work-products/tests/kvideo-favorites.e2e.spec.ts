@@ -31,6 +31,10 @@ async function mockWorker(context: BrowserContext, accountId: string, initialFav
     if (path === "/api/auth/session") return json(route, { authenticated: true, session: {
       accountId, profileId: accountId, username: accountId, name: accountId, role: "viewer", customPermissions: [], mode: "managed",
     } });
+    if (path === "/api/app-update") return json(route, {
+      currentVersion: "1.0.0", latestVersion: "1.0.0", status: "up-to-date", checkedAt: "2026-08-11T08:00:00.000Z",
+      source: { changelogUrl: "https://github.com/uxudjs/UXUVideo/blob/main/CHANGELOG.md", repositoryUrl: "https://github.com/uxudjs/UXUVideo" },
+    });
     if (path === "/api/user/config") return json(route, config);
     if (path === "/api/user/sync" && method === "GET") return json(route, library);
     if (path === "/api/user/sync" && method === "POST") {
@@ -74,10 +78,14 @@ test.describe("KVideo T13 favorites library", () => {
     await page.keyboard.press("Escape");
     await expect(sidebar).toBeHidden();
 
-    await page.getByLabel("语言").selectOption("zh-TW");
+    await page.goto("./settings/");
+    await page.locator('[data-settings-section="display"]').getByRole("button", { name: "繁體中文", exact: true }).click();
+    await page.goto("./favorites/");
     await expect(page.getByRole("heading", { name: "我的收藏" })).toBeVisible();
     await expect(page.getByText(/收藏容量：1\/100/)).toBeVisible();
-    await page.getByLabel("語言").selectOption("en");
+    await page.goto("./settings/");
+    await page.locator('[data-settings-section="display"]').getByRole("button", { name: "English", exact: true }).click();
+    await page.goto("./favorites/");
     await expect(page.getByRole("heading", { name: "My favorites" })).toBeVisible();
     await expect(page.getByText(/Favorite capacity: 1\/100/)).toBeVisible();
 

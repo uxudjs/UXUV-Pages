@@ -30,6 +30,10 @@ async function mockShellWorker(context: BrowserContext, movieCount = 3) {
     }
     if (path === "/api/user/config") return json(route, syncDocument("config"));
     if (path === "/api/user/sync") return json(route, syncDocument("library"));
+    if (path === "/api/app-update") return json(route, {
+      currentVersion: "1.0.0", latestVersion: "1.0.0", status: "up-to-date", checkedAt: "2026-08-11T08:00:00.000Z",
+      copy: { available: true, href: "/api/app-update?artifact=worker", version: "1.0.0" },
+    });
     if (path === "/api/douban/tags") return json(route, { tags: ["热门", "高级"] });
     if (path === "/api/douban/recommend") return json(route, { subjects: Array.from({ length: movieCount }, (_, index) => ({
       id: `movie-${index}`, title: `示例影片 ${index + 1}`, cover: "placeholder-poster.svg", rate: "8.8", url: "",
@@ -42,15 +46,15 @@ async function mockShellWorker(context: BrowserContext, movieCount = 3) {
 test.describe("KVideo global shell", () => {
   test.use({ locale: "zh-CN", colorScheme: "dark", viewport: { width: 1024, height: 900 } });
 
-  test("keeps the reviewed nav geometry and operates theme, locale, mode, and session actions", async ({ page }) => {
+  test("keeps the reviewed nav geometry and operates theme, settings, locale, and session actions", async ({ page }) => {
     const methods = await mockShellWorker(page.context());
     await page.goto("./");
     await expect(page.getByRole("navigation", { name: "主导航" })).toBeVisible();
     await expect(page.getByRole("link", { name: "直播" })).toHaveAttribute("href", /\/iptv$/);
-    await expect(page.getByRole("link", { name: "GitHub 仓库" })).toHaveAttribute("href", "https://github.com/uxudjs/UXUVideo");
     await expect(page.getByRole("button", { name: "高级" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "我的收藏" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "设置" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "打开设置" })).toHaveText("V");
+    await expect(page.getByRole("link", { name: "GitHub 仓库" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "我的收藏" })).toHaveCount(0);
 
     for (const [width, expected] of [[320, [16, 288, 64]], [768, [16, 736, 82]], [1024, [16, 992, 82]], [1440, [96, 1248, 82]]] as const) {
       await page.setViewportSize({ width, height: 900 });
@@ -96,12 +100,14 @@ test.describe("KVideo global shell", () => {
     await page.getByRole("button", { name: "设为系统主题" }).click();
     await expect(page.getByRole("button", { name: "设为系统主题" })).toHaveAttribute("aria-pressed", "true");
 
-    await page.getByLabel("语言").selectOption("zh-TW");
-    await expect(page.getByRole("link", { name: "設定" })).toBeVisible();
+    await page.getByRole("link", { name: "打开设置" }).click();
+    const display = page.locator('[data-settings-section="display"]');
+    await display.getByRole("button", { name: "繁體中文", exact: true }).click();
     await expect(page.locator("html")).toHaveAttribute("lang", "zh-TW");
-    await page.getByLabel("語言").selectOption("en");
-    await expect(page.getByRole("link", { name: "Settings" })).toBeVisible();
+    await display.getByRole("button", { name: "English", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Settings", exact: true })).toBeVisible();
 
+    await page.goto("./");
     await page.getByRole("button", { name: "Sign out" }).click();
     await expect.poll(() => methods.filter((method) => method === "DELETE").length).toBe(1);
     await expect(page.getByRole("heading", { name: "Access restricted" })).toBeVisible();

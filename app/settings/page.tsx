@@ -1,6 +1,5 @@
 import { AdminGate } from "@/components/AdminGate";
 import { AccountSettings } from "@/components/settings/AccountSettings";
-import { AppVersionSettings } from "@/components/settings/AppVersionSettings";
 import { CloudflareUsageSettings } from "@/components/settings/CloudflareUsageSettings";
 import { DataSettings } from "@/components/settings/DataSettings";
 import { DisplaySettings } from "@/components/settings/DisplaySettings";
@@ -17,7 +16,6 @@ export default function SettingsPage() {
     <div className="content-shell settings-page-shell">
       <main className="settings-shell">
         <SettingsPageHeading />
-        <AppVersionSettings />
         <AdminGate showFallback>
           <AccountSettings />
         </AdminGate>

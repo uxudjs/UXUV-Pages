@@ -33,6 +33,10 @@ async function mockWorker(context: BrowserContext) {
     const url = new URL(route.request().url());
     if (url.pathname === "/api/config") return json(route, runtime);
     if (url.pathname === "/api/auth/session") return json(route, { authenticated: true, session });
+    if (url.pathname === "/api/app-update") return json(route, {
+      currentVersion: "1.0.0", latestVersion: "1.0.0", status: "up-to-date", checkedAt: "2026-08-11T08:00:00.000Z",
+      source: { changelogUrl: "https://github.com/uxudjs/UXUVideo/blob/main/CHANGELOG.md", repositoryUrl: "https://github.com/uxudjs/UXUVideo" },
+    });
     if (url.pathname === "/api/user/config") return json(route, syncedDocument("config"));
     if (url.pathname === "/api/user/sync") return json(route, syncedDocument("library"));
     if (url.pathname === "/api/douban/tags") return json(route, { tags: ["热门"] });
@@ -71,14 +75,16 @@ test.describe("KVideo T31 PWA", () => {
     expect(installability.installabilityErrors.map(({ errorId }) => errorId)).toEqual(["in-incognito"]);
 
     const scenarios = [
-      { width: 320, locale: "zh-CN", nav: "主导航" },
-      { width: 768, locale: "zh-TW", nav: "主導覽" },
-      { width: 1024, locale: "en", nav: "Primary navigation" },
-      { width: 1440, locale: "zh-CN", nav: "主导航" },
+      { width: 320, language: "简体中文", nav: "主导航" },
+      { width: 768, language: "繁體中文", nav: "主導覽" },
+      { width: 1024, language: "English", nav: "Primary navigation" },
+      { width: 1440, language: "简体中文", nav: "主导航" },
     ];
     for (const scenario of scenarios) {
       await page.setViewportSize({ width: scenario.width, height: 900 });
-      await page.getByLabel(/^(语言|語言|Language)$/).selectOption(scenario.locale);
+      await page.goto("./settings/");
+      await page.locator('[data-settings-section="display"]').getByRole("button", { name: scenario.language, exact: true }).click();
+      await page.goto("./");
       await expect(page.getByRole("navigation", { name: scenario.nav })).toBeVisible();
       await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       const brand = page.locator(".content-brand");

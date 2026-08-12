@@ -48,11 +48,22 @@ test("opens a home poster directly in the matching player route", () => {
 test("uses UXUVideo for every user-visible brand reference", () => {
   const navigation = read("components/ContentNavigation.tsx");
   const playerSettings = read("components/settings/PlayerSettings.tsx");
-  const versionSettings = read("components/settings/AppVersionSettings.tsx");
-  const visibleBranding = `${navigation}\n${playerSettings}\n${versionSettings}`;
+  const updateControl = read("components/AppUpdateControl.tsx");
+  const visibleBranding = `${navigation}\n${playerSettings}\n${updateControl}`;
 
   assert.doesNotMatch(visibleBranding, /KVideo/);
-  assert.match(navigation, /github\.com\/uxudjs\/UXUVideo/);
+});
+
+test("T54 keeps only high-frequency content navigation actions", () => {
+  const navigation = read("components/ContentNavigation.tsx");
+
+  for (const removed of [/Github/, /Heart/, /nav-github/, /locale-control/, /localeLabels/, /copy\.favorites/, /copy\.repository/]) {
+    assert.doesNotMatch(navigation, removed);
+  }
+  assert.match(navigation, /ThemeSwitcher/);
+  assert.match(navigation, /source=\{Tv\}/);
+  assert.match(navigation, /source=\{LogOut\}/);
+  assert.match(navigation, /signOut/);
 });
 
 test("drives KVideo discovery through typed same-origin tag and recommendation requests", () => {

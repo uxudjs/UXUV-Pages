@@ -58,6 +58,10 @@ async function mockWorker(page: Page, options: { rejectLogin?: boolean } = {}) {
     if (url.pathname === "/api/admin/usage") {
       return json(route, { data: { configured: false, missing: ["CF_ANALYTICS_API_TOKEN"], message: "Usage fixture is not configured." } });
     }
+    if (url.pathname === "/api/app-update") return json(route, {
+      currentVersion: "1.0.0", latestVersion: "1.0.0", status: "up-to-date", checkedAt: "2026-08-11T08:00:00.000Z",
+      source: { changelogUrl: "https://github.com/uxudjs/UXUVideo/blob/main/CHANGELOG.md", repositoryUrl: "https://github.com/uxudjs/UXUVideo" },
+    });
     return json(route, { error: { code: "NOT_FOUND" } }, 404);
   });
 
@@ -124,7 +128,8 @@ test.describe("reviewed KVideo login", () => {
     await page.getByLabel("用户名").fill("admin");
     await page.getByLabel("密码").fill("fixture-password");
     await page.getByLabel("密码").press("Enter");
-    await expect(page.getByText("Administrator")).toBeVisible();
+    await expect(page.getByRole("link", { name: "打开设置" })).toHaveText("A");
+    await expect(page.getByText("Administrator", { exact: true })).toHaveCount(0);
 
     expect(worker.loginRequests).toHaveLength(1);
     const request = worker.loginRequests[0];

@@ -30,11 +30,13 @@ test("T19 previews before an atomic local payload replacement and keeps both dia
 });
 
 test("T19 renders localized update available, current, and failed states through the same-origin route", () => {
-  const version = read("components/settings/AppVersionSettings.tsx");
+  const version = read("components/AppUpdateControl.tsx");
+  const gate = read("components/PasswordGate.tsx");
   const page = read("app/settings/page.tsx");
   assert.match(version, /\/api\/app-update/);
   for (const status of ["update-available", "up-to-date", "ahead-of-remote", "check-failed"]) assert.match(version, new RegExp(status));
   for (const locale of ["zh-CN", "zh-TW", "en"]) assert.match(version, new RegExp(`(?:(?:"${locale}")|(?:${locale}:))`));
-  assert.match(page, /<AppVersionSettings/);
+  assert.match(gate, /<AppUpdateControl/);
+  assert.doesNotMatch(page, /AppVersionSettings/);
   assert.match(page, /<DataSettings/);
 });

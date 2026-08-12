@@ -31,6 +31,10 @@ async function mockWorker(context: BrowserContext, accountId: string, initialHis
     if (path === "/api/auth/session") return json(route, { authenticated: true, session: {
       accountId, profileId: accountId, username: accountId, name: accountId, role: "viewer", customPermissions: [], mode: "managed",
     } });
+    if (path === "/api/app-update") return json(route, {
+      currentVersion: "1.0.0", latestVersion: "1.0.0", status: "up-to-date", checkedAt: "2026-08-11T08:00:00.000Z",
+      source: { changelogUrl: "https://github.com/uxudjs/UXUVideo/blob/main/CHANGELOG.md", repositoryUrl: "https://github.com/uxudjs/UXUVideo" },
+    });
     if (path === "/api/user/config") return json(route, config);
     if (path === "/api/user/sync" && method === "GET") return json(route, library);
     if (path === "/api/user/sync" && method === "POST") {
@@ -71,14 +75,19 @@ test.describe("KVideo T14 watch history", () => {
     await page.getByRole("alertdialog").getByRole("button", { name: "确认删除" }).click();
     await expect(sidebar.getByText("第二记录")).toHaveCount(0);
 
-    await page.getByLabel("语言").selectOption("zh-TW");
-    await expect(page.getByRole("dialog", { name: "觀看記錄" })).toBeVisible();
-    await page.getByLabel("語言").selectOption("en");
-    await expect(page.getByRole("dialog", { name: "Watch history" })).toBeVisible();
     await page.keyboard.press("Escape");
-    await expect(page.getByRole("dialog", { name: "Watch history" })).toBeHidden();
+    await page.goto("./settings/");
+    await page.locator('[data-settings-section="display"]').getByRole("button", { name: "繁體中文", exact: true }).click();
+    await page.goto("./favorites/");
+    await page.getByRole("button", { name: "開啟觀看記錄" }).click();
+    await expect(page.getByRole("dialog", { name: "觀看記錄" })).toBeVisible();
+    await page.keyboard.press("Escape");
 
+    await page.goto("./settings/");
+    await page.locator('[data-settings-section="display"]').getByRole("button", { name: "English", exact: true }).click();
+    await page.goto("./favorites/");
     await page.getByRole("button", { name: "Open watch history" }).click();
+    await expect(page.getByRole("dialog", { name: "Watch history" })).toBeVisible();
     await page.getByRole("dialog", { name: "Watch history" }).getByRole("button", { name: "Clear history" }).click();
     await expect(page.getByRole("alertdialog", { name: "Clear all watch history?" })).toBeVisible();
     await page.keyboard.press("Escape");

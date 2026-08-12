@@ -15,13 +15,24 @@ test("wraps every static entry in the used theme and locale providers", () => {
   assert.match(read("components/LocaleProvider.tsx"), /uxuv-locale/);
 });
 
-test("renders one KVideo navigation shell with theme, locale, and session actions", () => {
+test("renders one KVideo navigation shell with theme and session actions", () => {
   const navigation = read("components/ContentNavigation.tsx");
   assert.match(navigation, /ThemeSwitcher/);
   assert.match(navigation, /useLocale/);
   assert.match(navigation, /data-focusable/);
   assert.match(navigation, /signOut/);
   assert.doesNotMatch(read("components/PasswordGate.tsx"), /session-bar/);
+});
+
+test("T54 uses a direct-text Unicode-safe user initial as the settings link", () => {
+  const navigation = read("components/ContentNavigation.tsx");
+
+  assert.match(navigation, /const settingsHref = premium \? "\/premium\/settings" : "\/settings"/);
+  assert.match(navigation, /\.name\.trim\(\).*\.username\.trim\(\)/s);
+  assert.match(navigation, /Array\.from\([^)]*\)\[0\] \?\? "\?"/);
+  assert.match(navigation, /<Link className="nav-user" href=\{settingsHref\}[^>]*aria-label=\{copy\.openSettings\}[^>]*>\{userInitial\}<\/Link>/s);
+  assert.doesNotMatch(navigation, /<span className="nav-user"/);
+  assert.doesNotMatch(navigation, /title=\{copy\.openSettings\}/);
 });
 
 test("activates bounded scroll restoration, back-to-top, and TV spatial focus", () => {

@@ -5,7 +5,6 @@ import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { AdminGate } from "@/components/AdminGate";
 import { useLocale } from "@/components/LocaleProvider";
 import { AccountSettings } from "@/components/settings/AccountSettings";
-import { AppVersionSettings } from "@/components/settings/AppVersionSettings";
 import { DisplaySettings } from "@/components/settings/DisplaySettings";
 import { PlayerSettings } from "@/components/settings/PlayerSettings";
 import { SourceSettings } from "@/components/settings/SourceSettings";
@@ -59,7 +58,6 @@ export function PremiumSettingsExperience() {
     <header className="premium-settings-heading"><Link href="/premium" prefetch={false} aria-label={copy.recheck} data-focusable>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7" /></svg></Link>
       <div><h1>{copy.title}</h1><p>{copy.description}</p></div></header>
-    <AppVersionSettings />
     <AdminGate><AccountSettings /></AdminGate>
     <PlayerSettings mode="premium" />
     <DisplaySettings mode="premium" />

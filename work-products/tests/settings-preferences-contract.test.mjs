@@ -43,3 +43,15 @@ test("T17 keeps all preference controls localized and keyboard operable", () => 
   assert.match(display, /data-focusable/);
   assert.match(sort, /data-focusable/);
 });
+
+test("T55 renders locale choices as one direct three-column button group without helper copy", () => {
+  const display = read("components/settings/DisplaySettings.tsx");
+  const styles = read("app/globals.css");
+
+  assert.match(display, /className="display-language-options"/);
+  assert.match(display, /localeOptions\.map[\s\S]*<button[\s\S]*aria-pressed=\{locale === option\.value\}/);
+  assert.doesNotMatch(display, /languageHint|simplifiedHint|traditionalHint|englishHint/);
+  assert.doesNotMatch(display, /display-language-settings"><h3>\{copy\.language\}<\/h3><p>/);
+  assert.match(styles, /\.display-language-options\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/s);
+  assert.match(styles, /\.display-language-options\s+button\s*\{[^}]*min-height:\s*44px/s);
+});

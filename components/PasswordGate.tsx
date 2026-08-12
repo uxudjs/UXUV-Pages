@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Lock, User } from "lucide-react";
 import { AccountPreferenceBridge } from "@/components/AccountPreferenceBridge";
+import { AppUpdateControl, clearAppUpdateCache } from "@/components/AppUpdateControl";
 import { useLocale } from "@/components/LocaleProvider";
 import { PublicPage } from "@/components/PublicPage";
 import { ScrollPositionManager } from "@/components/ScrollPositionManager";
@@ -136,15 +137,17 @@ export function PasswordGate({ children }: Readonly<{ children: React.ReactNode 
     try {
       await fetch("/api/auth/session", { method: "DELETE", credentials: "same-origin" });
     } finally {
+      if (session) clearAppUpdateCache(session.accountId);
       setSessionOverride(null);
       setPassword("");
     }
-  }, []);
+  }, [session]);
 
   const markSessionExpired = useCallback(() => {
+    if (session) clearAppUpdateCache(session.accountId);
     setMessage(LOGIN_COPY[locale].expired);
     setSessionOverride(null);
-  }, [locale]);
+  }, [locale, session]);
 
   const context = useMemo(() => session ? {
     session,
@@ -260,6 +263,7 @@ export function PasswordGate({ children }: Readonly<{ children: React.ReactNode 
       <UsageAlertProvider>
           <SyncProvider key={context.session.accountId} accountId={context.session.accountId}>
             <div className="application-shell">
+              <AppUpdateControl />
               <AccountPreferenceBridge accountId={context.session.accountId} />
               <SyncStatus />
               <ScrollPositionManager accountId={context.session.accountId} />

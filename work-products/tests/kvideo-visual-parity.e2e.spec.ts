@@ -126,9 +126,9 @@ async function makeDeterministic(page: Page) {
 async function openRoute(page: Page, route: (typeof routes)[number]) {
   await page.goto(new URL(route.currentPath, baseURL).href, { waitUntil: "domcontentloaded" });
   const approvedSettingsAdditions = ["settings", "premium-settings"].includes(route.id)
-    ? ".content-nav,[data-settings-section='accounts'],[data-settings-section='usage'],[data-settings-section='sync'],.player-automation-settings,.player-ad-settings,.player-danmaku-enabled,.display-language-settings .preference-choice:nth-child(3),.source-count-summary,.source-empty{display:none!important}html[data-theme='dark'] .settings-shell .preference-choice[aria-pressed='true']{color:#cfe0ff!important}html[data-theme='dark'] .settings-shell .preference-choice[aria-pressed='true'] small{color:rgb(255 255 255 / 82%)!important}.settings-shell .danger-button{border-color:rgb(239 68 68 / 45%)!important;color:#ef4444!important}.settings-shell .version-current small{color:var(--text-color-secondary)!important}.version-status b{border-color:#10b98155!important;background:#10b9811a!important;color:#10b981!important}.sync-dirty-state{color:var(--accent)!important}.danmaku-api-list small{color:var(--secondary)!important}@media(min-width:641px){.danmaku-api-list>button,.danmaku-api-row{background:#0c111d!important}}"
+    ? ".content-nav,[data-settings-section='accounts'],[data-settings-section='usage'],[data-settings-section='sync'],.player-automation-settings,.player-ad-settings,.player-danmaku-enabled,.source-count-summary,.source-empty{display:none!important}html[data-theme='dark'] .settings-shell .preference-choice[aria-pressed='true']{color:#cfe0ff!important}html[data-theme='dark'] .settings-shell .preference-choice[aria-pressed='true'] small{color:rgb(255 255 255 / 82%)!important}.settings-shell .danger-button{border-color:rgb(239 68 68 / 45%)!important;color:#ef4444!important}.sync-dirty-state{color:var(--accent)!important}.danmaku-api-list small{color:var(--secondary)!important}@media(min-width:641px){.danmaku-api-list>button,.danmaku-api-row{background:#0c111d!important}}"
     : "";
-  await page.addStyleTag({ content: `*,*::before,*::after{animation-duration:0s!important;transition-duration:0s!important;caret-color:transparent!important}.locale-control,.nav-user,.nav-logout{display:none!important}.premium-legacy-manage,.premium-legacy-empty{color:var(--text-color-secondary)!important}${approvedSettingsAdditions}${route.id === "player" ? ".media-error,.desktop-center-play,.desktop-device-controls>button:nth-child(2){display:none!important}" : ""}` });
+  await page.addStyleTag({ content: `*,*::before,*::after{animation-duration:0s!important;transition-duration:0s!important;caret-color:transparent!important}.locale-control{display:none!important}.premium-legacy-manage,.premium-legacy-empty{color:var(--text-color-secondary)!important}${approvedSettingsAdditions}${route.id === "player" ? ".media-error,.desktop-center-play,.desktop-device-controls>button:nth-child(2){display:none!important}" : ""}` });
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(500);
 }
@@ -160,6 +160,7 @@ for (const route of routes) {
           }),
           interactiveBoxes: [...document.querySelectorAll("a,button,input,select,textarea,[role]")]
             .flatMap((element) => {
+              if (element.matches(".app-update-trigger") || element.closest(".content-nav")) return [];
               const box = visibleBox(element);
               return box ? [{ name: (element.getAttribute("aria-label") || element.textContent || "").replace(/\s+/g, " ").trim(), box }] : [];
             }),
@@ -188,6 +189,10 @@ for (const route of routes) {
         .map(({ name, box }: { name: string; box: number[] }) => ({ name, box }));
       const expectedInteractiveBoxes = expectedDom.interactive
         .filter(({ box }: { box: number[] }) => box[2] > 1 && box[3] > 1 && box[0] + box[2] > 0 && box[0] < width)
+        .filter(({ name }: { name: string }) => ![
+          "KVideo视频聚合平台", "直播", "GitHub 仓库", "我的收藏", "设置",
+          "设为浅色主题", "设为深色主题", "设为系统主题",
+        ].includes(name))
         .filter(({ tag, role, name, box }: { tag: string; role: string | null; name: string; box: number[] }, index: number, entries: Array<{ name: string; box: number[] }>) => {
           if (route.id === "home" && tag === "div" && role === "button" && name === "热门") return false;
           if (["favorites", "premium-favorites"].includes(route.id) && name === "打开观看历史") {

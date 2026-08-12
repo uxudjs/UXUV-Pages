@@ -27,6 +27,7 @@ test("T20 composes a localized Premium settings page from mode-isolated controls
   assert.match(sources, /ImportModal/);
   assert.match(player, /premium\./);
   assert.doesNotMatch(settings, /DataSettings/);
+  assert.doesNotMatch(settings, /AppVersionSettings/);
   for (const locale of ["zh-CN", "zh-TW", "en"]) assert.match(settings, new RegExp(`(?:(?:"${locale}")|(?:${locale}:))`));
 });
 

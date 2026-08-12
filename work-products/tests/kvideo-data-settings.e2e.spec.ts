@@ -150,19 +150,23 @@ test.describe("KVideo T19 data and update settings", () => {
   test("renders three update outcomes and keeps dialogs operable at TV and mobile widths", async ({ page }) => {
     const worker = await mockWorker(page.context());
     await page.goto("./settings");
-    await expect(page.locator('[data-settings-section="app-version"]')).toHaveAttribute("data-settings-section", "app-version");
     await english(page);
-    const version = page.locator('[data-settings-section="app-version"]');
+    const updateEntry = page.getByRole("button", { name: "View version and updates" });
+    await updateEntry.click();
+    const version = page.getByRole("dialog", { name: "Version and updates" });
     await expect(version.getByText("Update available", { exact: true })).toBeVisible();
     worker.setUpdateStatus("up-to-date");
-    await version.getByRole("button", { name: "Check for updates" }).click();
+    await version.getByRole("button", { name: "Check again" }).click();
     await expect(version.getByText("Up to date", { exact: true })).toBeVisible();
     worker.setUpdateStatus("ahead-of-remote");
-    await version.getByRole("button", { name: "Check for updates" }).click();
+    await version.getByRole("button", { name: "Check again" }).click();
     await expect(version.getByText("Local version is newer", { exact: true })).toBeVisible();
     worker.setUpdateStatus("check-failed");
-    await version.getByRole("button", { name: "Check for updates" }).click();
+    await version.getByRole("button", { name: "Check again" }).click();
     await expect(version.getByText("Update check failed", { exact: true })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(version).toBeHidden();
+    await expect(updateEntry).toBeFocused();
 
     const data = page.locator('[data-settings-section="data"]');
     await data.getByRole("button", { name: /Import settings/ }).click();

@@ -219,6 +219,10 @@ async function mockSyncWorker(context: BrowserContext, server: ReturnType<typeof
     const method = request.method();
     if (path === "/api/config") return fulfill(route, { ...runtimeConfig, authenticated: true });
     if (path === "/api/auth/session") return fulfill(route, { authenticated: true, session });
+    if (path === "/api/app-update") return fulfill(route, {
+      currentVersion: "1.0.0", latestVersion: "1.0.0", status: "up-to-date", checkedAt: "2026-08-11T08:00:00.000Z",
+      source: { changelogUrl: "https://github.com/uxudjs/UXUVideo/blob/main/CHANGELOG.md", repositoryUrl: "https://github.com/uxudjs/UXUVideo" },
+    });
     if (path === "/api/douban/tags") return fulfill(route, { tags: ["热门"] });
     if (path === "/api/douban/recommend") return fulfill(route, homeSubjects);
     if (path === "/api/detail") return fulfill(route, {
@@ -333,6 +337,10 @@ async function mockContentWorker(context: BrowserContext) {
     if (path === "/api/config") return fulfill(route, { ...runtimeConfig, authenticated: true });
     if (path === "/api/auth/session") return fulfill(route, { authenticated: true, session: adminSession });
     if (path === "/api/admin/usage") return fulfill(route, unconfiguredUsage);
+    if (path === "/api/app-update") return fulfill(route, {
+      currentVersion: "1.0.0", latestVersion: "1.0.0", status: "up-to-date", checkedAt: "2026-08-11T08:00:00.000Z",
+      source: { changelogUrl: "https://github.com/uxudjs/UXUVideo/blob/main/CHANGELOG.md", repositoryUrl: "https://github.com/uxudjs/UXUVideo" },
+    });
     if (path === "/api/douban/tags") return fulfill(route, { tags: ["热门"] });
     if (path === "/api/douban/recommend") return fulfill(route, homeSubjects);
     if (path === "/api/search-parallel" && method === "POST") {
@@ -489,7 +497,8 @@ test("auth: Worker origin supports login, account CRUD, permission state, and lo
   await page.getByLabel("用户名").fill("admin");
   await page.getByLabel("密码").fill("admin-password");
   await page.getByRole("button", { name: "登录", exact: true }).click();
-  await expect(page.getByText("Administrator")).toBeVisible();
+  await expect(page.getByRole("link", { name: "打开设置" })).toHaveText("A");
+  await expect(page.getByText("Administrator", { exact: true })).toHaveCount(0);
 
   await page.goto("./settings/");
   await expect(page.getByRole("heading", { name: "账户管理" })).toBeVisible();

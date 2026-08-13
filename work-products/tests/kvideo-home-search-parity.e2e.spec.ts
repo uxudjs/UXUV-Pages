@@ -326,6 +326,20 @@ test.describe("reviewed KVideo basic home", () => {
     await expect(page).toHaveURL(/\/player\?id=video-1&source=catalog-source&title=/);
   });
 
+  test("accepts the Worker JSON-array runtime subscription contract", async ({ page }) => {
+    const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
+    const worker = await mockHomeWorker(
+      page.context(),
+      "success",
+      false,
+      undefined,
+      JSON.stringify([runtimeSourcesUrl]),
+    );
+    await page.goto("./");
+
+    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl]);
+  });
+
   test("waits for runtime sources before allowing search or a home movie click", async ({ page }) => {
     const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
     const worker = await mockHomeWorker(page.context(), "success", false, undefined, runtimeSourcesUrl, {

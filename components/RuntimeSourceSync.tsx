@@ -35,6 +35,10 @@ function parseRuntimeSubscriptions(value: string): RuntimeSubscription[] {
   try {
     const parsed: unknown = JSON.parse(raw);
     if (Array.isArray(parsed)) return uniqueSubscriptions(parsed.flatMap((item, index) => {
+      if (typeof item === "string") {
+        const url = validUrl(item);
+        return url ? [{ name: `系统订阅 ${index + 1}`, url }] : [];
+      }
       if (!item || typeof item !== "object" || Array.isArray(item)) return [];
       const record = item as Record<string, unknown>;
       const url = validUrl(record.url);

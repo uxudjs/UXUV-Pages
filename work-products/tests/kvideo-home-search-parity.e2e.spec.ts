@@ -30,12 +30,12 @@ const source = {
   enabled: true,
 };
 
-const syncDocument = (kind: "config" | "library") => ({
+const syncDocument = (kind: "config" | "library", sources = [source]) => ({
   kind,
   version: 0,
-  updatedAt: null,
+  updatedAt: null as number | null,
   payload: kind === "config"
-    ? { fields: {}, sources: [source], subscriptions: [], tombstones: [] }
+    ? { fields: {}, sources, subscriptions: [], tombstones: [] }
     : { history: [], favorites: [], tombstones: [] },
 });
 
@@ -48,6 +48,7 @@ async function mockHomeWorker(
   initialMode: HomeMode = "success",
   deferred = false,
   searchResultTitle?: string,
+  runtimeSourcesUrl = "",
 ) {
   let mode = initialMode;
   let releaseRequest = () => {};
@@ -55,14 +56,37 @@ async function mockHomeWorker(
   const homeRequests: string[] = [];
   const tagRequests: string[] = [];
   const searchRequests: unknown[] = [];
+  const importedUrls: string[] = [];
+  const configuredSources = runtimeSourcesUrl ? [{
+    id: "runtime-list",
+    updatedAt: 1,
+    name: "视频",
+    baseUrl: runtimeSourcesUrl,
+    enabled: true,
+    kind: "system",
+  }] : [source];
+  let configDocument = syncDocument("config", configuredSources);
 
   await context.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
-    if (url.pathname === "/api/config") return json(route, runtimeConfig);
+    if (url.pathname === "/api/config") return json(route, {
+      ...runtimeConfig,
+      sources: { subscriptionSources: runtimeSourcesUrl, iptvSources: "", mergeSources: false, danmakuApiUrl: "" },
+    });
     if (url.pathname === "/api/auth/session") return json(route, { authenticated: true, session });
-    if (url.pathname === "/api/user/config") return json(route, syncDocument("config"));
+    if (url.pathname === "/api/user/config" && request.method() === "POST") {
+      const body = request.postDataJSON() as { payload: typeof configDocument.payload };
+      configDocument = { ...configDocument, version: configDocument.version + 1, updatedAt: Date.now(), payload: body.payload };
+      return json(route, configDocument);
+    }
+    if (url.pathname === "/api/user/config") return json(route, configDocument);
     if (url.pathname === "/api/user/sync") return json(route, syncDocument("library"));
+    if (url.pathname === "/api/source-import") {
+      const body = request.postDataJSON() as { url: string };
+      importedUrls.push(body.url);
+      return json(route, { text: JSON.stringify([{ id: "catalog-source", name: "Catalog source", baseUrl: "https://catalog.example/api.php/provide/vod", group: "normal" }]) });
+    }
     if (url.pathname === "/api/douban/tags") {
       tagRequests.push(request.url());
       return json(route, { tags: url.searchParams.get("type") === "tv" ? ["热门", "纪录片", "高级"] : ["热门", "喜剧", "高级"] });
@@ -85,14 +109,15 @@ async function mockHomeWorker(
       return json(route, { subjects: mode === "empty" ? [] : subjects });
     }
     if (url.pathname === "/api/search-parallel") {
-      const searchRequest = request.postDataJSON() as { query: string };
+      const searchRequest = request.postDataJSON() as { query: string; sources: Array<{ id: string }> };
       searchRequests.push(searchRequest);
+      const resultSource = searchRequest.sources.find(({ id }) => id === "catalog-source")?.id ?? source.id;
       return route.fulfill({
         status: 200,
         contentType: "text/event-stream",
         body: [
           { type: "start", totalSources: 1 },
-          { type: "videos", source: source.id, videos: [{ vod_id: "video-1", vod_name: searchResultTitle ?? searchRequest.query }] },
+          { type: "videos", source: resultSource, videos: [{ vod_id: "video-1", vod_name: searchResultTitle ?? searchRequest.query }] },
           { type: "complete", totalVideosFound: 1 },
         ].map((event) => `data: ${JSON.stringify(event)}\n\n`).join(""),
       });
@@ -104,6 +129,7 @@ async function mockHomeWorker(
     homeRequests,
     tagRequests,
     searchRequests,
+    importedUrls,
     release: () => {
       releaseRequest();
       pending = Promise.resolve();
@@ -208,6 +234,25 @@ test.describe("reviewed KVideo basic home", () => {
 
     await expect.poll(() => worker.searchRequests.length).toBe(1);
     await expect(page).toHaveURL(/\/player\?id=video-1&source=source-home&title=/);
+  });
+
+  test("expands the runtime subscription before search and opens a home movie in the player", async ({ page }) => {
+    const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
+    const worker = await mockHomeWorker(page.context(), "success", false, undefined, runtimeSourcesUrl);
+    await page.goto("./");
+
+    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl]);
+    await page.getByLabel("搜索视频内容").fill("示例电影");
+    await page.getByRole("button", { name: "搜索", exact: true }).click();
+    await expect(page.getByRole("link", { name: "查看 示例电影" })).toBeVisible();
+    expect(worker.searchRequests[0]).toMatchObject({ sources: expect.arrayContaining([expect.objectContaining({ id: "catalog-source" })]) });
+
+    await page.getByRole("button", { name: "清除搜索" }).click();
+    await page.getByRole("button", { name: "播放 示例电影" }).click();
+
+    await expect.poll(() => worker.searchRequests.length).toBe(2);
+    expect(worker.searchRequests[1]).toMatchObject({ sources: expect.arrayContaining([expect.objectContaining({ id: "catalog-source" })]) });
+    await expect(page).toHaveURL(/\/player\?id=video-1&source=catalog-source&title=/);
   });
 
   test("switches movie, TV, and server-provided Douban categories inside the reviewed home shell", async ({ page }) => {

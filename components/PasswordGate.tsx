@@ -8,6 +8,7 @@ import { useLocale } from "@/components/LocaleProvider";
 import { PublicPage } from "@/components/PublicPage";
 import { ScrollPositionManager } from "@/components/ScrollPositionManager";
 import { useRuntimeConfig } from "@/components/RuntimeConfigProvider";
+import { RuntimeSourceSync } from "@/components/RuntimeSourceSync";
 import { SyncProvider } from "@/components/SyncProvider";
 import { SyncStatus } from "@/components/SyncStatus";
 import { TVNavigationInitializer } from "@/components/TVNavigationInitializer";
@@ -262,6 +263,7 @@ export function PasswordGate({ children }: Readonly<{ children: React.ReactNode 
     <AuthContext.Provider value={context}>
       <UsageAlertProvider>
           <SyncProvider key={context.session.accountId} accountId={context.session.accountId}>
+            <RuntimeSourceSync />
             <div className="application-shell">
               <AppUpdateControl />
               <AccountPreferenceBridge accountId={context.session.accountId} />

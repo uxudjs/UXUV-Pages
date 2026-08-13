@@ -54,10 +54,6 @@
       "path": "_next/static/chunks/08ttfj81-47mu.js",
       "contentType": "text/javascript; charset=utf-8"
     },
-    "/_next/static/chunks/0cc56xls1ounm.js": {
-      "path": "_next/static/chunks/0cc56xls1ounm.js",
-      "contentType": "text/javascript; charset=utf-8"
-    },
     "/_next/static/chunks/0cz1d0mv5g_q7.js": {
       "path": "_next/static/chunks/0cz1d0mv5g_q7.js",
       "contentType": "text/javascript; charset=utf-8"
@@ -100,6 +96,10 @@
     },
     "/_next/static/chunks/2ju2zi1k2k3lq.js": {
       "path": "_next/static/chunks/2ju2zi1k2k3lq.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/2osmsirt3_iml.js": {
+      "path": "_next/static/chunks/2osmsirt3_iml.js",
       "contentType": "text/javascript; charset=utf-8"
     },
     "/_next/static/chunks/2uyh5ebspv964.js": {

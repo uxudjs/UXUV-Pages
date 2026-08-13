@@ -9,6 +9,7 @@ interface RuntimeSourceMockOptions {
   deferUserConfig?: boolean;
   failLibrary?: boolean;
   importedSourceCount?: number;
+  searchUnavailable?: boolean;
 }
 
 const session = {
@@ -149,14 +150,20 @@ async function mockHomeWorker(
       const searchRequest = request.postDataJSON() as { query: string; sources: Array<{ id: string }> };
       searchRequests.push(searchRequest);
       const resultSource = searchRequest.sources.find(({ id }) => id === "catalog-source")?.id ?? source.id;
+      const events = runtimeSourceOptions.searchUnavailable
+        ? [
+            { type: "start", totalSources: 1 },
+            { type: "error", error: { code: "SEARCH_SOURCES_UNAVAILABLE", message: "No source returned a valid response." } },
+          ]
+        : [
+            { type: "start", totalSources: 1 },
+            { type: "videos", source: resultSource, videos: [{ vod_id: "video-1", vod_name: searchResultTitle ?? searchRequest.query }] },
+            { type: "complete", totalVideosFound: 1 },
+          ];
       return route.fulfill({
         status: 200,
         contentType: "text/event-stream",
-        body: [
-          { type: "start", totalSources: 1 },
-          { type: "videos", source: resultSource, videos: [{ vod_id: "video-1", vod_name: searchResultTitle ?? searchRequest.query }] },
-          { type: "complete", totalVideosFound: 1 },
-        ].map((event) => `data: ${JSON.stringify(event)}\n\n`).join(""),
+        body: events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join(""),
       });
     }
     return json(route, { error: { code: "NOT_FOUND" } }, 404);
@@ -271,6 +278,23 @@ test.describe("reviewed KVideo basic home", () => {
     await expect.poll(() => worker.searchRequests.length).toBe(1);
     await expect(page).not.toHaveURL(/\/player\?/);
     await expect(page.getByText("不相关影片", { exact: true })).toBeVisible();
+  });
+
+  test("shows a source error instead of an empty result when every search source fails", async ({ page }) => {
+    const worker = await mockHomeWorker(page.context(), "success", false, undefined, "", { searchUnavailable: true });
+    await page.goto("./");
+
+    await page.getByLabel("搜索视频内容").fill("示例电影");
+    await page.getByRole("button", { name: "搜索", exact: true }).click();
+
+    await expect(page.locator('.form-error[role="alert"]')).toHaveText("所有视频源均未返回有效搜索响应，请检查视频源配置或网络后重试。");
+    await expect(page.getByText("没有找到匹配结果，请尝试其他关键词。")).toHaveCount(0);
+
+    await page.getByRole("button", { name: "清除搜索" }).click();
+    await page.getByRole("button", { name: "播放 示例电影" }).click();
+    await expect.poll(() => worker.searchRequests.length).toBe(2);
+    await expect(page).not.toHaveURL(/\/player\?/);
+    await expect(page.locator('.form-error[role="alert"]')).toHaveText("所有视频源均未返回有效搜索响应，请检查视频源配置或网络后重试。");
   });
 
   test("opens a decorated title returned for the selected home movie", async ({ page }) => {

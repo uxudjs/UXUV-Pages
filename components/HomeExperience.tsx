@@ -94,6 +94,7 @@ const HOME_COPY = {
     cancelled: "已取消搜索。",
     noResults: "没有找到匹配结果，请尝试其他关键词。",
     searchError: "搜索失败，请稍后重试。",
+    searchSourcesUnavailable: "所有视频源均未返回有效搜索响应，请检查视频源配置或网络后重试。",
     results: "搜索结果",
     items: "条",
     view: "查看",
@@ -148,6 +149,7 @@ const HOME_COPY = {
     cancelled: "已取消搜尋。",
     noResults: "找不到相符結果，請嘗試其他關鍵字。",
     searchError: "搜尋失敗，請稍後再試。",
+    searchSourcesUnavailable: "所有影片來源均未回傳有效搜尋回應，請檢查來源設定或網路後再試。",
     results: "搜尋結果",
     items: "筆",
     view: "查看",
@@ -202,6 +204,7 @@ const HOME_COPY = {
     cancelled: "Search cancelled.",
     noResults: "No matching results. Try another keyword.",
     searchError: "Search failed. Try again later.",
+    searchSourcesUnavailable: "No video source returned a valid search response. Check source settings or your network and try again.",
     results: "Search results",
     items: "items",
     view: "View",
@@ -381,7 +384,9 @@ export function HomeExperience() {
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") return [];
       if (error instanceof ContentApiError && error.status === 401) auth?.markSessionExpired();
-      setMessage(error instanceof Error ? error.message : copy.searchError);
+      setMessage(error instanceof ContentApiError && error.code === "SEARCH_SOURCES_UNAVAILABLE"
+        ? copy.searchSourcesUnavailable
+        : error instanceof Error ? error.message : copy.searchError);
       setState("error");
       return [];
     }

@@ -60,8 +60,7 @@ async function mockWorker(context: BrowserContext) {
 
 async function openImporter(page: import("@playwright/test").Page) {
   const section = page.locator('[data-settings-section="sources"]');
-  await section.locator(".source-heading-actions .primary-button").click();
-  await page.locator(".source-modal-import").click();
+  await section.locator(".source-import-button").click();
   return page.locator(".import-modal");
 }
 
@@ -77,7 +76,7 @@ test.describe("KVideo T16 source import and subscriptions", () => {
     });
     await page.goto("./settings");
     const section = page.locator('[data-settings-section="sources"]');
-    const addButton = section.locator(".source-heading-actions .primary-button");
+    const importButton = section.locator(".source-import-button");
     let modal = await openImporter(page);
     await expect(modal.getByRole("tab", { name: "JSON 粘贴" })).toBeFocused();
 
@@ -110,7 +109,7 @@ test.describe("KVideo T16 source import and subscriptions", () => {
     await expect(modal.locator(".import-preview")).toContainText("File source");
     await page.keyboard.press("Escape");
     await expect(modal).toHaveCount(0);
-    await expect(addButton).toBeFocused();
+    await expect(importButton).toBeFocused();
     await expect(section.getByText("File source", { exact: true })).toHaveCount(0);
 
     modal = await openImporter(page);

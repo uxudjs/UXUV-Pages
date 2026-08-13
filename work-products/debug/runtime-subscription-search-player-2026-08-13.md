@@ -60,3 +60,26 @@
 - `npm run test:e2e`：116/116。
 - `npm run lint`、`npx tsc --noEmit`、`npm run build`、`git diff --check`：通过。
 - 仍未修改 Worker、D1 schema、Secret、版本号或发布配置；未 commit、push 或部署。
+
+## 生产复核修正：个人订阅入口
+
+### 观察与根因
+
+- 生产 Worker 实际未配置 `SUBSCRIPTION_SOURCES`；现有变量只有认证相关配置与 D1 绑定。
+- 当前账户把订阅清单 URL 保存成了一个个人 `VideoSource`，所以搜索把 `VideoSource[]` 清单当成 CMS 搜索响应并判为无效。
+- 个人订阅本应由网页的订阅导入流程写入账户隔离的 D1 `config.subscriptions` 与 `config.sources`；`SUBSCRIPTION_SOURCES` 只用于管理员提供全局默认订阅。
+- 现有网页虽有完整订阅弹窗，但入口藏在“添加源”弹窗的二级“导入”动作中，用户容易把订阅 URL 填进“接口地址”。
+
+### RED 与最小修复
+
+- 将 `../tests/kvideo-source-import.e2e.spec.ts` 改为从“视频源管理”直接打开导入器；修复前因 `.source-import-button` 不存在而超时失败。
+- 在 `../../components/settings/SourceSettings.tsx` 的来源标题操作区增加直接“导入”按钮，复用原有导入、订阅、D1 同步与安全边界，不增加 Worker 明文变量。
+- 记录实际触发入口，关闭导入弹窗后把焦点归还给该入口；从旧的“添加源”二级入口进入时仍返回“添加源”。
+
+### GREEN 与边界
+
+- `npx playwright test work-products/tests/kvideo-source-import.e2e.spec.ts --reporter=line`：1/1。
+- `npm test`：139/139；`npm run test:e2e`：118/118。
+- `npm run lint`、`npx tsc --noEmit`、`npm run build`、`git diff --check`：通过。
+- 生产浏览器已确认现有误配置和缺失的直接入口；浏览器控制在导出/迁移过程中连续超时，因此没有冒险删除或覆盖 D1 数据，也未声称生产搜索或播放已恢复。
+- 未修改 Worker、D1 schema、Secret、版本号或发布配置；未 commit、push 或部署。

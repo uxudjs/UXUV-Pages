@@ -50,6 +50,8 @@ export function SourceSettings({ mode = "standard" }: Readonly<{ mode?: "standar
   const [editing, setEditing] = useState<VideoSource | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<VideoSource | null>(null);
   const addButtonRef = useRef<HTMLButtonElement>(null);
+  const importButtonRef = useRef<HTMLButtonElement>(null);
+  const importReturnFocusRef = useRef<HTMLButtonElement | null>(null);
   const config = documents.config.payload as ConfigPayload;
   const allSources = useMemo(() => config.sources.filter(isManagedSource), [config.sources]);
   const subscriptions = useMemo(() => config.subscriptions.filter(isSubscription)
@@ -68,7 +70,7 @@ export function SourceSettings({ mode = "standard" }: Readonly<{ mode?: "standar
   const closeModal = useCallback(() => { setModalOpen(false); setEditing(null); }, []);
   const closeImport = useCallback(() => {
     setImportOpen(false);
-    queueMicrotask(() => addButtonRef.current?.focus());
+    queueMicrotask(() => importReturnFocusRef.current?.focus());
   }, []);
   const saveSource = (source: VideoSource) => upsertRecord("config", "sources", { ...source, group: mode === "premium" ? "premium" : "normal" });
   const persistOrder = (ordered: readonly VideoSource[]) => {
@@ -84,6 +86,9 @@ export function SourceSettings({ mode = "standard" }: Readonly<{ mode?: "standar
     summary={<div className="source-section-summary"><span className="source-count-summary">
       {sources.length} {copy.count} · {copy.system} {systemCount} · {copy.personal} {personalCount}</span>
       <div className="source-heading-actions"><button type="button" data-focusable onClick={restoreDefaults}>{copy.restore}</button>
+        <button ref={importButtonRef} type="button" className="source-import-button" data-focusable onClick={() => {
+          importReturnFocusRef.current = importButtonRef.current; setImportOpen(true);
+        }}>{copy.import}</button>
         <button ref={addButtonRef} type="button" className="primary-button" data-focusable onClick={() => { setEditing(null); setModalOpen(true); }}>
           + {copy.add}</button></div></div>}>
     <div className="source-toolbar"><label><span className="sr-only">{copy.search}</span><Icon source={Search} size={16} />
@@ -99,7 +104,7 @@ export function SourceSettings({ mode = "standard" }: Readonly<{ mode?: "standar
     <p className="source-local-status sr-only" role="status">{phase === "pending" || phase === "loading" ? copy.pending : copy.saved}</p>
     {modalOpen && <AddSourceModal key={editing?.id ?? "new"} initial={editing} group={mode === "premium" ? "premium" : "normal"}
       existingIds={allSources.map(({ id }) => id)} onClose={closeModal} onSave={saveSource} onImport={() => {
-        closeModal(); setImportOpen(true);
+        closeModal(); importReturnFocusRef.current = addButtonRef.current; setImportOpen(true);
       }} />}
     {importOpen && <ImportModal existingIds={allSources.map(({ id }) => id)} subscriptions={subscriptions} onClose={closeImport}
       onImport={(imported) => imported.forEach((source) => saveSource({ ...source, group: mode === "premium" ? "premium" : "normal" }))}

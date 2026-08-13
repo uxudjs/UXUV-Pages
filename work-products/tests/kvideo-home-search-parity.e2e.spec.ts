@@ -3,6 +3,14 @@ import axe from "axe-core";
 
 type HomeMode = "success" | "empty" | "error";
 
+interface RuntimeSourceMockOptions {
+  deferSourceImport?: boolean;
+  sourceImportFailures?: number;
+  deferUserConfig?: boolean;
+  failLibrary?: boolean;
+  importedSourceCount?: number;
+}
+
 const session = {
   accountId: "viewer-home",
   profileId: "viewer-home",
@@ -49,6 +57,7 @@ async function mockHomeWorker(
   deferred = false,
   searchResultTitle?: string,
   runtimeSourcesUrl = "",
+  runtimeSourceOptions: RuntimeSourceMockOptions = {},
 ) {
   let mode = initialMode;
   let releaseRequest = () => {};
@@ -57,6 +66,14 @@ async function mockHomeWorker(
   const tagRequests: string[] = [];
   const searchRequests: unknown[] = [];
   const importedUrls: string[] = [];
+  const configPosts: unknown[] = [];
+  let remainingSourceImportFailures = runtimeSourceOptions.sourceImportFailures ?? 0;
+  let releaseSourceImport = () => {};
+  let sourceImportPending = runtimeSourceOptions.deferSourceImport
+    ? new Promise<void>((resolve) => { releaseSourceImport = resolve; }) : Promise.resolve();
+  let releaseUserConfig = () => {};
+  let userConfigPending = runtimeSourceOptions.deferUserConfig
+    ? new Promise<void>((resolve) => { releaseUserConfig = resolve; }) : Promise.resolve();
   const configuredSources = runtimeSourcesUrl ? [{
     id: "runtime-list",
     updatedAt: 1,
@@ -77,15 +94,35 @@ async function mockHomeWorker(
     if (url.pathname === "/api/auth/session") return json(route, { authenticated: true, session });
     if (url.pathname === "/api/user/config" && request.method() === "POST") {
       const body = request.postDataJSON() as { payload: typeof configDocument.payload };
+      configPosts.push(body);
       configDocument = { ...configDocument, version: configDocument.version + 1, updatedAt: Date.now(), payload: body.payload };
       return json(route, configDocument);
     }
-    if (url.pathname === "/api/user/config") return json(route, configDocument);
-    if (url.pathname === "/api/user/sync") return json(route, syncDocument("library"));
+    if (url.pathname === "/api/user/config") {
+      await userConfigPending;
+      return json(route, configDocument);
+    }
+    if (url.pathname === "/api/user/sync") {
+      return runtimeSourceOptions.failLibrary
+        ? json(route, { error: { code: "UPSTREAM_UNAVAILABLE" } }, 503)
+        : json(route, syncDocument("library"));
+    }
     if (url.pathname === "/api/source-import") {
       const body = request.postDataJSON() as { url: string };
       importedUrls.push(body.url);
-      return json(route, { text: JSON.stringify([{ id: "catalog-source", name: "Catalog source", baseUrl: "https://catalog.example/api.php/provide/vod", group: "normal" }]) });
+      await sourceImportPending;
+      if (remainingSourceImportFailures > 0) {
+        remainingSourceImportFailures -= 1;
+        return json(route, { error: { code: "UPSTREAM_UNAVAILABLE" } }, 503);
+      }
+      const count = runtimeSourceOptions.importedSourceCount ?? 1;
+      const sources = Array.from({ length: count }, (_, index) => ({
+        id: count === 1 ? "catalog-source" : `catalog-source-${index + 1}`,
+        name: `Catalog source ${index + 1}`,
+        baseUrl: `https://catalog-${index + 1}.example/api.php/provide/vod`,
+        group: "normal",
+      }));
+      return json(route, { text: JSON.stringify(sources) });
     }
     if (url.pathname === "/api/douban/tags") {
       tagRequests.push(request.url());
@@ -130,6 +167,16 @@ async function mockHomeWorker(
     tagRequests,
     searchRequests,
     importedUrls,
+    configPosts,
+    getConfigDocument: () => configDocument,
+    releaseSourceImport: () => {
+      releaseSourceImport();
+      sourceImportPending = Promise.resolve();
+    },
+    releaseUserConfig: () => {
+      releaseUserConfig();
+      userConfigPending = Promise.resolve();
+    },
     release: () => {
       releaseRequest();
       pending = Promise.resolve();
@@ -253,6 +300,84 @@ test.describe("reviewed KVideo basic home", () => {
     await expect.poll(() => worker.searchRequests.length).toBe(2);
     expect(worker.searchRequests[1]).toMatchObject({ sources: expect.arrayContaining([expect.objectContaining({ id: "catalog-source" })]) });
     await expect(page).toHaveURL(/\/player\?id=video-1&source=catalog-source&title=/);
+  });
+
+  test("waits for runtime sources before allowing search or a home movie click", async ({ page }) => {
+    const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
+    const worker = await mockHomeWorker(page.context(), "success", false, undefined, runtimeSourcesUrl, {
+      deferSourceImport: true,
+    });
+    await page.goto("./");
+
+    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl]);
+    await expect(page.getByRole("button", { name: "搜索", exact: true })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "播放 示例电影" })).toBeDisabled();
+    await page.getByLabel("搜索视频内容").fill("示例电影");
+    await page.getByLabel("搜索视频内容").press("Enter");
+    expect(worker.searchRequests).toHaveLength(0);
+
+    worker.releaseSourceImport();
+    await expect(page.getByRole("button", { name: "搜索", exact: true })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "播放 示例电影" })).toBeVisible();
+  });
+
+  test("does not start runtime source import before the config document is hydrated", async ({ page }) => {
+    const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
+    const worker = await mockHomeWorker(page.context(), "success", false, undefined, runtimeSourcesUrl, {
+      deferUserConfig: true,
+      failLibrary: true,
+    });
+    await page.goto("./");
+
+    await page.waitForTimeout(300);
+    expect(worker.importedUrls).toHaveLength(0);
+    worker.releaseUserConfig();
+    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl]);
+  });
+
+  test("retries a failed runtime source import on focus and clears the saved error", async ({ page }) => {
+    const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
+    const worker = await mockHomeWorker(page.context(), "success", false, undefined, runtimeSourcesUrl, {
+      sourceImportFailures: 1,
+    });
+    await page.goto("./");
+
+    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl]);
+    await expect(page.getByText("系统视频源同步失败，将在网络恢复或窗口重新聚焦后重试。"))
+      .toBeVisible();
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl, runtimeSourcesUrl]);
+    await expect.poll(() => {
+      const subscription = (worker.getConfigDocument().payload.subscriptions as Array<Record<string, unknown>> | undefined)?.[0];
+      return subscription && {
+        url: subscription.url,
+        lastUpdated: subscription.lastUpdated,
+        hasError: Object.prototype.hasOwnProperty.call(subscription, "lastError"),
+      };
+    }).toEqual({ url: runtimeSourcesUrl, lastUpdated: expect.any(Number), hasError: false });
+  });
+
+  test("deduplicates runtime URLs and persists a large import with bounded config writes", async ({ page }) => {
+    await page.addInitScript(() => {
+      const state = window as unknown as { __uxuvConfigWrites: number };
+      state.__uxuvConfigWrites = 0;
+      const original = Storage.prototype.setItem;
+      Storage.prototype.setItem = function setItem(key: string, value: string) {
+        if (key.includes("uxuv-sync-v1:") && key.endsWith(":config")) state.__uxuvConfigWrites += 1;
+        return original.call(this, key, value);
+      };
+    });
+    const sourceUrl = "https://subscriptions.example/sources.json";
+    const worker = await mockHomeWorker(page.context(), "success", false, undefined, `${sourceUrl}, ${sourceUrl}`, {
+      importedSourceCount: 20,
+    });
+    await page.goto("./");
+
+    await expect.poll(() => worker.importedUrls).toEqual([sourceUrl]);
+    await expect.poll(() => worker.configPosts.length).toBe(1);
+    await expect.poll(() => worker.getConfigDocument().payload.sources?.length ?? 0).toBe(21);
+    const configWrites = await page.evaluate(() => (window as unknown as { __uxuvConfigWrites: number }).__uxuvConfigWrites);
+    expect(configWrites).toBeLessThanOrEqual(4);
   });
 
   test("switches movie, TV, and server-provided Douban categories inside the reviewed home shell", async ({ page }) => {

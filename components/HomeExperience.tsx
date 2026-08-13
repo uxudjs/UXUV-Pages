@@ -12,6 +12,7 @@ import { useTagManager } from "@/components/home/hooks/useTagManager";
 import { usePersonalizedRecommendations } from "@/components/home/hooks/usePersonalizedRecommendations";
 import { MovieGrid, type HomeFeedState } from "@/components/home/MovieGrid";
 import { useSync } from "@/components/SyncProvider";
+import { useRuntimeSourcePhase } from "@/components/RuntimeSourceSync";
 import { SearchForm } from "@/components/search/SearchForm";
 import { SearchResults } from "@/components/search/SearchResults";
 import { ContentApiError, fetchHomeMovies, fetchHomeTags, type HomeContentType, type HomeMovie } from "@/lib/content/api-client";
@@ -70,6 +71,8 @@ const HOME_COPY = {
     deleteHistory: "删除",
     cancel: "取消",
     sourceMissing: "尚未配置可用视频源，请先前往设置。",
+    sourceSyncing: "正在同步系统视频源…",
+    sourceSyncError: "系统视频源同步失败，将在网络恢复或窗口重新聚焦后重试。",
     action: "播放",
     loading: "正在加载热门内容…",
     empty: "暂无内容",
@@ -122,6 +125,8 @@ const HOME_COPY = {
     deleteHistory: "刪除",
     cancel: "取消",
     sourceMissing: "尚未設定可用影片來源，請先前往設定。",
+    sourceSyncing: "正在同步系統影片來源…",
+    sourceSyncError: "系統影片來源同步失敗，將在網路恢復或視窗重新聚焦後重試。",
     action: "播放",
     loading: "正在載入熱門內容…",
     empty: "暫無內容",
@@ -174,6 +179,8 @@ const HOME_COPY = {
     deleteHistory: "Delete",
     cancel: "Cancel",
     sourceMissing: "No video source is configured. Open Settings first.",
+    sourceSyncing: "Syncing system video sources…",
+    sourceSyncError: "System video source sync failed. It will retry when the network or window becomes active.",
     action: "Play",
     loading: "Loading popular titles…",
     empty: "No titles yet",
@@ -221,6 +228,7 @@ const HOME_COPY = {
 export function HomeExperience() {
   const router = useRouter();
   const { documents, phase, upsertRecord, removeRecord } = useSync();
+  const runtimeSourcePhase = useRuntimeSourcePhase();
   const auth = useAuth();
   const { locale } = useLocale();
   const [homeMovies, setHomeMovies] = useState<HomeMovie[]>([]);
@@ -351,7 +359,7 @@ export function HomeExperience() {
 
   const runSearch = async (searchQuery: string) => {
     const originalQuery = searchQuery.trim();
-    if (!originalQuery || sources.length === 0) return [];
+    if (!originalQuery || sources.length === 0 || runtimeSourcePhase !== "ready") return [];
     const normalized = traditionalToSimplified(originalQuery);
     searchController.current?.abort();
     const controller = new AbortController();
@@ -380,6 +388,7 @@ export function HomeExperience() {
   };
 
   const openHomeMovie = async (movie: HomeMovie) => {
+    if (runtimeSourcePhase !== "ready") return;
     const found = await runSearch(movie.title);
     const normalizedTitle = normalizedMovieTitle(movie.title);
     const exactMatches = found.filter((video) => (
@@ -443,11 +452,13 @@ export function HomeExperience() {
         <SearchForm accountId={auth?.session.accountId ?? "anonymous"} mode="standard" query={query}
           labels={{ input: copy.searchLabel, placeholder: copy.searchPlaceholder, search: copy.search,
             clear: copy.clearSearch, history: copy.searchHistory, clearAll: copy.clearAllHistory, deleteItem: copy.deleteHistory }}
-          disabled={sources.length === 0} loading={state === "loading"}
+          disabled={sources.length === 0 || runtimeSourcePhase !== "ready"} loading={state === "loading"}
           progressLabel={`${copy.searching}… ${progress.completed}/${progress.total} · ${progress.found}`}
           cancelLabel={copy.cancel} onQueryChange={setQuery} onSearch={(nextQuery) => void runSearch(nextQuery)}
           onClear={clearSearch} onCancel={cancelSearch} />
-        {sources.length === 0 && <p className="kvideo-source-message">{copy.sourceMissing}</p>}
+        {runtimeSourcePhase === "loading" && <p className="kvideo-source-message" role="status">{copy.sourceSyncing}</p>}
+        {runtimeSourcePhase === "error" && <p className="kvideo-source-message" role="alert">{copy.sourceSyncError}</p>}
+        {runtimeSourcePhase === "ready" && sources.length === 0 && <p className="kvideo-source-message">{copy.sourceMissing}</p>}
       </div>
 
       <main className="kvideo-home-main">
@@ -509,6 +520,7 @@ export function HomeExperience() {
                 emptyLabel={copy.empty}
                 errorLabel={copy.error}
                 retryLabel={copy.retry}
+                actionsDisabled={runtimeSourcePhase !== "ready"}
                 onMovieClick={(movie) => void openHomeMovie(movie)}
                 onRetry={() => void loadHome()}
                 hasMore={effectiveRecommendationSelected ? personalized.hasMore : hasMoreHomeMovies}

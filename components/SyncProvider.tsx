@@ -15,10 +15,12 @@ type Phases = Record<SyncKind, SyncPhase>;
 interface SyncContextValue {
   documents: Documents;
   phase: SyncPhase;
+  configReady: boolean;
   retry: () => void;
   updateConfigField: (key: string, value: unknown) => void;
   replacePayload: (payloads: { config: ConfigPayload; library: LibraryPayload }) => void;
   upsertRecord: (kind: SyncKind, collection: SyncCollection, record: TimestampedRecord, syncDelay?: number) => void;
+  upsertRecords: (kind: SyncKind, updates: readonly { collection: SyncCollection; record: TimestampedRecord }[], syncDelay?: number) => void;
   removeRecord: (kind: SyncKind, collection: SyncCollection, id: string) => void;
 }
 
@@ -30,6 +32,7 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
   const auth = useAuth();
   const [documents, setDocuments] = useState<Documents>({ config: createLocalDocument("config"), library: createLocalDocument("library") });
   const [phases, setPhases] = useState<Phases>({ config: "loading", library: "loading" });
+  const [ready, setReady] = useState<Record<SyncKind, boolean>>({ config: false, library: false });
   const documentsRef = useRef(documents);
   const running = useRef(new Set<SyncKind>());
   const timers = useRef<Partial<Record<SyncKind, number>>>({});
@@ -37,6 +40,9 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
 
   const setPhase = useCallback((kind: SyncKind, phase: SyncPhase) => {
     setPhases((current) => ({ ...current, [kind]: phase }));
+  }, []);
+  const markReady = useCallback((kind: SyncKind) => {
+    setReady((current) => current[kind] ? current : { ...current, [kind]: true });
   }, []);
   const persist = useCallback((document: LocalDocument) => {
     saveLocalDocument(window.localStorage, accountId, document);
@@ -62,6 +68,7 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
     if (remainingDelay > 0) {
       setPhase(kind, "pending");
       schedule(kind, remainingDelay, false);
+      markReady(kind);
       return;
     }
     running.current.add(kind);
@@ -91,8 +98,9 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
       setPhase(kind, "offline");
     } finally {
       running.current.delete(kind);
+      markReady(kind);
     }
-  }, [accountId, auth, persist, schedule, setPhase]);
+  }, [accountId, auth, markReady, persist, schedule, setPhase]);
 
   useEffect(() => {
     runRef.current = run;
@@ -107,6 +115,7 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
       if (!active) return;
       setDocuments(loaded);
       setPhases({ config: "loading", library: "loading" });
+      setReady({ config: false, library: false });
       kinds.forEach((kind) => void runRef.current(kind));
     });
     const retry = () => kinds.forEach((kind) => void runRef.current(kind));
@@ -151,16 +160,27 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
     setDocuments(next);
     kinds.forEach((kind) => { setPhase(kind, "pending"); schedule(kind); });
   }, [accountId, schedule, setPhase]);
+  const upsertRecord = useCallback((kind: SyncKind, collection: SyncCollection, record: TimestampedRecord, syncDelay?: number) => {
+    mutate(kind, (current) => upsertDocumentRecord(current, collection, record), syncDelay ?? 250, syncDelay === undefined);
+  }, [mutate]);
+  const upsertRecords = useCallback((kind: SyncKind,
+    updates: readonly { collection: SyncCollection; record: TimestampedRecord }[], syncDelay?: number) => {
+    if (!updates.length) return;
+    mutate(kind, (current) => updates.reduce(
+      (next, { collection, record }) => upsertDocumentRecord(next, collection, record), current,
+    ), syncDelay ?? 250, syncDelay === undefined);
+  }, [mutate]);
   const value = useMemo<SyncContextValue>(() => ({
     documents,
     phase: phasePriority.find((candidate) => Object.values(phases).includes(candidate)) ?? "synced",
+    configReady: ready.config,
     retry: () => kinds.forEach((kind) => void runRef.current(kind)),
     updateConfigField: (key, fieldValue) => mutate("config", (current) => updateConfigField(current, key, fieldValue)),
     replacePayload,
-    upsertRecord: (kind, collection, record, syncDelay) => mutate(kind,
-      (current) => upsertDocumentRecord(current, collection, record), syncDelay ?? 250, syncDelay === undefined),
+    upsertRecord,
+    upsertRecords,
     removeRecord: (kind, collection, id) => mutate(kind, (current) => removeDocumentRecord(current, collection, id)),
-  }), [documents, mutate, phases, replacePayload]);
+  }), [documents, mutate, phases, ready.config, replacePayload, upsertRecord, upsertRecords]);
 
   return <SyncContext.Provider value={value}>{children}</SyncContext.Provider>;
 }

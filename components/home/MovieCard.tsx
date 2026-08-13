@@ -9,10 +9,11 @@ import type { HomeMovie } from "@/lib/content/api-client";
 interface MovieCardProps {
   movie: HomeMovie;
   actionLabel: string;
+  disabled?: boolean;
   onMovieClick: (movie: HomeMovie) => void;
 }
 
-export const MovieCard = memo(function MovieCard({ movie, actionLabel, onMovieClick }: MovieCardProps) {
+export const MovieCard = memo(function MovieCard({ movie, actionLabel, disabled = false, onMovieClick }: MovieCardProps) {
   const [imageError, setImageError] = useState(!movie.cover);
   const [fallbackError, setFallbackError] = useState(false);
   const poster = imageError ? "placeholder-poster.svg" : movie.cover;
@@ -23,6 +24,7 @@ export const MovieCard = memo(function MovieCard({ movie, actionLabel, onMovieCl
       className="kvideo-movie-link"
       data-focusable
       aria-label={`${actionLabel} ${movie.title}`}
+      disabled={disabled}
       onClick={() => onMovieClick(movie)}
     >
       <Card className="kvideo-movie-card">

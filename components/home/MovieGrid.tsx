@@ -14,6 +14,7 @@ interface MovieGridProps {
   emptyLabel: string;
   errorLabel: string;
   retryLabel: string;
+  actionsDisabled?: boolean;
   onMovieClick: (movie: HomeMovie) => void;
   onRetry: () => void;
   hasMore?: boolean;
@@ -31,6 +32,7 @@ export function MovieGrid({
   emptyLabel,
   errorLabel,
   retryLabel,
+  actionsDisabled = false,
   onMovieClick,
   onRetry,
   hasMore = false,
@@ -57,7 +59,7 @@ export function MovieGrid({
   return <>
     <div className="kvideo-movie-grid">
       {movies.map((movie) => (
-        <MovieCard key={movie.id} movie={movie} actionLabel={actionLabel} onMovieClick={onMovieClick} />
+        <MovieCard key={movie.id} movie={movie} actionLabel={actionLabel} disabled={actionsDisabled} onMovieClick={onMovieClick} />
       ))}
     </div>
     {hasMore && <div ref={sentinelRef} className="kvideo-infinite-sentinel" data-infinite-sentinel role="status"

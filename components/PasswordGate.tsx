@@ -263,16 +263,17 @@ export function PasswordGate({ children }: Readonly<{ children: React.ReactNode 
     <AuthContext.Provider value={context}>
       <UsageAlertProvider>
           <SyncProvider key={context.session.accountId} accountId={context.session.accountId}>
-            <RuntimeSourceSync />
-            <div className="application-shell">
-              <AppUpdateControl />
-              <AccountPreferenceBridge accountId={context.session.accountId} />
-              <SyncStatus />
-              <ScrollPositionManager accountId={context.session.accountId} />
-              <TVNavigationInitializer />
-              {children}
-              <BackToTop />
-            </div>
+            <RuntimeSourceSync>
+              <div className="application-shell">
+                <AppUpdateControl />
+                <AccountPreferenceBridge accountId={context.session.accountId} />
+                <SyncStatus />
+                <ScrollPositionManager accountId={context.session.accountId} />
+                <TVNavigationInitializer />
+                {children}
+                <BackToTop />
+              </div>
+            </RuntimeSourceSync>
         </SyncProvider>
       </UsageAlertProvider>
     </AuthContext.Provider>

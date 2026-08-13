@@ -34,3 +34,29 @@
 - `npm run test:e2e`：112/112。
 - `npm run lint`：通过。
 - 未修改 Worker、D1 schema、Secret、版本号、发布配置；未 commit、push 或部署。
+
+## 复审追加：初始化竞态、失败重试与批量持久化
+
+### RED
+
+在同一测试文件补充四项回归，修复前稳定失败：
+
+- `config` 文档仍在拉取时，即使 `library` 已失败，也不得提前导入运行时订阅。
+- 运行时订阅未完成时，搜索和首页影片按钮必须保持禁用。
+- 首次导入失败后，窗口重新聚焦必须重试，并在成功后清除 `lastError`。
+- 重复订阅 URL 只导入一次；20 个来源必须通过一次批量配置写入持久化。
+
+### 根因与最小修复
+
+- `SyncProvider` 原先只暴露聚合 `phase`；任一集合先结束就可能让订阅同步误判为“初次同步完成”。现改为显式暴露 `configReady`。
+- `RuntimeSourceSync` 原先使用一次性的 `attemptedRef` 且不向页面暴露状态，失败会永久停留，搜索和首页点击也会与来源导入竞态。现增加 `loading / ready / error` 状态，并在 `online`、`focus` 时重试。
+- 订阅 URL 原先未规范化去重，且每个来源分别调用一次配置写入。现按规范化 URL 去重，并通过一次 `upsertRecords("config", updates)` 原子更新来源与订阅记录。
+- 所有订阅均失败时保持交互禁用并显示可恢复错误；部分成功仍按既有 KVideo 合同允许使用成功来源，同时保留失败记录供后续重试。
+
+### GREEN
+
+- 新增回归：4/4；该测试文件：14/14。
+- `npm test`：139/139。首次全量运行出现一次 Windows 文件锁 `EPERM`，对应测试单独重跑及全量重跑均通过，因此归类为瞬态环境问题。
+- `npm run test:e2e`：116/116。
+- `npm run lint`、`npx tsc --noEmit`、`npm run build`、`git diff --check`：通过。
+- 仍未修改 Worker、D1 schema、Secret、版本号或发布配置；未 commit、push 或部署。

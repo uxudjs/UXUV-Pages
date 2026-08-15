@@ -1,2 +1,2 @@
-:HL["/UXUV-Pages/_next/static/chunks/2-0aw-e5fhikv.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"premium","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"uxuv-pages-0.2.0"}
+:HL["/UXUV-Pages/_next/static/chunks/04ro9bkcbnjhb.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"premium","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"uxuv-pages-0.2.1"}

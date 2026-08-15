@@ -1,8 +1,17 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { ModuleKind, ScriptTarget, transpileModule } from "typescript";
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
+
+async function loadPolicy() {
+  const source = read("lib/content/source-settings-policy.ts");
+  const javascript = transpileModule(source, {
+    compilerOptions: { module: ModuleKind.ES2022, target: ScriptTarget.ES2022 },
+  }).outputText;
+  return import(`data:text/javascript;base64,${Buffer.from(javascript).toString("base64")}`);
+}
 
 test("T15 keeps source validation, defaults, kind, and ordering in one policy", () => {
   const policy = read("lib/content/source-settings-policy.ts");
@@ -33,4 +42,20 @@ test("T15 exposes settings hierarchy and source add, edit, toggle, delete, reord
   assert.match(manager, /onMove/);
   assert.match(modal, /role="dialog"/);
   assert.match(modal, /normalizeSourceDraft/);
+});
+
+test("subscription JSON links replace their materialized sources in settings without removing search data", async () => {
+  const { standaloneSources } = await loadPolicy();
+  const sources = [
+    { id: "from-subscription", updatedAt: 1, name: "订阅内源", baseUrl: "https://media.example/api" },
+    { id: "subscription-link", updatedAt: 1, name: "订阅链接", baseUrl: "https://example.com/sources.json" },
+    { id: "manual", updatedAt: 1, name: "独立来源", baseUrl: "https://manual.example/api" },
+  ];
+  const subscriptions = [{
+    id: "subscription-one", updatedAt: 1, lastUpdated: 1, name: "JSON 订阅",
+    url: "https://example.com/sources.json", sourceIds: ["from-subscription"],
+  }];
+
+  assert.deepEqual(standaloneSources(sources, subscriptions).map(({ id }) => id), ["manual"]);
+  assert.equal(sources.length, 3);
 });

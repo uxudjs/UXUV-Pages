@@ -799,6 +799,14 @@ select {
 .source-count-summary { color: var(--text-color-secondary); font-size: .75rem; }
 .source-heading-actions button { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 5px; border-radius: var(--radius-2xl); padding: 0 16px; font-size: .875rem; font-weight: 600; }
 .source-heading-actions .primary-button { width: 88px; padding: 0; }
+.source-subscription-summary { display: grid; gap: 10px; margin-bottom: 16px; }
+.source-subscription-summary h3 { margin: 0; font-size: .875rem; }
+.source-subscription-summary ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.source-subscription-summary li { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius-2xl); background: color-mix(in srgb, var(--glass-bg) 65%, transparent); padding: 12px; }
+.source-subscription-summary li > span { display: grid; min-width: 0; gap: 4px; }
+.source-subscription-summary strong,
+.source-subscription-summary small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.source-subscription-summary small { color: var(--text-color-secondary); }
 [data-settings-section="sources"] .section-heading,
 [data-settings-section="premium-sources"] .section-heading { align-items: center; }
 

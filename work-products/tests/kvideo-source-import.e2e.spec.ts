@@ -130,11 +130,13 @@ test.describe("KVideo T16 source import and subscriptions", () => {
     await expect(modal.locator(".import-preview")).toContainText("Subscription source");
     await modal.locator(".import-preview").getByRole("button", { name: "导入有效来源" }).click();
     await expect(modal.getByText("My subscription", { exact: true })).toBeVisible();
-    await expect(section.getByText("Subscription source", { exact: true })).toBeVisible();
+    await expect(section.locator(".source-subscription-summary").getByText("My subscription", { exact: true })).toBeVisible();
+    await expect(section.locator(".source-subscription-summary")).toContainText("https://safe.example/subscription.json");
+    await expect(section.getByText("Subscription source", { exact: true })).toHaveCount(0);
     await modal.getByRole("button", { name: "更新", exact: true }).click();
     await expect(modal.locator(".import-preview")).toContainText("Subscription source updated");
     await modal.locator(".import-preview").getByRole("button", { name: "导入有效来源" }).click();
-    await expect(section.getByText("Subscription source updated", { exact: true })).toBeVisible();
+    await expect(section.getByText("Subscription source updated", { exact: true })).toHaveCount(0);
 
     await modal.getByRole("button", { name: "删除 My subscription" }).click();
     const confirmation = modal.getByRole("alertdialog", { name: "删除此订阅？" });
@@ -177,6 +179,7 @@ test.describe("KVideo T16 source import and subscriptions", () => {
     const saved = worker.config().payload;
     expect(saved.sources.some(({ id }) => id === "existing")).toBe(true);
     expect(saved.sources.some(({ id }) => id === "file-source")).toBe(false);
+    expect(saved.sources.filter(({ id }) => id === "sub-source").every(({ kind }) => kind === "system")).toBe(true);
     expect(saved.subscriptions).toEqual([]);
   });
 });

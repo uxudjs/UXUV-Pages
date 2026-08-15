@@ -58,7 +58,7 @@ test.describe("KVideo T15 settings and standard sources", () => {
     const section = page.locator('[data-settings-section="sources"]');
     await expect(section.getByRole("heading", { name: "视频源管理" })).toBeVisible();
     await expect(section.locator(".source-manager-row")).toHaveCount(10);
-    await expect(section.getByText("12 个来源 · 系统 11 · 个人 1")).toBeVisible();
+    await expect(section.getByText("0 JSON 订阅 · 12 独立来源 · 系统 11 · 个人 1")).toBeVisible();
     await section.getByRole("button", { name: "显示全部 (12)" }).click();
     await expect(section.locator(".source-manager-row")).toHaveCount(12);
     await expect(section.locator(".source-kind-system").first()).toHaveText("系统");

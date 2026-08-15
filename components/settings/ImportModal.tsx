@@ -134,7 +134,7 @@ export function ImportModal({ existingIds, subscriptions, onClose, onImport, onS
   };
   const confirmImport = () => {
     if (!preview?.sources.length) return;
-    onImport(preview.sources);
+    onImport(preview.sources.map((source) => pendingSubscription ? { ...source, kind: "system" } : source));
     if (pendingSubscription) {
       const now = Date.now();
       onSaveSubscription({ ...pendingSubscription, updatedAt: now, lastUpdated: now, lastError: undefined,

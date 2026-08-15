@@ -22,11 +22,11 @@ export function useSearchDisplayModePreference(accountId: string, mode: "standar
   const getSnapshot = useCallback(() => {
     try {
       const value = localStorage.getItem(key);
-      return value === "grouped" ? "grouped" : "normal";
+      return value === "normal" ? "normal" : "grouped";
     }
-    catch { return "normal"; }
+    catch { return "grouped"; }
   }, [key]);
-  const displayMode = useSyncExternalStore(subscribe, getSnapshot, () => "normal") as SearchDisplayMode;
+  const displayMode = useSyncExternalStore(subscribe, getSnapshot, () => "grouped") as SearchDisplayMode;
   return {
     displayMode,
     setDisplayMode: (next: SearchDisplayMode) => {

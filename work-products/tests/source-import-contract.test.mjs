@@ -22,5 +22,6 @@ test("T16 uses one authenticated same-origin fetch boundary and four keyboard mo
   for (const tab of ["json", "file", "link", "subscription"]) assert.match(modal, new RegExp(tab));
   assert.match(modal, /role="dialog"/);
   assert.match(modal, /focusable/);
+  assert.match(modal, /pendingSubscription \? \{ \.\.\.source, kind: "system" \} : source/);
   assert.match(settings, /ImportModal/);
 });

@@ -31,5 +31,6 @@ test("T11 display preference is isolated by account and mode", () => {
   assert.match(preference, /encodeURIComponent\(accountId\)/);
   assert.match(preference, /mode/);
   assert.match(preference, /uxuv-search-display:v1/);
-  assert.match(preference, /value === "grouped" \? "grouped" : "normal"/);
+  assert.match(preference, /value === "normal" \? "normal" : "grouped"/);
+  assert.match(preference, /useSyncExternalStore\(subscribe, getSnapshot, \(\) => "grouped"\)/);
 });

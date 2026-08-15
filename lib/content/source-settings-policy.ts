@@ -1,4 +1,4 @@
-import type { VideoSource } from "@/lib/content/types";
+import type { SourceSubscription, VideoSource } from "@/lib/content/types";
 
 export const SOURCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?$/;
 export const DEFAULT_SOURCE_PATH = "/api.php/provide/vod/";
@@ -49,6 +49,20 @@ export function orderedSources(sources: readonly VideoSource[]): VideoSource[] {
     .sort((left, right) => (left.source.priority ?? Number.MAX_SAFE_INTEGER) - (right.source.priority ?? Number.MAX_SAFE_INTEGER)
       || left.originalIndex - right.originalIndex)
     .map(({ source }) => source);
+}
+
+function normalizedUrl(value: string): string {
+  try { return new URL(value.trim()).href; } catch { return value.trim(); }
+}
+
+export function standaloneSources(
+  sources: readonly VideoSource[],
+  subscriptions: readonly SourceSubscription[],
+): VideoSource[] {
+  const managedIds = new Set(subscriptions.flatMap(({ sourceIds }) => sourceIds ?? []));
+  const subscriptionUrls = new Set(subscriptions.map(({ url }) => normalizedUrl(url)));
+  return sources.filter((source) => !managedIds.has(source.id)
+    && !subscriptionUrls.has(normalizedUrl(source.baseUrl)));
 }
 
 export function reorderSources(sources: readonly VideoSource[], activeId: string, overId: string): VideoSource[] {

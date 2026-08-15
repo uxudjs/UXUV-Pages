@@ -6,8 +6,9 @@ import { useLocale } from "@/components/LocaleProvider";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { useSync } from "@/components/SyncProvider";
 import { Icon } from "@/components/ui/Icon";
-import type { VideoSource } from "@/lib/content/types";
-import type { ConfigPayload } from "@/lib/sync/document-types";
+import { standaloneSources } from "@/lib/content/source-settings-policy";
+import type { SourceSubscription, VideoSource } from "@/lib/content/types";
+import type { ConfigPayload, TimestampedRecord } from "@/lib/sync/document-types";
 
 const COPY = {
   "zh-CN": { title: "个人视频源", description: "添加你自己的视频源，不影响其他用户。", name: "源名称", url: "接口地址 (https://...)", add: "添加", empty: "还没有个人视频源，添加一个试试吧。", required: "名称和接口地址不能为空。", invalid: "请输入有效的 HTTP 或 HTTPS URL。", toggle: "切换启用状态", remove: "删除" },
@@ -22,11 +23,18 @@ function isPersonalSource(value: unknown): value is VideoSource {
     && typeof source.name === "string" && typeof source.baseUrl === "string";
 }
 
+function isSubscription(value: TimestampedRecord): value is SourceSubscription {
+  return typeof value.name === "string" && typeof value.url === "string" && typeof value.lastUpdated === "number";
+}
+
 export function UserSourceSettings() {
   const { locale } = useLocale();
   const copy = COPY[locale];
   const { documents, upsertRecord, removeRecord } = useSync();
-  const sources = useMemo(() => (documents.config.payload as ConfigPayload).sources.filter(isPersonalSource), [documents.config.payload]);
+  const sources = useMemo(() => {
+    const config = documents.config.payload as ConfigPayload;
+    return standaloneSources(config.sources.filter(isPersonalSource), config.subscriptions.filter(isSubscription));
+  }, [documents.config.payload]);
   const [name, setName] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [error, setError] = useState("");

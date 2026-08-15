@@ -55,7 +55,7 @@ test.describe("KVideo T17 account preferences", () => {
     let sort = page.locator('[data-settings-section="sort"]');
     const sources = page.locator('[data-settings-section="sources"]');
     await expect(display.getByRole("heading", { name: "显示设置" })).toBeVisible();
-    await expect(display.getByText("默认显示", { exact: true }).locator("..")).toHaveAttribute("aria-pressed", "true");
+    await expect(display.getByText("合并同名源", { exact: true }).locator("..")).toHaveAttribute("aria-pressed", "true");
     await expect(display.getByLabel("记住滚动位置")).toBeChecked();
     await expect(display.getByLabel("实时延迟显示")).not.toBeChecked();
     await expect(sort.getByRole("button", { name: "默认排序" })).toHaveAttribute("aria-pressed", "true");
@@ -99,7 +99,7 @@ test.describe("KVideo T17 account preferences", () => {
     display = page.locator('[data-settings-section="display"]');
     sort = page.locator('[data-settings-section="sort"]');
     await expect(page.getByRole("heading", { name: "设置", exact: true })).toBeVisible();
-    await expect(display.getByRole("button", { name: /默认显示/ })).toHaveAttribute("aria-pressed", "true");
+    await expect(display.getByRole("button", { name: /合并同名源/ })).toHaveAttribute("aria-pressed", "true");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect(sort.getByRole("button", { name: "默认排序" })).toHaveAttribute("aria-pressed", "true");
     await expect(display.getByText("伦理", { exact: true })).toHaveCount(0);

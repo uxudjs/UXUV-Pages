@@ -107,7 +107,10 @@ test.describe("KVideo T11 streamed result cards", () => {
 
   test("renders stable incremental cards and fixed source, type, and language metadata", async ({ page }) => {
     await mockWorker(page.context());
-    await page.addInitScript(() => localStorage.setItem("uxuv-search-display:v1:other-account:standard", "grouped"));
+    await page.addInitScript(() => {
+      localStorage.setItem("uxuv-search-display:v1:other-account:standard", "grouped");
+      localStorage.setItem("uxuv-search-display:v1:viewer-results:standard", "normal");
+    });
     await page.goto("./");
     await search(page);
 
@@ -188,6 +191,7 @@ test.describe("KVideo T11 streamed result cards", () => {
   });
 
   test("filters, stably sorts, pings, blocks categories, and probes without dropping failures", async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("uxuv-search-display:v1:viewer-results:standard", "normal"));
     const worker = await mockWorker(page.context());
     await page.goto("./");
     await search(page);

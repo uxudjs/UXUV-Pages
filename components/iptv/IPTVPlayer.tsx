@@ -17,7 +17,7 @@ const COPY = {
     connecting: "正在连接受保护直播…", buffering: "正在缓冲…", retryPlayback: "重试播放", tokenInvalid: "直播授权已过期，请重试。",
     iptvDenied: "当前账户没有 IPTV 播放权限。", rateLimited: "直播请求过于频繁，请稍后重试。", upstreamFailed: "直播线路暂时中断，请重试或切换线路。",
     playbackFailed: "直播播放失败，请重试或切换线路。", codecUnsupported: "当前浏览器不支持此 HEVC 直播；请选择 H.264 线路。",
-    nativeMode: "原生解码", retryMode: "智能重试", relayMode: "始终中继" },
+    directMode: "仅直连", nativeMode: "原生解码", retryMode: "智能重试", relayMode: "始终中继" },
   "zh-TW": { routes: "播放線路", route: "線路", showAll: "展開全部線路", collapse: "收合線路", probing: "正在測量線路延遲…",
     switched: "目前線路失敗，已自動切換。", exhausted: "所有線路均無法使用，請稍後重試。", hevcOnly: "這些線路僅提供 HEVC；目前瀏覽器可能無法解碼。",
     play: "播放", pause: "暫停", mute: "靜音", unmute: "取消靜音", progress: "播放進度", volume: "音量", speed: "播放速度",
@@ -28,7 +28,7 @@ const COPY = {
     connecting: "正在連接受保護直播…", buffering: "正在緩衝…", retryPlayback: "重試播放", tokenInvalid: "直播授權已過期，請重試。",
     iptvDenied: "目前帳戶沒有 IPTV 播放權限。", rateLimited: "直播請求過於頻繁，請稍後重試。", upstreamFailed: "直播線路暫時中斷，請重試或切換線路。",
     playbackFailed: "直播播放失敗，請重試或切換線路。", codecUnsupported: "目前瀏覽器不支援此 HEVC 直播；請選擇 H.264 線路。",
-    nativeMode: "原生解碼", retryMode: "智慧重試", relayMode: "始終中繼" },
+    directMode: "僅直連", nativeMode: "原生解碼", retryMode: "智慧重試", relayMode: "始終中繼" },
   en: { routes: "Playback routes", route: "Route", showAll: "Show all routes", collapse: "Collapse routes", probing: "Measuring route latency…",
     switched: "The route failed and playback switched automatically.", exhausted: "No route is currently available. Try again later.", hevcOnly: "These routes provide HEVC only; this browser may not decode them.",
     play: "Play", pause: "Pause", mute: "Mute", unmute: "Unmute", progress: "Playback progress", volume: "Volume", speed: "Playback speed",
@@ -39,7 +39,7 @@ const COPY = {
     connecting: "Connecting to protected live TV…", buffering: "Buffering…", retryPlayback: "Retry playback", tokenInvalid: "Live TV authorization expired. Try again.",
     iptvDenied: "This account cannot play IPTV.", rateLimited: "Too many live TV requests. Try again shortly.", upstreamFailed: "The live route stopped. Retry or switch routes.",
     playbackFailed: "Live playback failed. Retry or switch routes.", codecUnsupported: "This browser cannot decode this HEVC route. Choose an H.264 route.",
-    nativeMode: "Native decoding", retryMode: "Smart retry", relayMode: "Always relay" },
+    directMode: "Direct only", nativeMode: "Native decoding", retryMode: "Smart retry", relayMode: "Always relay" },
 } as const;
 
 export function IPTVPlayer({ channel, onClose }: Readonly<{ channel: IptvChannel; onClose: () => void }>) {

@@ -41,7 +41,7 @@ async function json(route: Route, body: unknown, status = 200) {
 
 async function mockMediaWorker(
   context: BrowserContext,
-  options: { permissions?: string[]; role?: string; iptvSources?: string } = {},
+  options: { permissions?: string[]; role?: string; iptvSources?: string; videoTarget?: string; proxyStatus?: number } = {},
 ) {
   const currentSession = session(options.permissions, options.role);
   const source = {
@@ -74,7 +74,7 @@ async function mockMediaWorker(
       data: {
         vod_id: "movie-1", vod_name: "测试影片", source: "source-a", vod_year: "2026", vod_actor: "演员甲", vod_area: "中国",
         episodes: [
-          { name: "第一集", url: "https://media.example/one.mp4", index: 0 },
+          { name: "第一集", url: options.videoTarget || "https://media.example/one.mp4", index: 0 },
           { name: "第二集", url: "https://media.example/two.mp4", index: 1 },
         ],
       },
@@ -93,6 +93,9 @@ async function mockMediaWorker(
       return json(route, { error: { code: "MEDIA_TOKEN_INVALID", message: "Media token invalid." } }, 401);
     }
     if (url.pathname === "/api/proxy" || url.pathname === "/api/iptv/stream") {
+      if (url.pathname === "/api/proxy" && options.proxyStatus) {
+        return route.fulfill({ status: options.proxyStatus, contentType: "text/plain", body: "upstream rejected Worker egress" });
+      }
       return route.fulfill({ status: 206, headers: { "Content-Type": "video/mp4", "Content-Range": "bytes 0-3/4", "Accept-Ranges": "bytes" }, body: "test" });
     }
     return json(route, { error: { code: "NOT_FOUND" } }, 404);
@@ -101,19 +104,42 @@ async function mockMediaWorker(
   return { requestOrigins, getIptvRequests: () => iptvRequests };
 }
 
-test("player loads detail, switches episodes, and keeps media requests same-origin", async ({ page }) => {
+test("player loads detail, falls back from the Worker media route, and switches episodes", async ({ page }) => {
   const worker = await mockMediaWorker(page.context());
   await page.goto("./player/?id=movie-1&source=source-a&title=测试影片");
   await expect(page.getByRole("heading", { name: "测试影片" })).toBeVisible();
   const video = page.getByLabel("视频播放器");
-  await expect(video).toHaveAttribute("data-media-source", /\/api\/proxy\?.*one\.mp4/);
+  await expect(video).toHaveAttribute("data-media-source", "https://media.example/one.mp4");
   await page.getByRole("radio", { name: "第二集" }).click();
-  await expect(video).toHaveAttribute("data-media-source", /\/api\/proxy\?.*two\.mp4/);
+  await expect(video).toHaveAttribute("data-media-source", "https://media.example/two.mp4");
   for (const width of [320, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
   expect(worker.requestOrigins.every((origin) => origin === "http://127.0.0.1:4173")).toBe(true);
+});
+
+test("smart retry rebuilds HLS on the direct URL after the Worker media route fails", async ({ page }) => {
+  const target = "https://media.example/direct-fallback.m3u8";
+  let directManifestRequests = 0;
+  await page.context().route("https://media.example/**", async (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname.endsWith(".m3u8")) {
+      directManifestRequests += 1;
+      return route.fulfill({ status: 200, headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/vnd.apple.mpegurl",
+      }, body: "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:2\n#EXTINF:2,\nsegment.ts\n#EXT-X-ENDLIST\n" });
+    }
+    return route.fulfill({ status: 200, headers: { "Access-Control-Allow-Origin": "*", "Content-Type": "video/mp2t" }, body: "test" });
+  });
+  await mockMediaWorker(page.context(), { videoTarget: target, proxyStatus: 403 });
+
+  await page.goto("./player/?id=movie-1&source=source-a&title=测试影片");
+  const video = page.getByLabel("视频播放器");
+  await expect.poll(() => directManifestRequests, { timeout: 15_000 }).toBeGreaterThan(0);
+  await expect(video).toHaveAttribute("data-media-source", target);
+  await expect(page.locator(".media-player")).toHaveAttribute("data-proxy-mode", "retry");
 });
 
 test("IPTV enforces permission, loads channels, switches streams, and exposes token expiry", async ({ browser }) => {

@@ -8,6 +8,7 @@ const root = fileURLToPath(new URL("../..", import.meta.url));
 const read = (path) => readFileSync(join(root, path), "utf8");
 const mediaFiles = [
   "lib/media/media-client.ts",
+  "lib/media/playback-routing.ts",
   "components/media/MediaPlayer.tsx",
   "components/PlayerExperience.tsx",
   "components/IptvExperience.tsx",
@@ -21,9 +22,10 @@ const mediaFiles = [
   "app/iptv/page.tsx",
 ];
 
-test("player and IPTV static entries use only same-origin Worker media routes", () => {
+test("player scopes browser-direct fallback to regular video while IPTV stays on Worker routes", () => {
   for (const path of mediaFiles) assert.equal(existsSync(join(root, path)), true, `${path} must exist`);
   const client = read("lib/media/media-client.ts");
+  const routing = read("lib/media/playback-routing.ts");
   const player = read("components/PlayerExperience.tsx");
   const iptv = read("components/IptvExperience.tsx");
   const iptvLoader = read("lib/iptv/source-loader.ts");
@@ -34,6 +36,10 @@ test("player and IPTV static entries use only same-origin Worker media routes", 
   assert.match(iptvLoader, /\/api\/iptv\?/);
   assert.match(client, /["']\/api\/iptv\/stream["']/);
   assert.match(client, /credentials:\s*["']same-origin["']/);
+  assert.match(routing, /route !== ["']proxy["']/);
+  assert.match(routing, /proxyMode === ["']retry["']/);
+  assert.match(routing, /fallbackSrc: directSrc/);
+  assert.match(routing, /proxyMode === ["']none["']/);
   assert.match(player, /useSync\(\)/);
   assert.match(player, /getVideoDetail\(/);
   assert.match(player, /<MediaPlayer/);

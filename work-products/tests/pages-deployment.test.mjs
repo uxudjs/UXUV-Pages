@@ -14,18 +14,18 @@ test("advances the current candidate without storing versioned releases in the s
   const visualPlaywrightConfig = read("work-products/tests/kvideo-playwright.config.ts");
   const gitignore = read(".gitignore");
 
-  assert.equal(packageJson.version, "0.2.0");
-  assert.equal(packageLock.version, "0.2.0");
-  assert.equal(packageLock.packages[""].version, "0.2.0");
+  assert.equal(packageJson.version, "0.2.1");
+  assert.equal(packageLock.version, "0.2.1");
+  assert.equal(packageLock.packages[""].version, "0.2.1");
   assert.match(gitignore, /^release\/$/m);
   assert.match(nextConfig, /const PAGES_BASE_PATH = ["']\/UXUV-Pages["']/);
   assert.match(nextConfig, /basePath:\s*PAGES_BASE_PATH/);
-  assert.match(nextConfig, /generateBuildId:\s*async\s*\(\)\s*=>\s*["']uxuv-pages-0\.2\.0["']/);
-  assert.doesNotMatch(nextConfig, /UXUV-Pages\/(?:0\.2\.0|main|master|latest)/i);
+  assert.match(nextConfig, /generateBuildId:\s*async\s*\(\)\s*=>\s*["']uxuv-pages-0\.2\.1["']/);
+  assert.doesNotMatch(nextConfig, /UXUV-Pages\/(?:0\.2\.1|main|master|latest)/i);
   assert.match(playwrightConfig, /baseURL = `http:\/\/127\.0\.0\.1:\$\{port\}\/UXUV-Pages\/`/);
   assert.match(visualPlaywrightConfig, /baseURL = `http:\/\/127\.0\.0\.1:\$\{port\}\/UXUV-Pages\/`/);
-  assert.doesNotMatch(playwrightConfig, /UXUV-Pages\/(?:0\.2\.0|main|master|latest)/i);
-  assert.doesNotMatch(visualPlaywrightConfig, /UXUV-Pages\/(?:0\.2\.0|main|master|latest)/i);
+  assert.doesNotMatch(playwrightConfig, /UXUV-Pages\/(?:0\.2\.1|main|master|latest)/i);
+  assert.doesNotMatch(visualPlaywrightConfig, /UXUV-Pages\/(?:0\.2\.1|main|master|latest)/i);
 });
 
 test("removes the custom commit-SHA release identity helper", () => {

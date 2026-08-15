@@ -32,7 +32,7 @@ interface RuntimeConfigContextValue {
 }
 
 const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
-  release: { worker: "", pages: "0.2.0", apiContract: 1 },
+  release: { worker: "", pages: "0.2.1", apiContract: 1 },
   site: {
     name: "UXUVideo",
     title: "UXUVideo",

@@ -37,7 +37,7 @@ test("T18 exposes every player, skip, proxy, ad, and danmaku control through one
   assert.match(danmaku, /unsafeDanmakuUrlReason/);
 });
 
-test("T18 keeps the settings order, three languages, permissions, and same-origin safety explanation explicit", () => {
+test("T18 keeps the settings order, three languages, permissions, and direct fallback boundary explicit", () => {
   const page = read("app/settings/page.tsx");
   const player = read("components/settings/PlayerSettings.tsx");
   const danmaku = read("components/settings/UserDanmakuSettings.tsx");
@@ -49,5 +49,7 @@ test("T18 keeps the settings order, three languages, permissions, and same-origi
   }
   assert.match(player, /player_settings/);
   assert.match(player, /same-origin/);
+  assert.match(player, /CORS/);
+  assert.match(player, /回退一次|回退一次/);
   assert.match(danmaku, /danmaku_api/);
 });

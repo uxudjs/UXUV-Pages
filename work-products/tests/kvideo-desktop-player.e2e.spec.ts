@@ -500,6 +500,10 @@ test.describe("KVideo T24 playback lifecycle", () => {
     await expect(stalledStatus).toBeHidden();
 
     await video.dispatchEvent("error");
+    await expect(video).toHaveAttribute("data-media-source", "https://media-a.example/video.mp4");
+    await expect(page.locator(".desktop-player-time")).toContainText("0:57");
+    expect(new URL(page.url()).searchParams.get("source")).toBe("source-a");
+    await video.dispatchEvent("error");
     await page.waitForURL(/source=source-b/);
     expect(new URL(page.url()).searchParams.get("t")).toBe("57");
     await expect(page.getByLabel("视频播放器")).toHaveAttribute("data-media-source", /media-b\.example/);
@@ -513,8 +517,12 @@ test.describe("KVideo T24 playback lifecycle", () => {
     expect((await localLibrary(page)).history).toHaveLength(1);
 
     await page.getByLabel("视频播放器").dispatchEvent("error");
+    await expect(page.getByLabel("视频播放器")).toHaveAttribute("data-media-source", "https://media-b.example/video.mp4");
+    await page.getByLabel("视频播放器").dispatchEvent("error");
     await page.waitForURL(/source=source-c/);
     await expect(page.getByLabel("视频播放器")).toHaveAttribute("data-media-source", /media-c\.example/);
+    await page.getByLabel("视频播放器").dispatchEvent("error");
+    await expect(page.getByLabel("视频播放器")).toHaveAttribute("data-media-source", "https://media-c.example/video.mp4");
     await page.getByLabel("视频播放器").dispatchEvent("error");
     await expect(page.locator(".media-error")).toContainText("媒体播放失败");
     await page.waitForTimeout(250);
@@ -524,9 +532,9 @@ test.describe("KVideo T24 playback lifecycle", () => {
   });
 
   for (const scenario of [
-    { mode: "none" as const, strategy: "native-none", label: "原生解码" },
-    { mode: "always" as const, strategy: "native-always", label: "始终中继" },
-  ]) test(`${scenario.mode} mode stays on the protected same-origin media route`, async ({ page }) => {
+    { mode: "none" as const, strategy: "native-none", label: "仅直连", direct: true },
+    { mode: "always" as const, strategy: "native-always", label: "始终中继", direct: false },
+  ]) test(`${scenario.mode} mode uses its selected primary media route`, async ({ page }) => {
     await installVirtualMediaClock(page.context());
     await installPlaybackLifecycleState(page.context());
     await mockPlaybackLifecycleWorker(page.context(), scenario.mode);
@@ -535,8 +543,8 @@ test.describe("KVideo T24 playback lifecycle", () => {
     await expect(page.locator(".player-proxy-badge")).toHaveText(scenario.label);
     const mediaSource = await page.getByLabel("视频播放器").getAttribute("data-media-source");
     const mediaUrl = new URL(mediaSource!, page.url());
-    expect(mediaUrl.origin).toBe(new URL(page.url()).origin);
-    expect(mediaUrl.pathname).toBe("/api/proxy");
+    expect(mediaUrl.origin).toBe(scenario.direct ? "https://media-a.example" : new URL(page.url()).origin);
+    expect(mediaUrl.pathname).toBe(scenario.direct ? "/video.mp4" : "/api/proxy");
   });
 });
 

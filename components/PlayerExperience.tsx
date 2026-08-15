@@ -32,7 +32,7 @@ const COPY = {
     systemFullscreenUnavailable: "当前浏览器不支持系统全屏", connecting: "正在连接受保护媒体…", buffering: "正在缓冲…", retryPlayback: "重试播放",
     tokenInvalid: "媒体授权已过期，请重试。", iptvDenied: "当前账户没有 IPTV 播放权限。", rateLimited: "媒体请求过于频繁，请稍后重试。",
     upstreamFailed: "上游媒体暂时中断，请重试或切换线路。", playbackFailed: "媒体播放失败，请重试或切换线路。", codecUnsupported: "当前浏览器不支持此媒体的编解码格式。",
-    nativeMode: "原生解码", retryMode: "智能重试", relayMode: "始终中继",
+    directMode: "仅直连", nativeMode: "原生解码", retryMode: "智能重试", relayMode: "始终中继",
     adFilter: "广告过滤", adOff: "关闭", adKeyword: "关键词", adHeuristic: "启发式", adAggressive: "激进" },
   "zh-TW": { loading: "正在載入影片詳情…", failed: "無法開始播放", missing: "播放連結缺少影片或來源資訊。",
     sourceMissing: "目前來源設定不存在，請返回搜尋頁重試。", session: "登入工作階段已失效，請重新登入。", rate: "詳情請求過於頻繁，請稍後重試。",
@@ -44,7 +44,7 @@ const COPY = {
     systemFullscreenUnavailable: "目前瀏覽器不支援系統全螢幕", connecting: "正在連接受保護媒體…", buffering: "正在緩衝…", retryPlayback: "重試播放",
     tokenInvalid: "媒體授權已過期，請重試。", iptvDenied: "目前帳戶沒有 IPTV 播放權限。", rateLimited: "媒體請求過於頻繁，請稍後重試。",
     upstreamFailed: "上游媒體暫時中斷，請重試或切換線路。", playbackFailed: "媒體播放失敗，請重試或切換線路。", codecUnsupported: "目前瀏覽器不支援此媒體的編解碼格式。",
-    nativeMode: "原生解碼", retryMode: "智慧重試", relayMode: "始終中繼",
+    directMode: "僅直連", nativeMode: "原生解碼", retryMode: "智慧重試", relayMode: "始終中繼",
     adFilter: "廣告過濾", adOff: "關閉", adKeyword: "關鍵詞", adHeuristic: "啟發式", adAggressive: "積極" },
   en: { loading: "Loading video details…", failed: "Playback unavailable", missing: "The playback link is missing its video or source.",
     sourceMissing: "This source is no longer configured. Return to search and try again.", session: "Your session expired. Sign in again.", rate: "Too many detail requests. Try again shortly.",
@@ -56,7 +56,7 @@ const COPY = {
     systemFullscreenUnavailable: "System fullscreen is unavailable in this browser", connecting: "Connecting to protected media…", buffering: "Buffering…", retryPlayback: "Retry playback",
     tokenInvalid: "Media authorization expired. Try again.", iptvDenied: "This account cannot play IPTV.", rateLimited: "Too many media requests. Try again shortly.",
     upstreamFailed: "The upstream media stopped. Retry or switch sources.", playbackFailed: "Playback failed. Retry or switch sources.", codecUnsupported: "This browser cannot decode this media format.",
-    nativeMode: "Native decoding", retryMode: "Smart retry", relayMode: "Always relay",
+    directMode: "Direct only", nativeMode: "Native decoding", retryMode: "Smart retry", relayMode: "Always relay",
     adFilter: "Ad filtering", adOff: "Off", adKeyword: "Keywords", adHeuristic: "Heuristic", adAggressive: "Aggressive" },
 } as const;
 

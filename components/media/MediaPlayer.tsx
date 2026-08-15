@@ -20,6 +20,7 @@ import { useDoubleTap } from "@/lib/hooks/mobile/useDoubleTap";
 import { useScreenOrientation } from "@/lib/hooks/mobile/useScreenOrientation";
 import { useMobilePlayer } from "@/lib/hooks/useMobilePlayer";
 import { buildMediaUrl } from "@/lib/media/media-client";
+import { resolvePlaybackSources } from "@/lib/media/playback-routing";
 import { usePlayerSettings } from "@/lib/hooks/usePlayerSettings";
 import { shouldHidePlayerCursor } from "@/lib/player/cursor-visibility";
 import { useAuth } from "@/lib/store/auth-store";
@@ -36,6 +37,7 @@ export interface MediaPlayerMessages {
   upstreamFailed: string;
   playbackFailed: string;
   codecUnsupported: string;
+  directMode: string;
   nativeMode: string;
   retryMode: string;
   relayMode: string;
@@ -46,7 +48,7 @@ const DEFAULT_MESSAGES: MediaPlayerMessages = {
   tokenInvalid: "媒体授权已过期，请重试。", iptvDenied: "当前账户没有 IPTV 播放权限。",
   rateLimited: "媒体请求过于频繁，请稍后重试。", upstreamFailed: "上游媒体暂时中断，请重试或切换线路。",
   playbackFailed: "媒体播放失败，请重试或切换线路。", codecUnsupported: "当前浏览器不支持此媒体的编解码格式。",
-  nativeMode: "原生解码", retryMode: "智能重试", relayMode: "始终中继",
+  directMode: "仅直连", nativeMode: "原生解码", retryMode: "智能重试", relayMode: "始终中继",
 };
 
 interface MediaPlayerProps {
@@ -101,7 +103,7 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
   const videoRef = useRef<HTMLVideoElement>(null);
   const terminalErrorReported = useRef(false);
   const readyReported = useRef(false);
-  const resumedMediaUrl = useRef("");
+  const resumedTarget = useRef("");
   const [attempt, setAttempt] = useState(0);
   const [phase, setPhase] = useState<Phase>("loading");
   const [message, setMessage] = useState("");
@@ -115,13 +117,18 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
   const [adMenuOpen, setAdMenuOpen] = useState(false);
   const [videoTogetherOpen, setVideoTogetherOpen] = useState(false);
   const videoTogetherVisible = Boolean(shellControls) && playerSettings.videoTogetherEnabled;
-  const mediaUrl = useMemo(
+  const protectedMediaUrl = useMemo(
     () => buildMediaUrl(route, target, { userAgent, referer, ...(route === "proxy" ? {
       adFilterMode: playerSettings.adFilterMode,
       adKeywords: playerSettings.adKeywords,
     } : {}) }),
     [playerSettings.adFilterMode, playerSettings.adKeywords, referer, route, target, userAgent],
   );
+  const playbackSources = useMemo(
+    () => resolvePlaybackSources(route, target, protectedMediaUrl, playerSettings.proxyMode),
+    [playerSettings.proxyMode, protectedMediaUrl, route, target],
+  );
+  const [mediaUrl, setMediaUrl] = useState(playbackSources.primarySrc);
   const likelyHls = route === "iptv-stream" || /\.m3u8?(?:$|[?#])/i.test(target);
   const handleLoading = useCallback(() => {
     terminalErrorReported.current = false;
@@ -146,8 +153,9 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
   const pictureInPicture = usePictureInPicture(videoRef, playerRef);
   const castControls = useCastControls(mediaUrl, videoRef);
   useScreenOrientation(fullscreenControls.fullscreen, isTouchInput);
-  useHlsPlayer({ videoRef, src: mediaUrl, likelyHls, proxyMode: playerSettings.proxyMode, retryKey: attempt,
-    preferH264, onLoading: handleLoading, onReady: handleReady, onError: handleMediaError });
+  useHlsPlayer({ videoRef, src: playbackSources.primarySrc, fallbackSrc: playbackSources.fallbackSrc,
+    likelyHls, proxyMode: playerSettings.proxyMode, retryKey: attempt, preferH264,
+    onSourceChange: setMediaUrl, onLoading: handleLoading, onReady: handleReady, onError: handleMediaError });
   useAutoSkip({ videoRef, src: mediaUrl, currentTime, duration, isPlaying: playing,
     autoNextEpisode: playerSettings.autoNextEpisode,
     autoSkipIntro: playerSettings.autoSkipIntro && initialTime <= 0,
@@ -162,14 +170,13 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
     const video = videoRef.current;
     if (!video) return;
     const resume = () => {
-      if (resumedMediaUrl.current === mediaUrl || initialTime <= 0) return;
+      if (resumedTarget.current === target || initialTime <= 0) return;
       const maximum = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : initialTime;
       video.currentTime = Math.min(initialTime, maximum);
       setCurrentTime(video.currentTime);
-      resumedMediaUrl.current = mediaUrl;
+      resumedTarget.current = target;
     };
     const ready = () => { handleReady(); resume(); };
-    const directError = () => handleMediaError();
     const started = () => setPlaying(true);
     const stopped = () => setPlaying(false);
     const updateTime = () => {
@@ -182,7 +189,6 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
     const updateVolume = () => { setVolumeState(video.volume); setMuted(video.muted); };
     const updateRate = () => setPlaybackRate(video.playbackRate);
     video.addEventListener("canplay", ready);
-    video.addEventListener("error", directError);
     video.addEventListener("play", started);
     video.addEventListener("pause", stopped);
     video.addEventListener("timeupdate", updateTime);
@@ -192,7 +198,6 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
     video.addEventListener("ratechange", updateRate);
     return () => {
       video.removeEventListener("canplay", ready);
-      video.removeEventListener("error", directError);
       video.removeEventListener("play", started);
       video.removeEventListener("pause", stopped);
       video.removeEventListener("timeupdate", updateTime);
@@ -201,16 +206,16 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
       video.removeEventListener("volumechange", updateVolume);
       video.removeEventListener("ratechange", updateRate);
     };
-  }, [handleMediaError, handleReady, initialTime, mediaUrl, onProgress]);
+  }, [handleReady, initialTime, onProgress, target]);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || phase !== "ready" || initialTime <= 0 || resumedMediaUrl.current === mediaUrl) return;
+    if (!video || phase !== "ready" || initialTime <= 0 || resumedTarget.current === target) return;
     const maximum = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : initialTime;
     video.currentTime = Math.min(initialTime, maximum);
     setCurrentTime(video.currentTime);
-    resumedMediaUrl.current = mediaUrl;
-  }, [initialTime, mediaUrl, phase]);
+    resumedTarget.current = target;
+  }, [initialTime, phase, target]);
 
   const stalled = useStallDetection(videoRef, playing);
   const resolution = useVideoResolution(videoRef);
@@ -290,7 +295,7 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
     fullscreen: fullscreenControls.fullscreen, playing, controlsVisible: visibility.controlsVisible,
     interactiveOverlay: speedMenuOpen || adMenuOpen || (videoTogetherVisible && videoTogetherOpen),
   });
-  const proxyModeLabel = playerSettings.proxyMode === "none" ? messages.nativeMode
+  const proxyModeLabel = playerSettings.proxyMode === "none" ? (route === "proxy" ? messages.directMode : messages.nativeMode)
     : playerSettings.proxyMode === "always" ? messages.relayMode : messages.retryMode;
 
   return (

@@ -7,10 +7,12 @@ type HlsInstance = import("hls.js").default;
 interface UseHlsPlayerProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   src: string;
+  fallbackSrc?: string | null;
   likelyHls: boolean;
   proxyMode: ProxyMode;
   retryKey: number;
   preferH264?: boolean;
+  onSourceChange?: (src: string) => void;
   onLoading: () => void;
   onReady: () => void;
   onError: (status?: number) => void;
@@ -28,15 +30,23 @@ function networkStatus(data: unknown): number | undefined {
   return undefined;
 }
 
-function protectedMediaUrl(src: string): boolean {
+function playableMediaUrl(src: string): boolean {
   try {
     const url = new URL(src, location.origin);
-    return url.origin === location.origin && (url.pathname === "/api/proxy" || url.pathname === "/api/iptv/stream");
+    return url.protocol === "http:" || url.protocol === "https:";
   } catch { return false; }
 }
 
-export function useHlsPlayer({ videoRef, src, likelyHls, proxyMode, retryKey, onLoading, onReady,
-  onError, preferH264 = false }: UseHlsPlayerProps) {
+function requestCredentials(src: string): RequestCredentials {
+  try {
+    return new URL(src, location.origin).origin === location.origin ? "same-origin" : "omit";
+  } catch {
+    return "omit";
+  }
+}
+
+export function useHlsPlayer({ videoRef, src, fallbackSrc, likelyHls, proxyMode, retryKey, onLoading, onReady,
+  onError, onSourceChange, preferH264 = false }: UseHlsPlayerProps) {
   const hlsRef = useRef<HlsInstance | null>(null);
 
   useEffect(() => {
@@ -45,15 +55,42 @@ export function useHlsPlayer({ videoRef, src, likelyHls, proxyMode, retryKey, on
     const controller = new AbortController();
     let active = true;
     let hls: HlsInstance | null = null;
+    let activeSrc = src;
+    let nativeError: (() => void) | null = null;
+    let nativeResume: (() => void) | null = null;
     let terminal = false;
     const fail = (status?: number) => {
       if (!active || terminal) return;
       terminal = true;
       onError(status);
     };
-    const loadNativeDecoder = () => {
+    const fallback = fallbackSrc && playableMediaUrl(fallbackSrc) ? fallbackSrc : null;
+    const announceSource = (nextSrc: string) => {
+      activeSrc = nextSrc;
+      onSourceChange?.(nextSrc);
+    };
+    const restorePosition = (position: number) => {
+      if (position <= 0) return;
+      const maximum = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : position;
+      video.currentTime = Math.min(position, maximum);
+    };
+    const loadNativeDecoder = (nextSrc: string, resumeAt = 0) => {
       if (!active) return;
-      video.src = src;
+      if (nativeError) video.removeEventListener("error", nativeError);
+      if (nativeResume) video.removeEventListener("loadedmetadata", nativeResume);
+      nativeError = () => {
+        if (fallback && activeSrc !== fallback) {
+          onLoading();
+          loadNativeDecoder(fallback, video.currentTime);
+        } else {
+          fail();
+        }
+      };
+      video.addEventListener("error", nativeError);
+      nativeResume = resumeAt > 0 ? () => restorePosition(resumeAt) : null;
+      if (nativeResume) video.addEventListener("loadedmetadata", nativeResume, { once: true });
+      announceSource(nextSrc);
+      video.src = nextSrc;
       video.load();
     };
 
@@ -61,62 +98,73 @@ export function useHlsPlayer({ videoRef, src, likelyHls, proxyMode, retryKey, on
     video.pause();
     video.removeAttribute("src");
     video.load();
-    if (!protectedMediaUrl(src)) {
+    if (!playableMediaUrl(src)) {
       fail();
       return () => controller.abort();
     }
 
     const nativeHls = Boolean(video.canPlayType("application/vnd.apple.mpegurl"));
     if (!likelyHls || (proxyMode === "none" && nativeHls)) {
-      loadNativeDecoder();
+      loadNativeDecoder(src);
     } else {
       void import("hls.js").then(({ default: Hls }) => {
         if (!active) return;
         if (!Hls.isSupported()) {
-          if (nativeHls) loadNativeDecoder();
+          if (nativeHls) loadNativeDecoder(src);
           else fail();
           return;
         }
-        const retryLimit = MAX_NETWORK_RETRIES[proxyMode];
-        hls = new Hls({
-          enableWorker: true,
-          manifestLoadingTimeOut: 20_000,
-          levelLoadingTimeOut: 20_000,
-          fragLoadingTimeOut: 20_000,
-          manifestLoadingMaxRetry: retryLimit,
-          levelLoadingMaxRetry: retryLimit,
-          fragLoadingMaxRetry: retryLimit,
-          fetchSetup: (context, init) => new Request(context.url, {
-            ...init,
-            credentials: "same-origin",
-            signal: controller.signal,
-          }),
-        });
-        hlsRef.current = hls;
-        let mediaRetries = 0;
-        hls.attachMedia(video);
-        hls.loadSource(src);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (preferH264) {
-            const selection = selectCompatibleHlsLevel(hls?.levels || [], supportsHevcPlayback(video));
-            if (selection.incompatible) { fail(415); hls?.destroy(); hlsRef.current = null; return; }
-            if (selection.level !== null && hls) hls.currentLevel = selection.level;
-          }
-          onReady();
-        });
-        hls.on(Hls.Events.ERROR, (_event, data) => {
-          if (!data.fatal || terminal) return;
-          if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRetries < MAX_MEDIA_RETRIES) {
-            mediaRetries += 1;
-            hls?.recoverMediaError();
-          } else {
-            fail(networkStatus(data));
-            hls?.destroy();
-            hlsRef.current = null;
-          }
-        });
+        const loadHls = (nextSrc: string, resumeAt = 0) => {
+          hls?.destroy();
+          announceSource(nextSrc);
+          const retryLimit = MAX_NETWORK_RETRIES[proxyMode];
+          const instance = new Hls({
+            enableWorker: true,
+            manifestLoadingTimeOut: 20_000,
+            levelLoadingTimeOut: 20_000,
+            fragLoadingTimeOut: 20_000,
+            manifestLoadingMaxRetry: retryLimit,
+            levelLoadingMaxRetry: retryLimit,
+            fragLoadingMaxRetry: retryLimit,
+            fetchSetup: (context, init) => new Request(context.url, {
+              ...init,
+              credentials: requestCredentials(context.url),
+              signal: controller.signal,
+            }),
+          });
+          hls = instance;
+          hlsRef.current = instance;
+          let mediaRetries = 0;
+          instance.attachMedia(video);
+          instance.loadSource(nextSrc);
+          instance.on(Hls.Events.MANIFEST_PARSED, () => {
+            if (instance !== hls || terminal) return;
+            if (preferH264) {
+              const selection = selectCompatibleHlsLevel(instance.levels || [], supportsHevcPlayback(video));
+              if (selection.incompatible) { fail(415); instance.destroy(); hlsRef.current = null; return; }
+              if (selection.level !== null) instance.currentLevel = selection.level;
+            }
+            restorePosition(resumeAt);
+            onReady();
+          });
+          instance.on(Hls.Events.ERROR, (_event, data) => {
+            if (instance !== hls || !data.fatal || terminal) return;
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR && fallback && activeSrc !== fallback) {
+              onLoading();
+              loadHls(fallback, video.currentTime);
+            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRetries < MAX_MEDIA_RETRIES) {
+              mediaRetries += 1;
+              instance.recoverMediaError();
+            } else {
+              fail(networkStatus(data));
+              instance.destroy();
+              hlsRef.current = null;
+            }
+          });
+        };
+        loadHls(src);
       }).catch(() => {
-        if (nativeHls) loadNativeDecoder();
+        if (nativeHls) loadNativeDecoder(src);
         else fail();
       });
     }
@@ -124,11 +172,13 @@ export function useHlsPlayer({ videoRef, src, likelyHls, proxyMode, retryKey, on
     return () => {
       active = false;
       controller.abort();
+      if (nativeError) video.removeEventListener("error", nativeError);
+      if (nativeResume) video.removeEventListener("loadedmetadata", nativeResume);
       hls?.destroy();
       hlsRef.current = null;
       video.pause();
       video.removeAttribute("src");
       video.load();
     };
-  }, [likelyHls, onError, onLoading, onReady, preferH264, proxyMode, retryKey, src, videoRef]);
+  }, [fallbackSrc, likelyHls, onError, onLoading, onReady, onSourceChange, preferH264, proxyMode, retryKey, src, videoRef]);
 }

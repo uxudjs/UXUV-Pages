@@ -6,11 +6,10 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 import { ArrowDown, ArrowUp, GripVertical, Pencil, Power, Trash2 } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
-import { sourceKind } from "@/lib/content/source-settings-policy";
 import type { VideoSource } from "@/lib/content/types";
 
 export interface SourceManagerLabels {
-  system: string; personal: string; enable: string; disable: string; moveUp: string; moveDown: string;
+  standalone: string; subscription: string; enable: string; disable: string; moveUp: string; moveDown: string;
   edit: string; remove: string; drag: string;
 }
 
@@ -42,7 +41,8 @@ function SortableSource({ source, index, total, labels, onToggle, onMove, onEdit
       data-focusable {...attributes} {...listeners} aria-pressed={keyboardGrabbed} onKeyDown={handleKeyboard}>
       <Icon source={GripVertical} size={18} /></button>
     <div className="source-manager-info"><div><strong>{source.name}</strong>
-      <span className={`source-kind source-kind-${sourceKind(source)}`}>{labels[sourceKind(source)]}</span></div><small>{source.baseUrl}</small></div>
+      <span className={`source-kind source-kind-${source.kind === "subscription" ? "subscription" : "standalone"}`}>
+        {source.kind === "subscription" ? labels.subscription : labels.standalone}</span></div><small>{source.baseUrl}</small></div>
     <button type="button" aria-pressed={source.enabled !== false}
       aria-label={`${source.enabled === false ? labels.enable : labels.disable} ${source.name}`}
       data-focusable onClick={() => onToggle(source)}><Icon source={Power} size={16} />{source.enabled === false ? labels.enable : labels.disable}</button>
@@ -51,8 +51,8 @@ function SortableSource({ source, index, total, labels, onToggle, onMove, onEdit
         data-focusable onClick={() => onMove(source.id, -1)}><Icon source={ArrowUp} size={16} /></button>
       <button type="button" aria-label={`${labels.moveDown} ${source.name}`} disabled={index === total - 1}
         data-focusable onClick={() => onMove(source.id, 1)}><Icon source={ArrowDown} size={16} /></button>
-      {sourceKind(source) === "personal" && <button type="button" aria-label={`${labels.edit} ${source.name}`}
-        data-focusable onClick={() => onEdit(source)}><Icon source={Pencil} size={16} /></button>}
+      <button type="button" aria-label={`${labels.edit} ${source.name}`}
+        data-focusable onClick={() => onEdit(source)}><Icon source={Pencil} size={16} /></button>
       <button type="button" className="danger-button" aria-label={`${labels.remove} ${source.name}`}
         data-focusable onClick={() => onDelete(source)}><Icon source={Trash2} size={16} /></button>
     </div>

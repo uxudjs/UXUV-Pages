@@ -4,7 +4,7 @@ import axe from "axe-core";
 const runtimeConfig = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: false, danmaku: false }, adKeywords: [],
+  capabilities: { premium: true, danmaku: false }, adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } }, authenticated: true,
 };
 
@@ -56,16 +56,17 @@ test.describe("KVideo T15 settings and standard sources", () => {
     await page.goto("./settings");
     await expect(page.getByRole("heading", { name: "设置", exact: true })).toBeVisible();
     const section = page.locator('[data-settings-section="sources"]');
+    await expect(page.locator('[data-settings-section="personal-sources"]')).toHaveCount(0);
     await expect(section.getByRole("heading", { name: "视频源管理" })).toBeVisible();
     await expect(section.locator(".source-manager-row")).toHaveCount(10);
-    await expect(section.getByText("0 JSON 订阅 · 12 独立来源 · 系统 11 · 个人 1")).toBeVisible();
+    await expect(section.getByText("0 订阅导入 · 12 视频源")).toBeVisible();
     await section.getByRole("button", { name: "显示全部 (12)" }).click();
     await expect(section.locator(".source-manager-row")).toHaveCount(12);
-    await expect(section.locator(".source-kind-system").first()).toHaveText("系统");
-    await expect(section.locator(".source-kind-personal")).toHaveText("个人");
+    await expect(section.locator(".source-kind-standalone")).toHaveCount(12);
+    await expect(section.locator(".source-kind-standalone").first()).toHaveText("单独添加");
 
     await section.getByRole("button", { name: "添加源" }).click();
-    let modal = page.getByRole("dialog", { name: "添加个人视频源" });
+    let modal = page.getByRole("dialog", { name: "添加单独来源" });
     await modal.getByLabel("源名称").fill("Personal Extra");
     await expect(modal.getByLabel("源 ID")).toHaveValue("personal-extra");
     await modal.getByLabel("接口地址").fill("ftp://unsafe.example/file");
@@ -75,11 +76,11 @@ test.describe("KVideo T15 settings and standard sources", () => {
     await modal.getByRole("button", { name: "添加", exact: true }).click();
     await expect(section.getByText("Personal Extra", { exact: true })).toBeVisible();
 
-    await section.getByRole("button", { name: "编辑 个人源" }).click();
-    modal = page.getByRole("dialog", { name: "编辑个人视频源" });
-    await modal.getByLabel("源名称").fill("个人源已编辑");
+    await section.getByRole("button", { name: "编辑 系统源 3" }).click();
+    modal = page.getByRole("dialog", { name: "编辑单独来源" });
+    await modal.getByLabel("源名称").fill("旧 D1 源已编辑");
     await modal.getByRole("button", { name: "保存" }).click();
-    await expect(section.getByText("个人源已编辑", { exact: true })).toBeVisible();
+    await expect(section.getByText("旧 D1 源已编辑", { exact: true })).toBeVisible();
 
     await section.getByRole("button", { name: "停用 系统源 1", exact: true }).click();
     await expect(section.getByRole("button", { name: "启用 系统源 1", exact: true })).toBeVisible();
@@ -95,18 +96,20 @@ test.describe("KVideo T15 settings and standard sources", () => {
     await expect(drag).toBeFocused();
     await expect(section.locator(".source-manager-info strong").nth(11)).toHaveText("Personal Extra");
 
-    await section.getByRole("button", { name: "删除 个人源已编辑" }).click();
+    await section.getByRole("button", { name: "删除 个人源" }).click();
     let confirm = page.getByRole("alertdialog", { name: "删除视频源？" });
     await confirm.getByRole("button", { name: "取消" }).click();
-    await expect(section.getByText("个人源已编辑", { exact: true })).toBeVisible();
-    await section.getByRole("button", { name: "删除 个人源已编辑" }).click();
+    await expect(section.getByText("个人源", { exact: true })).toBeVisible();
+    await section.getByRole("button", { name: "删除 个人源" }).click();
     confirm = page.getByRole("alertdialog", { name: "删除视频源？" });
     await confirm.getByRole("button", { name: "确认删除" }).click();
-    await expect(section.getByText("个人源已编辑", { exact: true })).toHaveCount(0);
+    await expect(section.getByText("个人源", { exact: true })).toHaveCount(0);
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("uxuv-sync-v1:viewer-one:config") ?? "null"));
     expect(saved.payload.sources.some(({ id }: { id: string }) => id === "personal-extra")).toBe(true);
     expect(saved.payload.sources.some(({ id }: { id: string }) => id === "personal-one")).toBe(false);
     expect(saved.payload.tombstones.some(({ id }: { id: string }) => id === "personal-one")).toBe(true);
+    expect(saved.payload.sources.find(({ id }: { id: string }) => id === "system-3")?.name).toBe("旧 D1 源已编辑");
+    expect(saved.payload.sources.find(({ id }: { id: string }) => id === "system-3")?.kind).toBe("system");
 
     for (const width of [320, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 900 });

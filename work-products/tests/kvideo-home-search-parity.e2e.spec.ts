@@ -3,12 +3,7 @@ import axe from "axe-core";
 
 type HomeMode = "success" | "empty" | "error";
 
-interface RuntimeSourceMockOptions {
-  deferSourceImport?: boolean;
-  sourceImportFailures?: number;
-  deferUserConfig?: boolean;
-  failLibrary?: boolean;
-  importedSourceCount?: number;
+interface HomeMockOptions {
   searchUnavailable?: boolean;
 }
 
@@ -23,9 +18,9 @@ const session = {
 };
 
 const runtimeConfig = {
-  release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
+  release: { worker: "2.0.0", pages: "0.3.0", apiContract: 2 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: true, danmaku: false },
+  capabilities: { premium: true, danmaku: false },
   adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
   authenticated: true,
@@ -57,8 +52,7 @@ async function mockHomeWorker(
   initialMode: HomeMode = "success",
   deferred = false,
   searchResultTitle?: string,
-  runtimeSourcesUrl = "",
-  runtimeSourceOptions: RuntimeSourceMockOptions = {},
+  options: HomeMockOptions = {},
 ) {
   let mode = initialMode;
   let releaseRequest = () => {};
@@ -66,65 +60,15 @@ async function mockHomeWorker(
   const homeRequests: string[] = [];
   const tagRequests: string[] = [];
   const searchRequests: unknown[] = [];
-  const importedUrls: string[] = [];
-  const configPosts: unknown[] = [];
-  let remainingSourceImportFailures = runtimeSourceOptions.sourceImportFailures ?? 0;
-  let releaseSourceImport = () => {};
-  let sourceImportPending = runtimeSourceOptions.deferSourceImport
-    ? new Promise<void>((resolve) => { releaseSourceImport = resolve; }) : Promise.resolve();
-  let releaseUserConfig = () => {};
-  let userConfigPending = runtimeSourceOptions.deferUserConfig
-    ? new Promise<void>((resolve) => { releaseUserConfig = resolve; }) : Promise.resolve();
-  const configuredSources = runtimeSourcesUrl ? [{
-    id: "runtime-list",
-    updatedAt: 1,
-    name: "视频",
-    baseUrl: runtimeSourcesUrl,
-    enabled: true,
-    kind: "system",
-  }] : [source];
-  let configDocument = syncDocument("config", configuredSources);
+  const configDocument = syncDocument("config");
 
   await context.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
-    if (url.pathname === "/api/config") return json(route, {
-      ...runtimeConfig,
-      sources: { subscriptionSources: runtimeSourcesUrl, iptvSources: "", mergeSources: false, danmakuApiUrl: "" },
-    });
+    if (url.pathname === "/api/config") return json(route, runtimeConfig);
     if (url.pathname === "/api/auth/session") return json(route, { authenticated: true, session });
-    if (url.pathname === "/api/user/config" && request.method() === "POST") {
-      const body = request.postDataJSON() as { payload: typeof configDocument.payload };
-      configPosts.push(body);
-      configDocument = { ...configDocument, version: configDocument.version + 1, updatedAt: Date.now(), payload: body.payload };
-      return json(route, configDocument);
-    }
-    if (url.pathname === "/api/user/config") {
-      await userConfigPending;
-      return json(route, configDocument);
-    }
-    if (url.pathname === "/api/user/sync") {
-      return runtimeSourceOptions.failLibrary
-        ? json(route, { error: { code: "UPSTREAM_UNAVAILABLE" } }, 503)
-        : json(route, syncDocument("library"));
-    }
-    if (url.pathname === "/api/source-import") {
-      const body = request.postDataJSON() as { url: string };
-      importedUrls.push(body.url);
-      await sourceImportPending;
-      if (remainingSourceImportFailures > 0) {
-        remainingSourceImportFailures -= 1;
-        return json(route, { error: { code: "UPSTREAM_UNAVAILABLE" } }, 503);
-      }
-      const count = runtimeSourceOptions.importedSourceCount ?? 1;
-      const sources = Array.from({ length: count }, (_, index) => ({
-        id: count === 1 ? "catalog-source" : `catalog-source-${index + 1}`,
-        name: `Catalog source ${index + 1}`,
-        baseUrl: `https://catalog-${index + 1}.example/api.php/provide/vod`,
-        group: "normal",
-      }));
-      return json(route, { text: JSON.stringify(sources) });
-    }
+    if (url.pathname === "/api/user/config") return json(route, configDocument);
+    if (url.pathname === "/api/user/sync") return json(route, syncDocument("library"));
     if (url.pathname === "/api/douban/tags") {
       tagRequests.push(request.url());
       return json(route, { tags: url.searchParams.get("type") === "tv" ? ["热门", "纪录片", "高级"] : ["热门", "喜剧", "高级"] });
@@ -149,15 +93,14 @@ async function mockHomeWorker(
     if (url.pathname === "/api/search-parallel") {
       const searchRequest = request.postDataJSON() as { query: string; sources: Array<{ id: string }> };
       searchRequests.push(searchRequest);
-      const resultSource = searchRequest.sources.find(({ id }) => id === "catalog-source")?.id ?? source.id;
-      const events = runtimeSourceOptions.searchUnavailable
+      const events = options.searchUnavailable
         ? [
             { type: "start", totalSources: 1 },
             { type: "error", error: { code: "SEARCH_SOURCES_UNAVAILABLE", message: "No source returned a valid response." } },
           ]
         : [
             { type: "start", totalSources: 1 },
-            { type: "videos", source: resultSource, videos: [{ vod_id: "video-1", vod_name: searchResultTitle ?? searchRequest.query }] },
+            { type: "videos", source: source.id, videos: [{ vod_id: "video-1", vod_name: searchResultTitle ?? searchRequest.query }] },
             { type: "complete", totalVideosFound: 1 },
           ];
       return route.fulfill({
@@ -173,17 +116,6 @@ async function mockHomeWorker(
     homeRequests,
     tagRequests,
     searchRequests,
-    importedUrls,
-    configPosts,
-    getConfigDocument: () => configDocument,
-    releaseSourceImport: () => {
-      releaseSourceImport();
-      sourceImportPending = Promise.resolve();
-    },
-    releaseUserConfig: () => {
-      releaseUserConfig();
-      userConfigPending = Promise.resolve();
-    },
     release: () => {
       releaseRequest();
       pending = Promise.resolve();
@@ -281,7 +213,7 @@ test.describe("reviewed KVideo basic home", () => {
   });
 
   test("shows a source error instead of an empty result when every search source fails", async ({ page }) => {
-    const worker = await mockHomeWorker(page.context(), "success", false, undefined, "", { searchUnavailable: true });
+    const worker = await mockHomeWorker(page.context(), "success", false, undefined, { searchUnavailable: true });
     await page.goto("./");
 
     await page.getByLabel("搜索视频内容").fill("示例电影");
@@ -307,117 +239,6 @@ test.describe("reviewed KVideo basic home", () => {
     await expect(page).toHaveURL(/\/player\?id=video-1&source=source-home&title=/);
   });
 
-  test("expands the runtime subscription before search and opens a home movie in the player", async ({ page }) => {
-    const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
-    const worker = await mockHomeWorker(page.context(), "success", false, undefined, runtimeSourcesUrl);
-    await page.goto("./");
-
-    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl]);
-    await page.getByLabel("搜索视频内容").fill("示例电影");
-    await page.getByRole("button", { name: "搜索", exact: true }).click();
-    await expect(page.getByRole("link", { name: "查看 示例电影" })).toBeVisible();
-    expect(worker.searchRequests[0]).toMatchObject({ sources: expect.arrayContaining([expect.objectContaining({ id: "catalog-source" })]) });
-
-    await page.getByRole("button", { name: "清除搜索" }).click();
-    await page.getByRole("button", { name: "播放 示例电影" }).click();
-
-    await expect.poll(() => worker.searchRequests.length).toBe(2);
-    expect(worker.searchRequests[1]).toMatchObject({ sources: expect.arrayContaining([expect.objectContaining({ id: "catalog-source" })]) });
-    await expect(page).toHaveURL(/\/player\?id=video-1&source=catalog-source&title=/);
-  });
-
-  test("accepts the Worker JSON-array runtime subscription contract", async ({ page }) => {
-    const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
-    const worker = await mockHomeWorker(
-      page.context(),
-      "success",
-      false,
-      undefined,
-      JSON.stringify([runtimeSourcesUrl]),
-    );
-    await page.goto("./");
-
-    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl]);
-  });
-
-  test("waits for runtime sources before allowing search or a home movie click", async ({ page }) => {
-    const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
-    const worker = await mockHomeWorker(page.context(), "success", false, undefined, runtimeSourcesUrl, {
-      deferSourceImport: true,
-    });
-    await page.goto("./");
-
-    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl]);
-    await expect(page.getByRole("button", { name: "搜索", exact: true })).toBeDisabled();
-    await expect(page.getByRole("button", { name: "播放 示例电影" })).toBeDisabled();
-    await page.getByLabel("搜索视频内容").fill("示例电影");
-    await page.getByLabel("搜索视频内容").press("Enter");
-    expect(worker.searchRequests).toHaveLength(0);
-
-    worker.releaseSourceImport();
-    await expect(page.getByRole("button", { name: "搜索", exact: true })).toBeEnabled();
-    await expect(page.getByRole("button", { name: "播放 示例电影" })).toBeVisible();
-  });
-
-  test("does not start runtime source import before the config document is hydrated", async ({ page }) => {
-    const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
-    const worker = await mockHomeWorker(page.context(), "success", false, undefined, runtimeSourcesUrl, {
-      deferUserConfig: true,
-      failLibrary: true,
-    });
-    await page.goto("./");
-
-    await page.waitForTimeout(300);
-    expect(worker.importedUrls).toHaveLength(0);
-    worker.releaseUserConfig();
-    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl]);
-  });
-
-  test("retries a failed runtime source import on focus and clears the saved error", async ({ page }) => {
-    const runtimeSourcesUrl = "https://subscriptions.example/sources.json";
-    const worker = await mockHomeWorker(page.context(), "success", false, undefined, runtimeSourcesUrl, {
-      sourceImportFailures: 1,
-    });
-    await page.goto("./");
-
-    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl]);
-    await expect(page.getByText("系统视频源同步失败，将在网络恢复或窗口重新聚焦后重试。"))
-      .toBeVisible();
-    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-    await expect.poll(() => worker.importedUrls).toEqual([runtimeSourcesUrl, runtimeSourcesUrl]);
-    await expect.poll(() => {
-      const subscription = (worker.getConfigDocument().payload.subscriptions as Array<Record<string, unknown>> | undefined)?.[0];
-      return subscription && {
-        url: subscription.url,
-        lastUpdated: subscription.lastUpdated,
-        hasError: Object.prototype.hasOwnProperty.call(subscription, "lastError"),
-      };
-    }).toEqual({ url: runtimeSourcesUrl, lastUpdated: expect.any(Number), hasError: false });
-  });
-
-  test("deduplicates runtime URLs and persists a large import with bounded config writes", async ({ page }) => {
-    await page.addInitScript(() => {
-      const state = window as unknown as { __uxuvConfigWrites: number };
-      state.__uxuvConfigWrites = 0;
-      const original = Storage.prototype.setItem;
-      Storage.prototype.setItem = function setItem(key: string, value: string) {
-        if (key.includes("uxuv-sync-v1:") && key.endsWith(":config")) state.__uxuvConfigWrites += 1;
-        return original.call(this, key, value);
-      };
-    });
-    const sourceUrl = "https://subscriptions.example/sources.json";
-    const worker = await mockHomeWorker(page.context(), "success", false, undefined, `${sourceUrl}, ${sourceUrl}`, {
-      importedSourceCount: 20,
-    });
-    await page.goto("./");
-
-    await expect.poll(() => worker.importedUrls).toEqual([sourceUrl]);
-    await expect.poll(() => worker.configPosts.length).toBe(1);
-    await expect.poll(() => worker.getConfigDocument().payload.sources?.length ?? 0).toBe(21);
-    const configWrites = await page.evaluate(() => (window as unknown as { __uxuvConfigWrites: number }).__uxuvConfigWrites);
-    expect(configWrites).toBeLessThanOrEqual(4);
-  });
-
   test("switches movie, TV, and server-provided Douban categories inside the reviewed home shell", async ({ page }) => {
     const worker = await mockHomeWorker(page.context());
     await page.setViewportSize({ width: 1024, height: 900 });
@@ -432,9 +253,9 @@ test.describe("reviewed KVideo basic home", () => {
     const movieBox = await movie.boundingBox();
     const televisionBox = await television.boundingBox();
     expect(movieBox && { x: Math.round(movieBox.x), y: Math.round(movieBox.y), width: Math.round(movieBox.width), height: Math.round(movieBox.height) })
-      .toEqual({ x: 357, y: 229, width: 155, height: 40 });
+      .toEqual({ x: 357, y: 281, width: 155, height: 40 });
     expect(televisionBox && { x: Math.round(televisionBox.x), y: Math.round(televisionBox.y), width: Math.round(televisionBox.width), height: Math.round(televisionBox.height) })
-      .toEqual({ x: 512, y: 229, width: 155, height: 40 });
+      .toEqual({ x: 512, y: 281, width: 155, height: 40 });
 
     await television.click();
     await expect(television).toHaveAttribute("aria-pressed", "true");
@@ -469,9 +290,9 @@ test.describe("reviewed KVideo basic home", () => {
     const inputBox = await input.boundingBox();
     const searchBox = await search.boundingBox();
     expect(inputBox && { x: Math.round(inputBox.x), y: Math.round(inputBox.y), width: Math.round(inputBox.width), height: Math.round(inputBox.height) })
-      .toEqual({ x: 128, y: 130, width: 768, height: 62 });
+      .toEqual({ x: 128, y: 182, width: 768, height: 62 });
     expect(searchBox && { x: Math.round(searchBox.x), y: Math.round(searchBox.y), width: Math.round(searchBox.width), height: Math.round(searchBox.height) })
-      .toEqual({ x: 780, y: 137, width: 108, height: 48 });
+      .toEqual({ x: 780, y: 189, width: 108, height: 48 });
 
     await input.fill("繁體電影");
     await input.dispatchEvent("compositionstart");
@@ -528,9 +349,9 @@ test.describe("reviewed KVideo basic home", () => {
     const mobileInputBox = await input.boundingBox();
     const mobileSearchBox = await search.boundingBox();
     expect(mobileInputBox && { x: Math.round(mobileInputBox.x), y: Math.round(mobileInputBox.y), width: Math.round(mobileInputBox.width), height: Math.round(mobileInputBox.height) })
-      .toEqual({ x: 16, y: 112, width: 288, height: 50 });
+      .toEqual({ x: 16, y: 164, width: 288, height: 50 });
     expect(mobileSearchBox && { x: Math.round(mobileSearchBox.x), y: Math.round(mobileSearchBox.y), width: Math.round(mobileSearchBox.width), height: Math.round(mobileSearchBox.height) })
-      .toEqual({ x: 244, y: 115, width: 52, height: 44 });
+      .toEqual({ x: 244, y: 167, width: 52, height: 44 });
   });
 });
 

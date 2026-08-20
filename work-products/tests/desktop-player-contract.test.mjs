@@ -40,7 +40,7 @@ test("T22 keeps control visibility and keyboard behavior deterministic", () => {
   }
 });
 
-test("T22 connects custom controls without replacing IPTV native controls", () => {
+test("T22 connects custom controls to regular playback", () => {
   const player = read("components/media/MediaPlayer.tsx");
   const route = read("components/PlayerExperience.tsx");
   const cursor = read("lib/player/cursor-visibility.ts");

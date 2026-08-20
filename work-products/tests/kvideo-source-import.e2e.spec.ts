@@ -4,14 +4,23 @@ import axe from "axe-core";
 const runtimeConfig = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: false, danmaku: false }, adKeywords: [],
+  capabilities: { premium: true, danmaku: false }, adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } }, authenticated: true,
 };
 
 const existingSource = {
   id: "existing", updatedAt: 1, name: "Existing source", baseUrl: "https://existing.example/api",
   searchPath: "/api.php/provide/vod/", detailPath: "/api.php/provide/vod/", enabled: true,
-  group: "normal", kind: "system", priority: 1,
+  group: "normal", kind: "subscription", priority: 1,
+};
+const premiumSource = {
+  id: "premium-sub-source", updatedAt: 1, name: "Premium subscription source", baseUrl: "https://premium-subscription.example/api",
+  searchPath: "/api.php/provide/vod/", detailPath: "/api.php/provide/vod/", enabled: true,
+  group: "premium", kind: "subscription", priority: 1,
+};
+const premiumSubscription = {
+  id: "premium-subscription", updatedAt: 1, lastUpdated: 1, name: "Premium subscription",
+  url: "https://safe.example/premium-subscription.json", sourceIds: ["premium-sub-source"], mode: "premium",
 };
 
 async function json(route: Route, body: unknown, status = 200) {
@@ -21,7 +30,7 @@ async function json(route: Route, body: unknown, status = 200) {
 async function mockWorker(context: BrowserContext) {
   let subscriptionReads = 0;
   let config = { kind: "config", version: 1, updatedAt: 1,
-    payload: { fields: {}, sources: [existingSource], subscriptions: [], tombstones: [] as unknown[] } };
+    payload: { fields: {}, sources: [existingSource, premiumSource], subscriptions: [premiumSubscription], tombstones: [] as unknown[] } };
   const library = { kind: "library", version: 1, updatedAt: 1,
     payload: { history: [], favorites: [], tombstones: [] } };
   const importedUrls: string[] = [];
@@ -49,7 +58,12 @@ async function mockWorker(context: BrowserContext) {
       if (body.url.includes("127.0.0.1")) return json(route, { error: { code: "UPSTREAM_URL_BLOCKED" } }, 400);
       if (body.url.includes("subscription")) {
         subscriptionReads += 1;
-        return json(route, { text: JSON.stringify([{ id: "sub-source", name: subscriptionReads === 1 ? "Subscription source" : "Subscription source updated", baseUrl: "https://subscription-media.example/api" }]) });
+        if (subscriptionReads === 2) return json(route, { error: { code: "UPSTREAM_UNAVAILABLE" } }, 502);
+        return json(route, { text: JSON.stringify([{
+          id: subscriptionReads === 1 ? "sub-source" : "sub-source-next",
+          name: subscriptionReads === 1 ? "Subscription source" : "Subscription source replaced",
+          baseUrl: "https://subscription-media.example/api",
+        }]) });
       }
       return json(route, { text: JSON.stringify([{ id: "link-source", name: "Link source", baseUrl: "https://link-media.example/api" }]) });
     }
@@ -130,19 +144,42 @@ test.describe("KVideo T16 source import and subscriptions", () => {
     await expect(modal.locator(".import-preview")).toContainText("Subscription source");
     await modal.locator(".import-preview").getByRole("button", { name: "导入有效来源" }).click();
     await expect(modal.getByText("My subscription", { exact: true })).toBeVisible();
+    await expect(modal.getByText("Premium subscription", { exact: true })).toHaveCount(0);
     await expect(section.locator(".source-subscription-summary").getByText("My subscription", { exact: true })).toBeVisible();
     await expect(section.locator(".source-subscription-summary")).toContainText("https://safe.example/subscription.json");
-    await expect(section.getByText("Subscription source", { exact: true })).toHaveCount(0);
+    await expect(section.getByText("Subscription source", { exact: true })).toBeVisible();
+    await expect(section.locator(".source-manager-row").filter({ hasText: "Subscription source" })
+      .locator(".source-kind-subscription")).toHaveCount(1);
+    await expect.poll(() => worker.config().payload.subscriptions.find(({ id }) => id !== "premium-subscription")?.sourceIds).toEqual(["sub-source"]);
+    type SubscriptionRecord = typeof premiumSubscription & { lastError?: string };
+    const firstSubscription = worker.config().payload.subscriptions.find(({ id }) => id !== "premium-subscription") as SubscriptionRecord;
     await modal.getByRole("button", { name: "更新", exact: true }).click();
-    await expect(modal.locator(".import-preview")).toContainText("Subscription source updated");
+    await expect(modal.getByRole("alert")).toContainText("无法安全读取");
+    await expect.poll(() => (worker.config().payload.subscriptions.find(({ id }) => id === firstSubscription.id) as SubscriptionRecord | undefined)?.lastError).toBe("request");
+    expect(worker.config().payload.sources.some(({ id }) => id === "sub-source")).toBe(true);
+    expect(worker.config().payload.subscriptions.find(({ id }) => id === firstSubscription.id)?.lastUpdated).toBe(firstSubscription.lastUpdated);
+
+    await modal.getByRole("button", { name: "更新", exact: true }).click();
+    await expect(modal.locator(".import-preview")).toContainText("Subscription source replaced");
+    expect(worker.config().payload.sources.some(({ id }) => id === "sub-source")).toBe(true);
+    expect(worker.config().payload.tombstones.some((entry) => (entry as { id?: string }).id === "sub-source")).toBe(false);
     await modal.locator(".import-preview").getByRole("button", { name: "导入有效来源" }).click();
-    await expect(section.getByText("Subscription source updated", { exact: true })).toHaveCount(0);
+    await expect(section.getByText("Subscription source replaced", { exact: true })).toBeVisible();
+    await expect.poll(() => worker.config().payload.subscriptions.find(({ id }) => id === firstSubscription.id)?.sourceIds).toEqual(["sub-source-next"]);
+    const refreshed = worker.config().payload.subscriptions.find(({ id }) => id === firstSubscription.id) as SubscriptionRecord;
+    expect(refreshed.lastUpdated).toBeGreaterThan(firstSubscription.lastUpdated);
+    expect(refreshed.lastError).toBeUndefined();
+    expect(worker.config().payload.sources.some(({ id }) => id === "sub-source")).toBe(false);
+    expect(worker.config().payload.tombstones.some((entry) => (entry as { id?: string }).id === "sub-source")).toBe(true);
+    expect(worker.config().payload.sources.find(({ id }) => id === "sub-source-next")).toMatchObject({ kind: "subscription", group: "normal" });
+    expect(worker.config().payload.sources.find(({ id }) => id === "premium-sub-source")).toEqual(premiumSource);
+    expect(worker.config().payload.subscriptions.find(({ id }) => id === "premium-subscription")).toEqual(premiumSubscription);
 
     await modal.getByRole("button", { name: "删除 My subscription" }).click();
     const confirmation = modal.getByRole("alertdialog", { name: "删除此订阅？" });
     await confirmation.getByRole("button", { name: "删除", exact: true }).click();
     await expect(modal.getByText("尚无订阅。")).toBeVisible();
-    await expect(section.getByText("Subscription source updated", { exact: true })).toBeVisible();
+    await expect(section.getByText("Subscription source replaced", { exact: true })).toBeVisible();
 
     for (const width of [320, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 900 });
@@ -173,13 +210,13 @@ test.describe("KVideo T16 source import and subscriptions", () => {
 
     expect(worker.importedUrls).toEqual([
       "http://127.0.0.1/private.json", "https://safe.example/sources.json",
-      "https://safe.example/subscription.json", "https://safe.example/subscription.json",
+      "https://safe.example/subscription.json", "https://safe.example/subscription.json", "https://safe.example/subscription.json",
     ]);
     expect(externalFetches).toEqual([]);
     const saved = worker.config().payload;
     expect(saved.sources.some(({ id }) => id === "existing")).toBe(true);
     expect(saved.sources.some(({ id }) => id === "file-source")).toBe(false);
-    expect(saved.sources.filter(({ id }) => id === "sub-source").every(({ kind }) => kind === "system")).toBe(true);
-    expect(saved.subscriptions).toEqual([]);
+    expect(saved.sources.find(({ id }) => id === "sub-source-next")).toMatchObject({ kind: "subscription", group: "normal" });
+    expect(saved.subscriptions).toEqual([premiumSubscription]);
   });
 });

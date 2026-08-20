@@ -6,7 +6,7 @@ import { chromium } from "@playwright/test";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const output = join(root, "work-products", "tests", "fixtures", "ui-review");
-const base = "http://127.0.0.1:4173/UXUV-Pages/";
+const base = "http://127.0.0.1:4173/";
 const widths = [320, 768, 1024, 1440];
 const locales = [{ value: "zh-CN", index: 0, label: "简体中文" }, { value: "zh-TW", index: 1, label: "繁體中文" }, { value: "en", index: 2, label: "English" }];
 const session = { accountId: "ui-review", profileId: "ui-review", username: "viewer", name: "Viewer", role: "viewer", customPermissions: [], mode: "managed" };
@@ -30,7 +30,7 @@ try {
     const json = (body, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
     if (path === "/api/config") return json({
       release: { worker: "1.0.0", pages: "0.2.0", apiContract: 1 }, site: { name: "UXUVideo", title: "UXUVideo", description: "私人视频空间", iconUrl: "/icon.png" },
-      capabilities: { premium: true, iptv: true, danmaku: false }, adKeywords: [], authenticated: true,
+      capabilities: { premium: true, danmaku: false }, adKeywords: [], authenticated: true,
       thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
     });
     if (path === "/api/auth/session") return json({ authenticated: true, session });

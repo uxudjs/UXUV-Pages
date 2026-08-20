@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
 const port = 4173;
-const baseURL = `http://127.0.0.1:${port}/UXUV-Pages/`;
+const baseURL = `http://127.0.0.1:${port}/`;
 
 export default defineConfig({
   testDir: "./work-products/tests",

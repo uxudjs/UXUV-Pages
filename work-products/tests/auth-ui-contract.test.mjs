@@ -79,3 +79,21 @@ test("uses relative account APIs and exposes management only to super_admin", ()
   assert.match(settings, /method:\s*["']DELETE["']/);
   assert.doesNotMatch(settings, /passwordHash|passwordSalt|token|localStorage|sessionStorage/);
 });
+
+test("T13 assigns readable material to authentication surfaces and keeps nested controls single-layer", () => {
+  const gate = read("components/PasswordGate.tsx");
+  const publicPage = read("components/PublicPage.tsx");
+  const theme = read("components/ThemeSwitcher.tsx");
+  const together = read("components/VideoTogetherController.tsx");
+  const css = read("app/globals.css");
+
+  assert.match(gate, /className="auth-card"[^>]*data-material="regular"/s);
+  assert.match(gate, /className="public-notice"[^>]*data-material="regular"/s);
+  assert.match(publicPage, /className="public-notice"[^>]*data-material="regular"/s);
+  assert.match(theme, /className="theme-switcher"[^>]*data-material="clear"/s);
+  assert.match(together, /className="desktop-speed-trigger video-together-trigger"[^>]*data-material="clear"/s);
+  assert.match(together, /className="source-modal video-together-dialog"[^>]*data-material="regular"/s);
+  assert.match(css, /\[data-material="regular"\]/);
+  assert.match(css, /\[data-material="clear"\]/);
+  assert.match(css, /\[data-material="regular"\][^{}]*\[data-material="(?:regular|clear)"\][^{]*\{[^}]*backdrop-filter:\s*none/s);
+});

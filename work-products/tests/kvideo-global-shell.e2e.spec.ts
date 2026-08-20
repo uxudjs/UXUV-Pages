@@ -4,7 +4,7 @@ const session = { accountId: "viewer-shell", profileId: "viewer-shell", username
 const config = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "视频聚合平台", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: true, danmaku: false },
+  capabilities: { premium: true, danmaku: false },
   adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
   authenticated: true,
@@ -50,7 +50,6 @@ test.describe("KVideo global shell", () => {
     const methods = await mockShellWorker(page.context());
     await page.goto("./");
     await expect(page.getByRole("navigation", { name: "主导航" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "直播" })).toHaveAttribute("href", /\/iptv$/);
     await expect(page.getByRole("button", { name: "高级" })).toBeVisible();
     await expect(page.getByRole("link", { name: "打开设置" })).toHaveText("V");
     await expect(page.getByRole("link", { name: "GitHub 仓库" })).toHaveCount(0);

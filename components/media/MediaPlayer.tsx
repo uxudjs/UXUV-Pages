@@ -24,6 +24,7 @@ import { resolvePlaybackSources } from "@/lib/media/playback-routing";
 import { usePlayerSettings } from "@/lib/hooks/usePlayerSettings";
 import { shouldHidePlayerCursor } from "@/lib/player/cursor-visibility";
 import { useAuth } from "@/lib/store/auth-store";
+import type { VideoSkipRule } from "@/lib/sync/document-types";
 
 type Phase = "loading" | "ready" | "error";
 
@@ -32,28 +33,25 @@ export interface MediaPlayerMessages {
   buffering: string;
   retryPlayback: string;
   tokenInvalid: string;
-  iptvDenied: string;
   rateLimited: string;
   upstreamFailed: string;
   playbackFailed: string;
   codecUnsupported: string;
   directMode: string;
-  nativeMode: string;
   retryMode: string;
   relayMode: string;
 }
 
 const DEFAULT_MESSAGES: MediaPlayerMessages = {
   connecting: "正在连接受保护媒体…", buffering: "正在缓冲…", retryPlayback: "重试播放",
-  tokenInvalid: "媒体授权已过期，请重试。", iptvDenied: "当前账户没有 IPTV 播放权限。",
+  tokenInvalid: "媒体授权已过期，请重试。",
   rateLimited: "媒体请求过于频繁，请稍后重试。", upstreamFailed: "上游媒体暂时中断，请重试或切换线路。",
   playbackFailed: "媒体播放失败，请重试或切换线路。", codecUnsupported: "当前浏览器不支持此媒体的编解码格式。",
-  directMode: "仅直连", nativeMode: "原生解码", retryMode: "智能重试", relayMode: "始终中继",
+  directMode: "仅直连", retryMode: "智能重试", relayMode: "始终中继",
 };
 
 interface MediaPlayerProps {
   target: string;
-  route: "proxy" | "iptv-stream";
   title: string;
   userAgent?: string;
   referer?: string;
@@ -70,6 +68,7 @@ interface MediaPlayerProps {
   onResolutionDetected?: (resolution: VideoResolutionInfo) => void;
   hasNextEpisode?: boolean;
   onNextEpisode?: () => void;
+  skipRule?: VideoSkipRule;
   danmaku?: { videoTitle: string; episodeName: string; episodeIndex: number };
 }
 
@@ -81,17 +80,16 @@ const DANMAKU_COPY = {
 
 function mediaFailureMessage(status: number | undefined, messages: MediaPlayerMessages): string {
   if (status === 401) return messages.tokenInvalid; // MEDIA_TOKEN_INVALID
-  if (status === 403) return messages.iptvDenied; // IPTV_ACCESS_REQUIRED
   if (status === 429) return messages.rateLimited; // RATE_LIMITED
   if (status === 502 || status === 504) return messages.upstreamFailed; // UPSTREAM_STREAM_ERROR
   if (status === 415) return messages.codecUnsupported;
   return messages.playbackFailed;
 }
 
-export function MediaPlayer({ target, route, title, userAgent, referer, mode = "standard", shellControls,
+export function MediaPlayer({ target, title, userAgent, referer, mode = "standard", shellControls,
   messages = DEFAULT_MESSAGES, initialTime = 0, onProgress, onReady, onTerminalError, onClose,
   preferH264 = false, focusable = false,
-  onResolutionDetected, hasNextEpisode = false, onNextEpisode, danmaku }: Readonly<MediaPlayerProps>) {
+  onResolutionDetected, hasNextEpisode = false, onNextEpisode, skipRule, danmaku }: Readonly<MediaPlayerProps>) {
   const auth = useAuth()!;
   const { locale } = useLocale();
   const playerSettings = usePlayerSettings(auth.session.accountId, mode);
@@ -118,18 +116,18 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
   const [videoTogetherOpen, setVideoTogetherOpen] = useState(false);
   const videoTogetherVisible = Boolean(shellControls) && playerSettings.videoTogetherEnabled;
   const protectedMediaUrl = useMemo(
-    () => buildMediaUrl(route, target, { userAgent, referer, ...(route === "proxy" ? {
+    () => buildMediaUrl(target, { userAgent, referer,
       adFilterMode: playerSettings.adFilterMode,
       adKeywords: playerSettings.adKeywords,
-    } : {}) }),
-    [playerSettings.adFilterMode, playerSettings.adKeywords, referer, route, target, userAgent],
+    }),
+    [playerSettings.adFilterMode, playerSettings.adKeywords, referer, target, userAgent],
   );
   const playbackSources = useMemo(
-    () => resolvePlaybackSources(route, target, protectedMediaUrl, playerSettings.proxyMode),
-    [playerSettings.proxyMode, protectedMediaUrl, route, target],
+    () => resolvePlaybackSources(target, protectedMediaUrl, playerSettings.proxyMode),
+    [playerSettings.proxyMode, protectedMediaUrl, target],
   );
   const [mediaUrl, setMediaUrl] = useState(playbackSources.primarySrc);
-  const likelyHls = route === "iptv-stream" || /\.m3u8?(?:$|[?#])/i.test(target);
+  const likelyHls = /\.m3u8?(?:$|[?#])/i.test(target);
   const handleLoading = useCallback(() => {
     terminalErrorReported.current = false;
     readyReported.current = false;
@@ -158,10 +156,10 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
     onSourceChange: setMediaUrl, onLoading: handleLoading, onReady: handleReady, onError: handleMediaError });
   useAutoSkip({ videoRef, src: mediaUrl, currentTime, duration, isPlaying: playing,
     autoNextEpisode: playerSettings.autoNextEpisode,
-    autoSkipIntro: playerSettings.autoSkipIntro && initialTime <= 0,
-    skipIntroSeconds: playerSettings.skipIntroSeconds,
-    autoSkipOutro: playerSettings.autoSkipOutro,
-    skipOutroSeconds: playerSettings.skipOutroSeconds,
+    autoSkipIntro: skipRule?.introEnabled === true && initialTime <= 0,
+    skipIntroSeconds: skipRule?.introSeconds ?? 0,
+    autoSkipOutro: skipRule?.outroEnabled === true,
+    skipOutroSeconds: skipRule?.outroSeconds ?? 0,
     hasNextEpisode,
     onNextEpisode,
   });
@@ -295,7 +293,7 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
     fullscreen: fullscreenControls.fullscreen, playing, controlsVisible: visibility.controlsVisible,
     interactiveOverlay: speedMenuOpen || adMenuOpen || (videoTogetherVisible && videoTogetherOpen),
   });
-  const proxyModeLabel = playerSettings.proxyMode === "none" ? (route === "proxy" ? messages.directMode : messages.nativeMode)
+  const proxyModeLabel = playerSettings.proxyMode === "none" ? messages.directMode
     : playerSettings.proxyMode === "always" ? messages.relayMode : messages.retryMode;
 
   return (
@@ -303,8 +301,8 @@ export function MediaPlayer({ target, route, title, userAgent, referer, mode = "
       data-phase={phase} data-proxy-mode={playerSettings.proxyMode} data-playback-strategy={`${likelyHls ? "hls" : "native"}-${playerSettings.proxyMode}`}
       data-input-mode={isTouchInput ? "touch" : "desktop"}
       data-fullscreen-type={playerSettings.fullscreenType} data-seek-step={playerSettings.seekStepSeconds}
-      data-auto-next-episode={playerSettings.autoNextEpisode} data-auto-skip-intro={playerSettings.autoSkipIntro}
-      data-auto-skip-outro={playerSettings.autoSkipOutro} data-ad-filter-mode={playerSettings.adFilterMode}
+      data-auto-next-episode={playerSettings.autoNextEpisode} data-auto-skip-intro={skipRule?.introEnabled ?? false}
+      data-auto-skip-outro={skipRule?.outroEnabled ?? false} data-ad-filter-mode={playerSettings.adFilterMode}
       data-danmaku-enabled={playerSettings.danmakuEnabled} data-danmaku-status={danmakuState.status}
       data-focusable={focusable || undefined} tabIndex={focusable ? 0 : undefined}
       onPointerMove={shellControls ? visibility.handlePointerMove : undefined}

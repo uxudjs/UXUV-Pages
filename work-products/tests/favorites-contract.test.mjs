@@ -30,3 +30,14 @@ test("T13 exposes grid, list, sidebar, capacity, removal, and empty-state bounda
   assert.match(page, /<FavoritesSidebar/);
   assert.match(page, /<WatchHistorySidebar/);
 });
+
+test("T13 limits favorites glass to controls and dialogs", () => {
+  const page = read("components/FavoritesExperience.tsx");
+  const sidebar = read("components/favorites/FavoritesSidebar.tsx");
+  assert.match(page, /className="favorites-legacy-header"[^>]*data-material="regular"/s);
+  assert.match(page, /className="collection-actions"[^>]*data-material="regular"/s);
+  assert.match(page, /className="collection-confirm"[^>]*data-material="regular"/s);
+  assert.match(sidebar, /className="favorites-sidebar-toggle"[^>]*data-material="regular"/s);
+  assert.match(sidebar, /className="favorites-sidebar is-open"[^>]*data-material="regular"/s);
+  assert.match(sidebar, /className="history-confirm"[^>]*data-material="regular"/s);
+});

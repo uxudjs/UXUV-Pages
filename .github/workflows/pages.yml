@@ -31,6 +31,9 @@ jobs:
       - name: Build static export
         run: npm run build
 
+      - name: Build current release
+        run: npm run release:build
+
       - name: Test
         run: npm test
 
@@ -39,9 +42,6 @@ jobs:
 
       - name: Type-check
         run: npx tsc --noEmit
-
-      - name: Build current release
-        run: npm run release:build
 
       - name: Read release version
         shell: bash
@@ -65,13 +65,18 @@ jobs:
           ref: gh-pages
           path: published
 
-      - name: Publish current release at the repository root
+      - name: Publish guidance and the stable Worker asset root
         shell: bash
         run: |
           set -euo pipefail
           source="release/current"
-          rsync --archive --delete --exclude='.git/' "$source/" published/
-          touch published/.nojekyll
+          staging="$(mktemp -d)"
+          mkdir -p "$staging/app"
+          rsync --archive "$source/" "$staging/app/"
+          cp public/github-pages.html "$staging/index.html"
+          cp public/github-pages.html "$staging/404.html"
+          touch "$staging/.nojekyll"
+          rsync --archive --delete --exclude='.git/' "$staging/" published/
 
           cd published
           git config user.name "github-actions[bot]"

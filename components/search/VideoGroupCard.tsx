@@ -1,22 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Layers } from "lucide-react";
 import type { MouseEvent } from "react";
 import { ResolutionProbeButton } from "@/components/ResolutionProbeButton";
 import type { Video, VideoSource } from "@/lib/content/types";
 import type { SearchResultLabels } from "@/components/search/SearchResultCard";
+import type { SearchVideoGroup } from "@/lib/utils/search-result-policy";
+import { storeGroupedSources } from "@/lib/media/grouped-sources-cache";
 
-export interface GroupedVideo {
-  name: string;
-  representative: Video;
-  videos: Video[];
-}
+export type GroupedVideo = SearchVideoGroup;
 
 interface VideoGroupCardProps {
   group: GroupedVideo;
   active: boolean;
   favorite: boolean;
+  favoriteVideo?: Video;
   labels: SearchResultLabels;
   sources: VideoSource[];
   latency?: number;
@@ -24,22 +24,25 @@ interface VideoGroupCardProps {
   onToggleFavorite: (video: Video) => void;
 }
 
-export function VideoGroupCard({ group, active, favorite, labels, sources, latency, onActivate, onToggleFavorite }: VideoGroupCardProps) {
+export function VideoGroupCard({ group, active, favorite, favoriteVideo, labels, sources, latency, onActivate, onToggleFavorite }: VideoGroupCardProps) {
+  const router = useRouter();
   const { representative, videos } = group;
-  const cardId = `group:${group.name.trim().toLocaleLowerCase()}`;
-  const groupKey = encodeURIComponent(`${representative.source}:${representative.vod_id}:${group.name.trim().toLocaleLowerCase()}`);
+  const cardId = `group:${encodeURIComponent(group.key)}`;
   const parameters = new URLSearchParams({ id: String(representative.vod_id), source: representative.source, title: representative.vod_name });
   const poster = !representative.vod_pic || representative.vod_pic === "/placeholder-poster.svg" ? "placeholder-poster.svg" : representative.vod_pic;
-  if (videos.length > 1) parameters.set("gs", groupKey);
 
   const activate = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (videos.length > 1) {
-      sessionStorage.setItem(`uxuv-grouped-sources:v1:${groupKey}`, JSON.stringify(videos.map((video) => ({
-        id: video.vod_id, source: video.source, sourceName: video.sourceName, pic: video.vod_pic,
-        typeName: video.type_name, remarks: video.vod_remarks,
-      }))));
-    }
     onActivate(event, cardId);
+    if (videos.length <= 1 || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const groupKey = storeGroupedSources(videos.map((video) => ({
+      id: video.vod_id, source: video.source, sourceName: video.sourceName, pic: video.vod_pic,
+      typeName: video.type_name, remarks: video.vod_remarks,
+    })));
+    if (!groupKey) return;
+    event.preventDefault();
+    const next = new URLSearchParams(parameters);
+    next.set("gs", groupKey);
+    router.push(`/player?${next.toString()}`);
   };
 
   return <article role="listitem" className={`kvideo-result-card kvideo-result-group${active ? " is-active" : ""}`}
@@ -65,11 +68,13 @@ export function VideoGroupCard({ group, active, favorite, labels, sources, laten
         </div>
       </div>
     </Link>
-    <ResolutionProbeButton video={representative} sources={sources} className="kvideo-result-probe"
-      labels={{ action: labels.resolutionProbe, loading: labels.resolutionProbing,
-        unknown: labels.resolutionUnknown, error: labels.resolutionError }} />
-    <button type="button" className="kvideo-result-favorite" data-focusable aria-pressed={favorite}
-      aria-label={`${favorite ? labels.unfavorite : labels.favorite} ${group.name.trim()}`}
-      onClick={() => onToggleFavorite(representative)}>{favorite ? "★" : "☆"}</button>
+    <div className="kvideo-result-actions">
+      <button type="button" className="kvideo-result-favorite" data-focusable aria-pressed={favorite}
+        aria-label={`${favorite ? labels.unfavorite : labels.favorite} ${group.name.trim()}`}
+        onClick={() => onToggleFavorite(favoriteVideo ?? representative)}>{favorite ? "★" : "☆"}</button>
+      <ResolutionProbeButton video={representative} sources={sources} className="kvideo-result-probe"
+        labels={{ action: labels.resolutionProbe, loading: labels.resolutionProbing,
+          unknown: labels.resolutionUnknown, error: labels.resolutionError }} />
+    </div>
   </article>;
 }

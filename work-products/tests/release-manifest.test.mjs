@@ -11,7 +11,6 @@ const version = "1.2.3";
 const routes = {
   "/": "index.html",
   "/favorites": "favorites/index.html",
-  "/iptv": "iptv/index.html",
   "/player": "player/index.html",
   "/premium": "premium/index.html",
   "/premium/favorites": "premium/favorites/index.html",
@@ -47,8 +46,8 @@ function options(paths, overrides = {}) {
   return {
     ...paths,
     version,
-    apiContract: 1,
-    workerRange: ">=1.0.0 <2.0.0",
+    apiContract: 2,
+    workerRange: ">=2.0.0 <3.0.0",
     ...overrides,
   };
 }
@@ -63,11 +62,11 @@ test("builds one current release manifest without commit, SHA, or SRI identity f
   assert.equal(firstResult.releaseDir, join(first.releaseRoot, "current"));
   assert.deepEqual(manifest.routes, routes);
   assert.equal(manifest.pagesVersion, version);
-  assert.equal(manifest.apiContract, 1);
-  assert.equal(manifest.workerRange, ">=1.0.0 <2.0.0");
+  assert.equal(manifest.apiContract, 2);
+  assert.equal(manifest.workerRange, ">=2.0.0 <3.0.0");
   assert.equal(Object.hasOwn(manifest, "gitCommit"), false);
   assert.ok(manifest.assets["/LICENSE"]);
-  assert.equal(Object.keys(manifest.assets).length, 12);
+  assert.equal(Object.keys(manifest.assets).length, 11);
 
   for (const [urlPath, asset] of Object.entries(manifest.assets)) {
     assert.ok(existsSync(join(firstResult.releaseDir, asset.path)), `${urlPath} is missing`);
@@ -76,6 +75,15 @@ test("builds one current release manifest without commit, SHA, or SRI identity f
   }
 
   assert.deepEqual(readFileSync(firstResult.manifestPath), readFileSync(secondResult.manifestPath));
+});
+
+test("CLI release identity stays synchronized with Pages 0.3.0 and Worker API 2", () => {
+  const script = readFileSync(join(root, "scripts/build-release.mjs"), "utf8");
+  const packageJson = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+  assert.equal(packageJson.version, "0.3.0");
+  assert.match(script, /version:\s*packageJson\.version/);
+  assert.match(script, /apiContract:\s*2/);
+  assert.match(script, /workerRange:\s*["']>=2\.0\.0 <3\.0\.0["']/);
 });
 
 test("rejects invalid version, API contract, and Worker range", () => {

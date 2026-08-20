@@ -11,7 +11,7 @@ const adminSession = {
 const runtimeConfig = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: true, danmaku: false },
+  capabilities: { premium: true, danmaku: false },
   adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
   authenticated: true,
@@ -137,15 +137,16 @@ test("super_admin sees the ordered four-metric usage card and non-dismissible gl
   await expect(card.getByText("UTC 重置倒计时", { exact: false })).toBeVisible();
   await expect(card.getByText("2026-08-07 12:34:56 UTC", { exact: false })).toBeVisible();
 
-  const accountBeforeUsage = await page.evaluate(() => {
+  const approvedDomainOrder = await page.evaluate(() => {
     const account = document.querySelector("#accounts-title")?.closest("section");
     const usage = document.querySelector('[data-settings-section="usage"]');
     const player = document.querySelector('[data-settings-section="player"]');
     return !!account && !!usage && !!player
-      && !!(account.compareDocumentPosition(usage) & Node.DOCUMENT_POSITION_FOLLOWING)
-      && !!(usage.compareDocumentPosition(player) & Node.DOCUMENT_POSITION_FOLLOWING);
+      && !!(account.compareDocumentPosition(player) & Node.DOCUMENT_POSITION_FOLLOWING)
+      && !!(player.compareDocumentPosition(usage) & Node.DOCUMENT_POSITION_FOLLOWING)
+      && usage.closest('[data-settings-domain="sync"]') !== null;
   });
-  expect(accountBeforeUsage).toBe(true);
+  expect(approvedDomainOrder).toBe(true);
 
   const banner = page.locator("[data-usage-alert='critical']");
   await expect(banner).toContainText("Cloudflare 用量已达到严重级别");
@@ -241,7 +242,7 @@ test("direct Pages entry never requests the usage API", async ({ page, request }
     await route.fulfill({ status: response.status(), headers: response.headers(), body: await response.body() });
   });
   await page.goto("https://uxudjs.github.io:4173/UXUV-Pages/settings/");
-  await expect(page.locator(".public-guidance")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "UXUVideo 部署说明" })).toBeVisible();
   expect(usageRequests).toBe(0);
   await page.unrouteAll({ behavior: "wait" });
 });

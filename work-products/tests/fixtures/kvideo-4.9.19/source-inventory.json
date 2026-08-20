@@ -20,8 +20,6 @@
   "categories": {
     "routes": [
       "app/favorites/page.tsx",
-      "app/iptv/layout.tsx",
-      "app/iptv/page.tsx",
       "app/layout.tsx",
       "app/page.tsx",
       "app/player/layout.tsx",
@@ -43,8 +41,6 @@
       "app/api/douban/image/route.ts",
       "app/api/douban/recommend/route.ts",
       "app/api/douban/tags/route.ts",
-      "app/api/iptv/route.ts",
-      "app/api/iptv/stream/route.ts",
       "app/api/ping/route.ts",
       "app/api/premium/category/route.ts",
       "app/api/premium/types/route.ts",
@@ -96,9 +92,6 @@
       "components/home/TagInput.tsx",
       "components/home/TagList.tsx",
       "components/home/TagManager.tsx",
-      "components/iptv/IPTVChannelGrid.tsx",
-      "components/iptv/IPTVPlayer.tsx",
-      "components/iptv/IPTVSourceManager.tsx",
       "components/layout/Navbar.tsx",
       "components/player/CustomVideoPlayer.tsx",
       "components/player/DanmakuCanvas.tsx",
@@ -240,7 +233,6 @@
       "lib/store/auth-store.ts",
       "lib/store/favorites-store.ts",
       "lib/store/history-store.ts",
-      "lib/store/iptv-store.ts",
       "lib/store/premium-mode-settings.ts",
       "lib/store/search-history-store.ts",
       "lib/store/settings-helpers.ts",
@@ -297,8 +289,6 @@
     ],
     "copyBearingFiles": [
       "app/favorites/page.tsx",
-      "app/iptv/layout.tsx",
-      "app/iptv/page.tsx",
       "app/layout.tsx",
       "app/page.tsx",
       "app/player/layout.tsx",
@@ -348,9 +338,6 @@
       "components/home/TagInput.tsx",
       "components/home/TagList.tsx",
       "components/home/TagManager.tsx",
-      "components/iptv/IPTVChannelGrid.tsx",
-      "components/iptv/IPTVPlayer.tsx",
-      "components/iptv/IPTVSourceManager.tsx",
       "components/layout/Navbar.tsx",
       "components/player/CustomVideoPlayer.tsx",
       "components/player/DanmakuCanvas.tsx",
@@ -479,14 +466,6 @@
       "objectId": "bfd8baf5f4856a317d49fca4aca9c2f0e82c4aea"
     },
     {
-      "path": "app/api/iptv/route.ts",
-      "objectId": "31dc6eb8af781a43821497c73b4cd2cee11fdec9"
-    },
-    {
-      "path": "app/api/iptv/stream/route.ts",
-      "objectId": "ae69048789e59cbe2f9befd31faafb692300de02"
-    },
-    {
       "path": "app/api/ping/route.ts",
       "objectId": "e2ef59d2aa165f592bd64ad46a114cc76a3f0941"
     },
@@ -525,14 +504,6 @@
     {
       "path": "app/globals.css",
       "objectId": "1e192770a48f1092d7336cd19ad8b8de2f4c6e6b"
-    },
-    {
-      "path": "app/iptv/layout.tsx",
-      "objectId": "c53c2b334727c9e2025fc11071b2d966d7dbe440"
-    },
-    {
-      "path": "app/iptv/page.tsx",
-      "objectId": "2562f1706c4dde8ff031051550c7ab1b361a830a"
     },
     {
       "path": "app/layout.tsx",
@@ -781,18 +752,6 @@
     {
       "path": "components/home/hooks/useTagManager.ts",
       "objectId": "cdc62aa49497430ed60f52ea913bb3d863d92921"
-    },
-    {
-      "path": "components/iptv/IPTVChannelGrid.tsx",
-      "objectId": "917d70825e9747fedff868497012af4bae7a8e39"
-    },
-    {
-      "path": "components/iptv/IPTVPlayer.tsx",
-      "objectId": "3b9cef208332bf39d2397583e5b63af3cfa5bd45"
-    },
-    {
-      "path": "components/iptv/IPTVSourceManager.tsx",
-      "objectId": "127c1037092fd6b8c8418d1da6604fb488b940aa"
     },
     {
       "path": "components/layout/Navbar.tsx",
@@ -1457,10 +1416,6 @@
     {
       "path": "lib/store/history-store.ts",
       "objectId": "99ce17c0bbf62faeb1cfb2cbd10b971e4ed7eea2"
-    },
-    {
-      "path": "lib/store/iptv-store.ts",
-      "objectId": "be256df12124e712358b198d30c389b2b0dd94e1"
     },
     {
       "path": "lib/store/premium-mode-settings.ts",

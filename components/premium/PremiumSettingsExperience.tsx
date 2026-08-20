@@ -5,9 +5,15 @@ import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { AdminGate } from "@/components/AdminGate";
 import { useLocale } from "@/components/LocaleProvider";
 import { AccountSettings } from "@/components/settings/AccountSettings";
+import { CloudflareUsageSettings } from "@/components/settings/CloudflareUsageSettings";
+import { DataSettings } from "@/components/settings/DataSettings";
 import { DisplaySettings } from "@/components/settings/DisplaySettings";
 import { PlayerSettings } from "@/components/settings/PlayerSettings";
+import { SettingsAnchorNav } from "@/components/settings/SettingsPageHeading";
 import { SourceSettings } from "@/components/settings/SourceSettings";
+import { SortSettings } from "@/components/settings/SortSettings";
+import { SyncSettings } from "@/components/settings/SyncSettings";
+import { UserDanmakuSettings } from "@/components/settings/UserDanmakuSettings";
 import { ContentApiError } from "@/lib/content/api-client";
 import { unlockPremium, verifyPremiumAccess } from "@/lib/content/premium-client";
 import { useAuth } from "@/lib/store/auth-store";
@@ -47,20 +53,42 @@ export function PremiumSettingsExperience() {
   };
 
   if (state === "loading") return <main className="public-shell"><p role="status">{copy.loading}</p></main>;
-  if (state === "locked") return <main className="public-shell"><form className="auth-panel" onSubmit={(event) => void submit(event)}>
+  if (state === "locked") return <main className="public-shell"><form className="auth-panel" data-material="regular" onSubmit={(event) => void submit(event)}>
     <h1>{copy.title}</h1><p role="alert">{message || copy.locked}</p><label className="field-label" htmlFor="premium-settings-password">{copy.password}</label>
     <input id="premium-settings-password" autoFocus type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
     <button className="primary-button" type="submit" disabled={!password}>{copy.unlock}</button></form></main>;
-  if (state === "error") return <main className="public-shell"><section className="auth-panel" role="alert"><h1>{copy.title}</h1><p>{message}</p>
+  if (state === "error") return <main className="public-shell"><section className="auth-panel" data-material="regular" role="alert"><h1>{copy.title}</h1><p>{message}</p>
     <button type="button" onClick={() => { setState("loading"); void verify(); }}>{copy.retry}</button></section></main>;
 
   return <div className="content-shell settings-page-shell premium-settings-page"><main className="settings-shell">
-    <header className="premium-settings-heading"><Link href="/premium" prefetch={false} aria-label={copy.recheck} data-focusable>
+    <header className="premium-settings-heading" data-material="regular"><Link href="/premium" prefetch={false} aria-label={copy.recheck} data-focusable>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7" /></svg></Link>
       <div><h1>{copy.title}</h1><p>{copy.description}</p></div></header>
-    <AdminGate><AccountSettings /></AdminGate>
-    <PlayerSettings mode="premium" />
-    <DisplaySettings mode="premium" />
-    <SourceSettings mode="premium" />
+    <div className="settings-layout">
+      <SettingsAnchorNav className="settings-anchor-nav" />
+      <div className="settings-domain-list">
+        <div id="settings-domain-account" className="settings-domain settings-domain-account" data-settings-domain="account">
+          <AdminGate><AccountSettings /></AdminGate>
+        </div>
+        <div id="settings-domain-sources" className="settings-domain settings-domain-sources" data-settings-domain="sources">
+          <SourceSettings mode="premium" />
+          <UserDanmakuSettings mode="premium" />
+        </div>
+        <div id="settings-domain-playback" className="settings-domain settings-domain-playback" data-settings-domain="playback">
+          <PlayerSettings mode="premium" />
+        </div>
+        <div id="settings-domain-display" className="settings-domain settings-domain-display" data-settings-domain="display">
+          <DisplaySettings mode="premium" />
+          <SortSettings mode="premium" />
+        </div>
+        <div id="settings-domain-sync" className="settings-domain settings-domain-sync" data-settings-domain="sync">
+          <SyncSettings />
+          <AdminGate><CloudflareUsageSettings /></AdminGate>
+        </div>
+        <div id="settings-domain-data" className="settings-domain settings-domain-data" data-settings-domain="data">
+          <DataSettings />
+        </div>
+      </div>
+    </div>
   </main></div>;
 }

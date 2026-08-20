@@ -1,13 +1,12 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page, type Route } from "@playwright/test";
 
-const baseURL = "http://127.0.0.1:4173/UXUV-Pages/";
+const baseURL = "http://127.0.0.1:4173/";
 const fixedTime = "2026-08-08T08:00:00.000+08:00";
 const widths = [320, 768, 1024, 1440];
 const routes = [
   { id: "home", referencePath: "/", currentPath: "./" },
   { id: "favorites", referencePath: "/favorites", currentPath: "favorites/" },
-  { id: "iptv", referencePath: "/iptv", currentPath: "iptv/" },
   {
     id: "player",
     referencePath: "/player?id=fixture-video&source=fixture-source&title=%E7%A4%BA%E4%BE%8B%E5%BD%B1%E7%89%87&episode=0",
@@ -30,8 +29,8 @@ const session = {
 };
 const config = {
   release: { worker: "1.0.0", pages: "0.2.0", apiContract: 1 },
-  site: { name: "UXUVideo", title: "UXUVideo - 视频聚合平台", description: "视频聚合平台", iconUrl: "/UXUV-Pages/icon.png" },
-  capabilities: { premium: true, iptv: true, danmaku: true },
+  site: { name: "UXUVideo", title: "UXUVideo - 视频聚合平台", description: "视频聚合平台", iconUrl: "/icon.png" },
+  capabilities: { premium: true, danmaku: true },
   adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
   authenticated: true,
@@ -96,7 +95,7 @@ async function mockWorker(page: Page) {
       return json(route, { success: true, data: {
         vod_id: "fixture-video",
         vod_name: "示例影片",
-        vod_pic: "/UXUV-Pages/placeholder-poster.svg",
+        vod_pic: "/placeholder-poster.svg",
         vod_content: "用于固定界面基线的合成简介。",
         vod_actor: "示例演员",
         vod_director: "示例导演",

@@ -4,7 +4,7 @@ import axe from "axe-core";
 const runtimeConfig = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: false, danmaku: false }, adKeywords: [],
+  capabilities: { premium: true, danmaku: false }, adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } }, authenticated: true,
 };
 
@@ -58,12 +58,19 @@ test.describe("KVideo T13 favorites library", () => {
       .toHaveAttribute("href", /\/player\?id=same&source=source-a&title=/);
     await expect(page.getByText("高级收藏")).toHaveCount(0);
     await expect(page.locator(".favorites-grid-view")).toBeVisible();
+    await expect(page.locator(".collection-actions")).toHaveAttribute("data-material", "regular");
+    await expect(page.getByRole("button", { name: "打开收藏夹" })).toHaveAttribute("data-material", "regular");
 
     for (const width of [320, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       await expect(page.getByRole("heading", { name: "我的收藏" })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     }
+
+    await page.setViewportSize({ width: 640, height: 900 });
+    await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.evaluate(() => { document.documentElement.style.fontSize = ""; });
 
     await page.getByRole("button", { name: "列表", exact: true }).click();
     await expect(page.locator(".favorites-list-view")).toBeVisible();
@@ -73,6 +80,7 @@ test.describe("KVideo T13 favorites library", () => {
     await page.getByRole("button", { name: "打开收藏夹" }).click();
     const sidebar = page.getByRole("dialog", { name: "收藏夹" });
     await expect(sidebar).toBeVisible();
+    await expect(sidebar).toHaveAttribute("data-material", "regular");
     await expect(sidebar.getByText("标准收藏")).toBeVisible();
     await expect(sidebar.getByText("高级收藏")).toHaveCount(0);
     await page.keyboard.press("Escape");

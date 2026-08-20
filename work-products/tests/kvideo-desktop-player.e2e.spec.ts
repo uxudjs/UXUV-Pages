@@ -3,8 +3,7 @@ import { expect, test, type BrowserContext, type Route } from "@playwright/test"
 const runtime = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: false, danmaku: false }, adKeywords: [],
-  sources: { subscriptionSources: "", iptvSources: "", mergeSources: false, danmakuApiUrl: "" },
+  capabilities: { premium: true, danmaku: false }, adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } }, authenticated: true,
 };
 const source = { id: "desktop-source", updatedAt: 1, name: "Desktop Source", baseUrl: "https://catalog.example",
@@ -378,15 +377,29 @@ test.describe("KVideo T23 mobile and device controls", () => {
     await dispatchTouchEnd(page, "left");
     await expect.poll(() => video.evaluate((element) => (element as HTMLVideoElement).currentTime)).toBe(100);
 
-    await page.getByRole("button", { name: "网页全屏" }).click();
+    await page.setViewportSize({ width: 320, height: 240 });
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+    const backToTop = page.locator(".back-to-top");
+    await expect(backToTop).toHaveAttribute("aria-label", "返回顶部");
+    await expect(backToTop).toHaveAttribute("data-visible", "true");
+    await page.getByRole("button", { name: "网页全屏" }).focus();
+    await page.keyboard.press("Enter");
     await expect(player).toHaveClass(/is-web-fullscreen/);
     await expect(page.locator("body")).toHaveClass(/player-web-fullscreen-open/);
+    await expect(backToTop).toBeHidden();
+    await expect(backToTop).toHaveAttribute("tabindex", "-1");
     await expect.poll(async () => (await readDeviceEvidence(page)).orientationLocks).toBeGreaterThan(0);
-    await page.getByRole("button", { name: "退出网页全屏" }).click();
+    await page.getByRole("button", { name: "退出网页全屏" }).focus();
+    await page.keyboard.press("Enter");
     await expect(player).not.toHaveClass(/is-web-fullscreen/);
+    await expect(backToTop).not.toHaveAttribute("hidden", "");
+    await expect(backToTop).not.toHaveAttribute("tabindex", "-1");
 
+    await page.setViewportSize({ width: 320, height: 720 });
     await page.getByRole("button", { name: "系统全屏" }).click();
     await expect(player).toHaveAttribute("data-phase", "ready");
+    await expect(page.locator("body")).not.toHaveClass(/player-web-fullscreen-open/);
+    await expect(backToTop).not.toHaveAttribute("hidden", "");
     await expect(page.getByRole("button", { name: "退出系统全屏" })).toBeVisible();
     await page.getByRole("button", { name: "退出系统全屏" }).click();
     await expect.poll(async () => (await readDeviceEvidence(page)).nativeFullscreenRequests).toBe(1);
@@ -571,7 +584,6 @@ async function mockDanmakuWorker(context: BrowserContext, fixture: DanmakuFixtur
     const url = new URL(route.request().url());
     if (url.pathname === "/api/config") return json(route, {
       ...runtime,
-      sources: { ...runtime.sources, danmakuApiUrl: "" },
     });
     if (url.pathname === "/api/auth/session") return json(route, { authenticated: true, session: {
       accountId: "danmaku-account", profileId: "danmaku-account", username: "viewer", name: "Viewer",
@@ -680,8 +692,9 @@ test.describe("KVideo T25 danmaku canvas", () => {
 async function mockPlaybackAutomationWorker(context: BrowserContext, autoNextEpisode = true) {
   let config = { kind: "config", version: 1, updatedAt: 1, payload: { fields: {
     autoNextEpisode: { value: autoNextEpisode, updatedAt: 1 },
-    autoSkipIntro: { value: true, updatedAt: 1 }, skipIntroSeconds: { value: 10, updatedAt: 1 },
-    autoSkipOutro: { value: true, updatedAt: 1 }, skipOutroSeconds: { value: 5, updatedAt: 1 },
+    videoSkipRules: { value: { "standard:desktop-source:automation-video": {
+      introEnabled: true, introSeconds: 10, outroEnabled: true, outroSeconds: 5, updatedAt: 1,
+    } }, updatedAt: 1 },
     adFilterMode: { value: "heuristic", updatedAt: 1 }, adKeywords: { value: ["sponsor"], updatedAt: 1 },
   }, sources: [source], subscriptions: [], tombstones: [] } };
   const library = { kind: "library", version: 1, updatedAt: 1,
@@ -848,13 +861,17 @@ test.describe("KVideo T38 VideoTogether controller", () => {
     await expect(dialog).toHaveCount(0);
     await expect(trigger).toBeFocused();
 
-    await page.getByLabel("语言").selectOption("zh-TW");
+    await page.evaluate(() => localStorage.setItem("uxuv-locale:desktop-account", "zh-TW"));
+    await page.reload();
+    await expect(page.getByLabel("語言")).toHaveCount(0);
     await page.getByRole("button", { name: "一起看" }).click();
     await expect(page.getByRole("dialog", { name: "VideoTogether 一起看" }))
       .toContainText("部署管理員尚未透過 Worker RuntimeConfig 與 CSP 啟用第三方腳本");
     await page.getByRole("dialog", { name: "VideoTogether 一起看" }).getByRole("button", { name: "關閉" }).click();
 
-    await page.getByLabel("語言").selectOption("en");
+    await page.evaluate(() => localStorage.setItem("uxuv-locale:desktop-account", "en"));
+    await page.reload();
+    await expect(page.getByLabel("Language")).toHaveCount(0);
     await page.getByRole("button", { name: "Watch together" }).click();
     await expect(page.getByRole("dialog", { name: "VideoTogether" }))
       .toContainText("has not enabled the third-party script through Worker RuntimeConfig and CSP");

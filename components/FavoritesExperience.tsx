@@ -90,7 +90,7 @@ export function FavoritesExperience({ mode = "standard" }: Readonly<{ mode?: "st
   if (favorites.length === 0) {
     const legacy = LEGACY_COPY[locale];
     return <div className="content-shell"><ContentNavigation premium={mode === "premium"} />
-      <main className="favorites-legacy-main"><header className="favorites-legacy-header">
+      <main className="favorites-legacy-main"><header className="favorites-legacy-header" data-material="regular">
         <button type="button" className="favorites-legacy-back" data-focusable onClick={() => history.back()}>
           <Icon source={ArrowLeft} size={20} />{legacy.back}</button>
         <div className="favorites-legacy-row"><div className="favorites-legacy-title"><span><Icon source={Heart} size={24} /></span><div>
@@ -110,7 +110,7 @@ export function FavoritesExperience({ mode = "standard" }: Readonly<{ mode?: "st
         <header className="collection-header">
           <div><p className="public-kicker">YOUR LIBRARY</p><h1>{mode === "premium" ? copy.premiumTitle : copy.standardTitle}</h1>
             <p>{favorites.length} {copy.summary}</p><p className="favorites-capacity">{copy.capacity}{locale === "en" ? ": " : "："}{favorites.length}/{MAX_FAVORITES} · {copy.sync}{locale === "en" ? ": " : "："}{phase}</p></div>
-          <div className="collection-actions">
+          <div className="collection-actions" data-material="regular">
             <label htmlFor="favorite-sort">{copy.sort}</label>
             <select id="favorite-sort" data-focusable value={sort} onChange={(event) => setSort(event.target.value as "date" | "title")}>
               <option value="date">{copy.recent}</option><option value="title">{copy.title}</option>
@@ -140,7 +140,7 @@ export function FavoritesExperience({ mode = "standard" }: Readonly<{ mode?: "st
           ))}</section>
         )}
         {confirmClear && <><button type="button" className="collection-confirm-backdrop" aria-label={copy.cancel} onClick={closeClear} />
-          <section ref={clearDialogRef} className="collection-confirm" role="alertdialog" aria-modal="true" aria-labelledby="favorites-clear-title">
+          <section ref={clearDialogRef} className="collection-confirm" data-material="regular" role="alertdialog" aria-modal="true" aria-labelledby="favorites-clear-title">
             <h2 id="favorites-clear-title">{copy.confirmClear}</h2><p>{copy.irreversible}</p><div>
               <button type="button" data-autofocus data-focusable onClick={closeClear}>{copy.cancel}</button>
               <button type="button" className="danger-button" data-focusable onClick={clear}>{copy.confirm}</button>

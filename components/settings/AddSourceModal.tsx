@@ -8,13 +8,13 @@ import { normalizeSourceDraft, sourceIdFromName, type SourceDraftError } from "@
 import type { VideoSource } from "@/lib/content/types";
 
 const COPY = {
-  "zh-CN": { addTitle: "添加个人视频源", editTitle: "编辑个人视频源", premiumAddTitle: "添加 Premium 视频源", premiumEditTitle: "编辑 Premium 视频源", name: "源名称", id: "源 ID", url: "接口地址",
+  "zh-CN": { addTitle: "添加单独来源", editTitle: "编辑单独来源", premiumAddTitle: "添加 Premium 视频源", premiumEditTitle: "编辑 Premium 视频源", name: "源名称", id: "源 ID", url: "接口地址",
     idHint: "仅支持小写字母、数字和连字符。", cancel: "取消", add: "添加", save: "保存", import: "导入来源", close: "关闭来源编辑器",
     errors: { required: "请填写所有字段。", id: "源 ID 格式无效。", duplicate: "此源 ID 已存在。", url: "请输入有效的 HTTP 或 HTTPS 地址。" } },
-  "zh-TW": { addTitle: "新增個人影片來源", editTitle: "編輯個人影片來源", premiumAddTitle: "新增 Premium 影片來源", premiumEditTitle: "編輯 Premium 影片來源", name: "來源名稱", id: "來源 ID", url: "介面位址",
+  "zh-TW": { addTitle: "新增單獨來源", editTitle: "編輯單獨來源", premiumAddTitle: "新增 Premium 影片來源", premiumEditTitle: "編輯 Premium 影片來源", name: "來源名稱", id: "來源 ID", url: "介面位址",
     idHint: "僅支援小寫字母、數字和連字號。", cancel: "取消", add: "新增", save: "儲存", import: "匯入來源", close: "關閉來源編輯器",
     errors: { required: "請填寫所有欄位。", id: "來源 ID 格式無效。", duplicate: "此來源 ID 已存在。", url: "請輸入有效的 HTTP 或 HTTPS 位址。" } },
-  en: { addTitle: "Add personal video source", editTitle: "Edit personal video source", premiumAddTitle: "Add Premium video source", premiumEditTitle: "Edit Premium video source", name: "Source name", id: "Source ID", url: "API URL",
+  en: { addTitle: "Add standalone source", editTitle: "Edit standalone source", premiumAddTitle: "Add Premium video source", premiumEditTitle: "Edit Premium video source", name: "Source name", id: "Source ID", url: "API URL",
     idHint: "Use lowercase letters, numbers, and hyphens only.", cancel: "Cancel", add: "Add", save: "Save", import: "Import sources", close: "Close source editor",
     errors: { required: "Complete every field.", id: "The source ID is invalid.", duplicate: "That source ID already exists.", url: "Enter a valid HTTP or HTTPS URL." } },
 } as const;

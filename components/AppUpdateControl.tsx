@@ -174,7 +174,7 @@ export function AppUpdateControl() {
   };
 
   return <>
-    <button ref={triggerRef} className="app-update-trigger" data-update-status={result.status} type="button" data-focusable
+    <button ref={triggerRef} className="app-update-trigger app-update-corner" data-update-status={result.status} type="button" data-focusable
       aria-label={copy.open} onClick={() => setOpen(true)}>
       <span aria-hidden="true" />
       <span>{result.status === "update-available" ? copy.available : result.currentVersion ?? statusLabel}</span>

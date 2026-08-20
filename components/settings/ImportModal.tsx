@@ -12,6 +12,7 @@ import {
   type SourceImportErrorCode,
   type SourceImportPreview,
 } from "@/lib/content/source-import";
+import { subscriptionOwnedSourceIds } from "@/lib/content/source-settings-policy";
 import type { SourceSubscription, VideoSource } from "@/lib/content/types";
 
 type ImportTab = "json" | "file" | "link" | "subscription";
@@ -27,7 +28,7 @@ const COPY = {
     update: "更新", remove: "删除", confirmRemove: "删除此订阅？", removeHint: "只删除订阅记录，不删除已导入的视频源。",
     cancel: "取消", confirm: "导入有效来源", valid: "有效", duplicate: "重复", invalid: "无效", total: "总计",
     noValid: "没有可导入的有效来源。", imported: "导入已保存。", loading: "正在受控读取…", fileTooLarge: "文件超过 512 KiB。",
-    errors: { size: "内容超过 512 KiB。", json: "JSON 格式无效。", shape: "找不到来源数组。", secret: "内容含 Secret、Token、密码或请求头，已拒绝整个导入。", count: "一次最多导入 200 个来源。", request: "Worker 无法安全读取此链接。" },
+    errors: { size: "内容超过 512 KiB。", json: "JSON 格式无效。", shape: "找不到来源数组。", secret: "内容含 Secret、Token、密码或请求头，已拒绝整个导入。", count: "一次最多导入 200 个来源。", request: "Worker 无法安全读取此链接。", duplicate: "导入来源 ID 与现有来源冲突，未修改订阅或来源。" },
   },
   "zh-TW": {
     title: "匯入影片來源", close: "關閉匯入視窗", json: "JSON 貼上", file: "檔案", link: "連結", subscription: "訂閱",
@@ -37,7 +38,7 @@ const COPY = {
     update: "更新", remove: "刪除", confirmRemove: "刪除此訂閱？", removeHint: "只刪除訂閱紀錄，不刪除已匯入的影片來源。",
     cancel: "取消", confirm: "匯入有效來源", valid: "有效", duplicate: "重複", invalid: "無效", total: "總計",
     noValid: "沒有可匯入的有效來源。", imported: "匯入已儲存。", loading: "正在受控讀取…", fileTooLarge: "檔案超過 512 KiB。",
-    errors: { size: "內容超過 512 KiB。", json: "JSON 格式無效。", shape: "找不到來源陣列。", secret: "內容含 Secret、Token、密碼或請求標頭，已拒絕整個匯入。", count: "一次最多匯入 200 個來源。", request: "Worker 無法安全讀取此連結。" },
+    errors: { size: "內容超過 512 KiB。", json: "JSON 格式無效。", shape: "找不到來源陣列。", secret: "內容含 Secret、Token、密碼或請求標頭，已拒絕整個匯入。", count: "一次最多匯入 200 個來源。", request: "Worker 無法安全讀取此連結。", duplicate: "匯入來源 ID 與現有來源衝突，未修改訂閱或來源。" },
   },
   en: {
     title: "Import video sources", close: "Close source importer", json: "Paste JSON", file: "File", link: "Link", subscription: "Subscription",
@@ -47,7 +48,7 @@ const COPY = {
     update: "Update", remove: "Remove", confirmRemove: "Remove this subscription?", removeHint: "This removes only the subscription record, not imported video sources.",
     cancel: "Cancel", confirm: "Import valid sources", valid: "Valid", duplicate: "Duplicates", invalid: "Invalid", total: "Total",
     noValid: "There are no valid sources to import.", imported: "Import saved.", loading: "Reading through the secure Worker boundary…", fileTooLarge: "The file exceeds 512 KiB.",
-    errors: { size: "Content exceeds 512 KiB.", json: "The JSON is invalid.", shape: "No source array was found.", secret: "The content contains a secret, token, password, or request headers, so the entire import was rejected.", count: "At most 200 sources can be imported at once.", request: "The Worker could not read this link safely." },
+    errors: { size: "Content exceeds 512 KiB.", json: "The JSON is invalid.", shape: "No source array was found.", secret: "The content contains a secret, token, password, or request headers, so the entire import was rejected.", count: "At most 200 sources can be imported at once.", request: "The Worker could not read this link safely.", duplicate: "An imported source ID conflicts with an existing source; no subscription or source was changed." },
   },
 } as const;
 
@@ -55,11 +56,13 @@ function errorCode(error: unknown): SourceImportErrorCode {
   return error instanceof SourceImportError ? error.code : "request";
 }
 
-export function ImportModal({ existingIds, subscriptions, onClose, onImport, onSaveSubscription, onRemoveSubscription }: Readonly<{
-  existingIds: readonly string[];
+export function ImportModal({ existingSources, mode, subscriptions, onClose, onImport, onResyncSubscription, onSaveSubscription, onRemoveSubscription }: Readonly<{
+  existingSources: readonly VideoSource[];
+  mode: "standard" | "premium";
   subscriptions: readonly SourceSubscription[];
   onClose: () => void;
   onImport: (sources: readonly VideoSource[]) => void;
+  onResyncSubscription: (subscription: SourceSubscription, sources: readonly VideoSource[]) => boolean;
   onSaveSubscription: (subscription: SourceSubscription) => void;
   onRemoveSubscription: (id: string) => void;
 }>) {
@@ -75,10 +78,11 @@ export function ImportModal({ existingIds, subscriptions, onClose, onImport, onS
   const [subscriptionUrl, setSubscriptionUrl] = useState("");
   const [pendingSubscription, setPendingSubscription] = useState<SourceSubscription | null>(null);
   const [preview, setPreview] = useState<SourceImportPreview | null>(null);
-  const [error, setError] = useState<SourceImportErrorCode | null>(null);
+  const [error, setError] = useState<SourceImportErrorCode | "duplicate" | null>(null);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState<SourceSubscription | null>(null);
+  const existingIds = existingSources.map(({ id }) => id);
 
   useEffect(() => {
     queueMicrotask(() => dialogRef.current?.querySelector<HTMLElement>("[data-autofocus]")?.focus());
@@ -117,7 +121,7 @@ export function ImportModal({ existingIds, subscriptions, onClose, onImport, onS
     const controller = new AbortController();
     requestRef.current = controller;
     setBusy(true); setSaved(false); setPreview(null); setPendingSubscription(subscription); setError(null);
-    const ignoredIds = new Set(subscription?.sourceIds ?? []);
+    const ignoredIds = new Set(subscription ? subscriptionOwnedSourceIds(existingSources, subscription, mode) : []);
     try {
       const result = await fetchSourceImport(url, existingIds.filter((id) => !ignoredIds.has(id)), controller.signal);
       setPreview(result);
@@ -134,12 +138,11 @@ export function ImportModal({ existingIds, subscriptions, onClose, onImport, onS
   };
   const confirmImport = () => {
     if (!preview?.sources.length) return;
-    onImport(preview.sources.map((source) => pendingSubscription ? { ...source, kind: "system" } : source));
-    if (pendingSubscription) {
-      const now = Date.now();
-      onSaveSubscription({ ...pendingSubscription, updatedAt: now, lastUpdated: now, lastError: undefined,
-        sourceIds: preview.sources.map(({ id }) => id) });
+    if (pendingSubscription && !onResyncSubscription(pendingSubscription, preview.sources)) {
+      setError("duplicate");
+      return;
     }
+    if (!pendingSubscription) onImport(preview.sources);
     setPreview(null); setPendingSubscription(null); setSaved(true);
   };
   const addSubscription = (event: FormEvent<HTMLFormElement>) => {

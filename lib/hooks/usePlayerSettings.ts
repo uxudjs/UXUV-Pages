@@ -7,6 +7,7 @@ import {
   legacyPlayerSettings, PLAYER_SETTINGS_MIGRATION_KEY, playerSettingsFromFields,
   type PlayerSettingsSnapshot,
 } from "@/lib/player/player-settings";
+import { deleteVideoSkipRule, normalizeVideoSkipRules, upsertVideoSkipRule, type VideoSkipRuleInput } from "@/lib/player/auto-skip";
 import type { ConfigPayload } from "@/lib/sync/document-types";
 
 export function usePlayerSettings(accountId: string, mode: "standard" | "premium" = "standard") {
@@ -17,6 +18,7 @@ export function usePlayerSettings(accountId: string, mode: "standard" | "premium
     () => playerSettingsFromFields(fields, runtime.config.adKeywords, mode === "premium" ? "premium." : ""),
     [fields, mode, runtime.config.adKeywords],
   );
+  const videoSkipRules = useMemo(() => normalizeVideoSkipRules(fields.videoSkipRules?.value), [fields.videoSkipRules?.value]);
 
   useEffect(() => {
     if (mode === "premium" || sync.phase === "loading") return;
@@ -35,5 +37,11 @@ export function usePlayerSettings(accountId: string, mode: "standard" | "premium
   const set = <K extends keyof PlayerSettingsSnapshot>(key: K, value: PlayerSettingsSnapshot[K]) => {
     sync.updateConfigField(mode === "premium" ? `premium.${key}` : key, value);
   };
-  return { ...settings, set };
+  const setVideoSkipRule = (key: string, value: VideoSkipRuleInput) => {
+    sync.updateConfigField("videoSkipRules", upsertVideoSkipRule(videoSkipRules, key, value));
+  };
+  const removeVideoSkipRule = (key: string) => {
+    sync.updateConfigField("videoSkipRules", deleteVideoSkipRule(videoSkipRules, key));
+  };
+  return { ...settings, videoSkipRules, setVideoSkipRule, deleteVideoSkipRule: removeVideoSkipRule, set };
 }

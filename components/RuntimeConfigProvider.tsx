@@ -6,18 +6,12 @@ import { type AuthSession, isDirectPagesHost } from "@/lib/store/auth-store";
 export interface RuntimeConfig {
   release: { worker: string; pages: string; apiContract: number };
   site: { name: string; title: string; description: string; iconUrl: string };
-  capabilities: { premium: boolean; iptv: boolean; danmaku: boolean };
+  capabilities: { premium: boolean; danmaku: boolean };
   adKeywords: string[];
   thirdPartyScripts: {
     videoTogether: { enabled: boolean; scriptUrl: string | null; settingUrl: string | null };
   };
   authenticated: boolean;
-  sources?: {
-    subscriptionSources: string;
-    iptvSources: string;
-    mergeSources: boolean;
-    danmakuApiUrl: string;
-  };
 }
 
 type RuntimeStatus = "loading" | "public" | "ready" | "error";
@@ -32,14 +26,14 @@ interface RuntimeConfigContextValue {
 }
 
 const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
-  release: { worker: "", pages: "0.2.1", apiContract: 1 },
+  release: { worker: "", pages: "0.3.0", apiContract: 2 },
   site: {
     name: "UXUVideo",
     title: "UXUVideo",
     description: "UXUVideo 公共静态前端入口",
-    iconUrl: "/UXUV-Pages/icon.png",
+    iconUrl: "/icon.png",
   },
-  capabilities: { premium: false, iptv: false, danmaku: false },
+  capabilities: { premium: false, danmaku: false },
   adKeywords: [],
   thirdPartyScripts: {
     videoTogether: { enabled: false, scriptUrl: null, settingUrl: null },

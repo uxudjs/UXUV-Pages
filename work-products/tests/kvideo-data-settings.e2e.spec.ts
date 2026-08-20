@@ -4,8 +4,7 @@ import axe from "axe-core";
 const runtime = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: false, danmaku: false }, adKeywords: [],
-  sources: { subscriptionSources: "", iptvSources: "", mergeSources: false, danmakuApiUrl: "" },
+  capabilities: { premium: true, danmaku: false }, adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } }, authenticated: true,
 };
 
@@ -19,7 +18,14 @@ async function mockWorker(context: BrowserContext) {
   let updateStatus: "update-available" | "up-to-date" | "ahead-of-remote" | "check-failed" = "update-available";
   const documents: Record<Kind, RemoteDocument> = {
     config: { kind: "config", version: 1, updatedAt: 1, payload: {
-      fields: { rememberScrollPosition: { value: true, updatedAt: 1 } },
+      fields: {
+        rememberScrollPosition: { value: true, updatedAt: 1 },
+        videoSkipRules: { value: {
+          "standard:source-a:movie-1": { introEnabled: true, introSeconds: 12, outroEnabled: false, outroSeconds: 0, updatedAt: 10 },
+          "premium:source-p:movie-9": { introEnabled: false, introSeconds: 0, outroEnabled: true, outroSeconds: 20, updatedAt: 11 },
+        }, updatedAt: 11 },
+        iptvSources: { value: [{ name: "retired" }], updatedAt: 1 },
+      },
       sources: [{ id: "fixture-source", updatedAt: 1, name: "Fixture", baseUrl: "https://catalog.example", enabled: true }],
       subscriptions: [], tombstones: [],
     } },
@@ -91,6 +97,11 @@ test.describe("KVideo T19 data and update settings", () => {
     expect(exportedText).toBe(`${JSON.stringify(exported, null, 2)}\n`);
     expect(exported).toMatchObject({ schemaVersion: 2, product: "UXUVideo", mode: "all",
       included: { searchHistory: true, watchHistory: true } });
+    expect(exported).toMatchObject({ config: { fields: { videoSkipRules: { value: {
+      "standard:source-a:movie-1": { introSeconds: 12 },
+      "premium:source-p:movie-9": { outroSeconds: 20 },
+    } } } } });
+    expect(exportedText).not.toMatch(/iptv/i);
     expect(exportedText).not.toMatch(/password|passwd|cookie|authorization|access[_-]?token|private[_-]?key/i);
     await page.keyboard.press("Escape");
     await expect(exportButton).toBeFocused();
@@ -125,6 +136,11 @@ test.describe("KVideo T19 data and update settings", () => {
       preferences: { standard: { searchDisplayMode: string; searchPolicy: Record<string, unknown> } };
     };
     valid.config.fields.importedFlag = { value: true, updatedAt: 20 };
+    valid.config.fields.iptvSources = { value: [{ name: "must stay retired" }], updatedAt: 20 };
+    valid.config.fields.videoSkipRules = { value: {
+      "standard:source-a:movie-2": { introEnabled: true, introSeconds: 18, outroEnabled: true, outroSeconds: 28, updatedAt: 20 },
+      "premium:source-p:movie-8": { introEnabled: false, introSeconds: 0, outroEnabled: true, outroSeconds: 25, updatedAt: 21 },
+    }, updatedAt: 21 };
     valid.library.favorites.push({ id: "favorite-imported", updatedAt: 20, title: "Imported", mode: "standard" });
     valid.preferences.standard.searchDisplayMode = "normal";
     valid.preferences.standard.searchPolicy = { sortBy: "name-asc", realtimeLatency: false, blockedCategories: [] };
@@ -132,6 +148,7 @@ test.describe("KVideo T19 data and update settings", () => {
     await importDialog.getByLabel("Paste JSON").fill(validText);
     await importDialog.getByRole("button", { name: "Validate and preview" }).click();
     await expect(importDialog.getByRole("heading", { name: "Import preview" })).toBeVisible();
+    await expect(importDialog.getByText("Skipped retired fields (1): iptvSources")).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(importButton).toBeFocused();
     expect(JSON.stringify(worker.documents.config.payload)).toBe(beforeConfig);
@@ -143,6 +160,11 @@ test.describe("KVideo T19 data and update settings", () => {
     await importDialog.getByRole("button", { name: "Confirm import" }).click();
     await expect(importDialog.getByRole("status")).toContainText("waiting to sync");
     await expect.poll(() => (worker.documents.config.payload.fields as Record<string, { value: unknown }>).importedFlag?.value).toBe(true);
+    await expect.poll(() => (worker.documents.config.payload.fields as Record<string, { value: unknown }>).videoSkipRules?.value).toMatchObject({
+      "standard:source-a:movie-2": { introSeconds: 18 },
+      "premium:source-p:movie-8": { outroSeconds: 25 },
+    });
+    expect((worker.documents.config.payload.fields as Record<string, unknown>).iptvSources).toBeUndefined();
     await expect.poll(() => (worker.documents.library.payload.favorites as Array<{ id: string }>).some(({ id }) => id === "favorite-imported")).toBe(true);
     expect(await page.evaluate(() => localStorage.getItem("uxuv-search-display:v1:data-account:standard"))).toBe("normal");
   });

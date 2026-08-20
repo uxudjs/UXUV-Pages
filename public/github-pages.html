@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>UXUVideo</title>
+    <style>
+      :root { color-scheme: light dark; font-family: ui-sans-serif, system-ui, sans-serif; }
+      body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #0f172a; color: #e2e8f0; }
+      main { width: min(38rem, calc(100% - 2rem)); box-sizing: border-box; padding: 2rem; border: 1px solid #475569; border-radius: 1rem; background: #111827; }
+      h1 { margin: 0 0 1rem; font-size: clamp(1.5rem, 5vw, 2.25rem); }
+      p { margin: 0; line-height: 1.7; }
+      a { display: inline-block; margin-top: 1.25rem; min-height: 2.75rem; line-height: 2.75rem; color: #93c5fd; }
+      a:focus-visible { outline: 3px solid #60a5fa; outline-offset: 4px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 id="title">UXUVideo 部署说明</h1>
+      <p id="guidance">请从你的 UXUVideo Worker 域名访问完整应用。</p>
+      <a id="documentation" href="https://github.com/uxudjs/UXUVideo#readme" rel="noreferrer">查看部署文档</a>
+    </main>
+    <script>
+      const copies = {
+        "zh-CN": ["UXUVideo 部署说明", "请从你的 UXUVideo Worker 域名访问完整应用。", "查看部署文档"],
+        "zh-TW": ["UXUVideo 部署說明", "請從你的 UXUVideo Worker 網域開啟完整應用程式。", "查看部署文件"],
+        en: ["UXUVideo deployment guidance", "Open the full application from your UXUVideo Worker domain.", "View deployment documentation"],
+      };
+      const locale = navigator.language.toLowerCase().startsWith("zh-tw") || navigator.language.toLowerCase().startsWith("zh-hk")
+        ? "zh-TW" : navigator.language.toLowerCase().startsWith("zh") ? "zh-CN" : "en";
+      document.documentElement.lang = locale;
+      ["title", "guidance", "documentation"].forEach((id, index) => { document.getElementById(id).textContent = copies[locale][index]; });
+    </script>
+  </body>
+</html>

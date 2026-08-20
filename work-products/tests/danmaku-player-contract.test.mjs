@@ -34,3 +34,24 @@ test("canvas has bounded tracks and playback lifecycle integration", async () =>
   assert.match(canvas, /aria-hidden/);
   assert.doesNotMatch(canvas, /settingsStore/);
 });
+
+test("S21-T09 requires an explicit user selection and keeps API management out of player appearance", async () => {
+  const [hook, manager, player, premium] = await Promise.all([
+    read("../../components/player/hooks/useDanmaku.ts"),
+    read("../../components/settings/UserDanmakuSettings.tsx"),
+    read("../../components/settings/PlayerSettings.tsx"),
+    read("../../components/premium/PremiumSettingsExperience.tsx"),
+  ]);
+
+  assert.match(hook, /apis\.find\(\(\{ id \}\) => id === activeValue\)/);
+  assert.match(hook, /activeApi\?\.url \?\? ""/);
+  assert.doesNotMatch(hook, /apis\s*\[\s*0\s*\]/);
+  assert.match(manager, /danmaku-api-empty/);
+  assert.match(manager, /activeDanmakuApiId/);
+  assert.match(manager, /danmakuEnabled/);
+  assert.doesNotMatch(manager, /useRuntimeConfig|systemUrl|系统默认|系統預設|system default/i);
+  assert.match(player, /hasActiveDanmakuApi/);
+  assert.match(player, /disabled=\{!canDanmaku \|\| !runtime\.config\.capabilities\.danmaku \|\| !hasActiveDanmakuApi\}/);
+  assert.doesNotMatch(player, /commitDanmakuUrl|player-danmaku-api|DANMAKU_COPY/);
+  assert.match(premium, /<UserDanmakuSettings mode="premium" \/>/);
+});

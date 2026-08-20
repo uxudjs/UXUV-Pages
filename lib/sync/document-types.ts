@@ -8,6 +8,18 @@ export interface TimestampedField {
   updatedAt: number;
 }
 
+export interface VideoSkipRule {
+  introEnabled: boolean;
+  introSeconds: number;
+  outroEnabled: boolean;
+  outroSeconds: number;
+  updatedAt: number;
+}
+
+export interface VideoSkipRulesField extends TimestampedField {
+  value: Record<string, VideoSkipRule>;
+}
+
 export interface TimestampedRecord {
   id: string;
   updatedAt: number;
@@ -21,7 +33,7 @@ export interface SyncTombstone {
 }
 
 export interface ConfigPayload {
-  fields: Record<string, TimestampedField>;
+  fields: Record<string, TimestampedField> & { videoSkipRules?: VideoSkipRulesField };
   sources: TimestampedRecord[];
   subscriptions: TimestampedRecord[];
   tombstones: SyncTombstone[];

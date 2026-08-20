@@ -9,7 +9,7 @@ const source = { id: "source-a", updatedAt: 1, name: "Source A", baseUrl: "https
 const runtime = (authenticated: boolean) => ({
   release: { worker: "1.0.0", pages: "0.2.0", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: true, danmaku: false }, adKeywords: [], authenticated,
+  capabilities: { premium: true, danmaku: false }, adKeywords: [], authenticated,
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
 });
 const syncDocument = (kind: "config" | "library") => ({ kind, version: 1, updatedAt: 1, payload: kind === "config"
@@ -69,7 +69,6 @@ async function mockWorker(context: BrowserContext, authenticated = true, clipboa
     if (path === "/api/detail") return json(route, { success: true, data: {
       vod_id: "movie-1", vod_name: "Movie", source: "source-a", episodes: [{ name: "Episode 1", url: "https://media.example/one.mp4", index: 0 }],
     } });
-    if (path === "/api/iptv") return route.fulfill({ status: 200, contentType: "text/plain", body: "#EXTM3U\n" });
     if (path === "/api/premium/types") return json(route, { tags: [], capability: { profile: "paid", limits: {} } });
     if (path === "/api/premium/category") return json(route, { videos: [], capability: { profile: "paid", limits: {} } });
     if (path === "/api/auth/accounts") return json(route, { loginMode: "managed", managed: true, accounts: [], totalCount: 0 });
@@ -151,9 +150,9 @@ test.describe("global app update control", () => {
       .toBe("const WORKER_VERSION = '1.1.0';\n");
   });
 
-  test("renders one non-overlapping entry on all eight routes and four breakpoints", async ({ page }) => {
+  test("renders one non-overlapping entry on all seven routes and four breakpoints", async ({ page }) => {
     await mockWorker(page.context());
-    const routes = ["./", "./favorites/", "./iptv/", "./player/?id=movie-1&source=source-a&title=Movie",
+    const routes = ["./", "./favorites/", "./player/?id=movie-1&source=source-a&title=Movie",
       "./premium/", "./premium/favorites/", "./premium/settings/", "./settings/"];
     for (const route of routes) {
       await page.goto(route);
@@ -181,7 +180,7 @@ test.describe("global app update control", () => {
       expect(navBox).not.toBeNull();
       expect(triggerBox!.x).toBeGreaterThanOrEqual(0);
       expect(triggerBox!.x + triggerBox!.width).toBeLessThanOrEqual(width);
-      expect(triggerBox!.y).toBeGreaterThanOrEqual(navBox!.y + navBox!.height);
+      expect(triggerBox!.y + triggerBox!.height).toBeLessThanOrEqual(navBox!.y);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
   });

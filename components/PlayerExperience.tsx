@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MediaPlayer } from "@/components/media/MediaPlayer";
 import { EpisodeList } from "@/components/player/EpisodeList";
-import { PlayerFavoriteButton } from "@/components/player/PlayerFavoriteButton";
 import { PlayerNavbar } from "@/components/player/PlayerNavbar";
 import { VideoMetadata } from "@/components/player/VideoMetadata";
 import { usePlaybackHistory, type PlaybackProgress } from "@/components/player/hooks/usePlaybackHistory";
@@ -15,9 +15,13 @@ import { useSync } from "@/components/SyncProvider";
 import { ContentApiError } from "@/lib/content/api-client";
 import { isHistoryRecord, isVideoSource, type HistoryRecord, type Video } from "@/lib/content/types";
 import { useLatencyPing } from "@/lib/hooks/useLatencyPing";
+import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
+import { usePlayerSettings } from "@/lib/hooks/usePlayerSettings";
 import { parseGroupedSources, readGroupedSources, sortPlaybackSources, storeGroupedSources, type GroupedSource } from "@/lib/media/grouped-sources-cache";
 import { getVideoDetail, type VideoDetail } from "@/lib/media/media-client";
+import { EMPTY_VIDEO_SKIP_RULE, MAX_VIDEO_SKIP_SECONDS, videoSkipRuleKey, type VideoSkipRuleInput } from "@/lib/player/auto-skip";
 import { useAuth } from "@/lib/store/auth-store";
+import type { VideoSkipRule } from "@/lib/sync/document-types";
 
 type PlayerViewportMode = "standard" | "wide" | "cinema";
 
@@ -30,9 +34,9 @@ const COPY = {
     pip: "画中画", pipUnavailable: "当前浏览器或设备不支持画中画", cast: "投放", castUnavailable: "未检测到可用的 Google Cast 能力",
     webFullscreen: "网页全屏", exitWebFullscreen: "退出网页全屏", systemFullscreen: "系统全屏", exitSystemFullscreen: "退出系统全屏",
     systemFullscreenUnavailable: "当前浏览器不支持系统全屏", connecting: "正在连接受保护媒体…", buffering: "正在缓冲…", retryPlayback: "重试播放",
-    tokenInvalid: "媒体授权已过期，请重试。", iptvDenied: "当前账户没有 IPTV 播放权限。", rateLimited: "媒体请求过于频繁，请稍后重试。",
+    tokenInvalid: "媒体授权已过期，请重试。", rateLimited: "媒体请求过于频繁，请稍后重试。",
     upstreamFailed: "上游媒体暂时中断，请重试或切换线路。", playbackFailed: "媒体播放失败，请重试或切换线路。", codecUnsupported: "当前浏览器不支持此媒体的编解码格式。",
-    directMode: "仅直连", nativeMode: "原生解码", retryMode: "智能重试", relayMode: "始终中继",
+    directMode: "仅直连", retryMode: "智能重试", relayMode: "始终中继",
     adFilter: "广告过滤", adOff: "关闭", adKeyword: "关键词", adHeuristic: "启发式", adAggressive: "激进" },
   "zh-TW": { loading: "正在載入影片詳情…", failed: "無法開始播放", missing: "播放連結缺少影片或來源資訊。",
     sourceMissing: "目前來源設定不存在，請返回搜尋頁重試。", session: "登入工作階段已失效，請重新登入。", rate: "詳情請求過於頻繁，請稍後重試。",
@@ -42,9 +46,9 @@ const COPY = {
     pip: "子母畫面", pipUnavailable: "目前瀏覽器或裝置不支援子母畫面", cast: "投放", castUnavailable: "未偵測到可用的 Google Cast 能力",
     webFullscreen: "網頁全螢幕", exitWebFullscreen: "退出網頁全螢幕", systemFullscreen: "系統全螢幕", exitSystemFullscreen: "退出系統全螢幕",
     systemFullscreenUnavailable: "目前瀏覽器不支援系統全螢幕", connecting: "正在連接受保護媒體…", buffering: "正在緩衝…", retryPlayback: "重試播放",
-    tokenInvalid: "媒體授權已過期，請重試。", iptvDenied: "目前帳戶沒有 IPTV 播放權限。", rateLimited: "媒體請求過於頻繁，請稍後重試。",
+    tokenInvalid: "媒體授權已過期，請重試。", rateLimited: "媒體請求過於頻繁，請稍後重試。",
     upstreamFailed: "上游媒體暫時中斷，請重試或切換線路。", playbackFailed: "媒體播放失敗，請重試或切換線路。", codecUnsupported: "目前瀏覽器不支援此媒體的編解碼格式。",
-    directMode: "僅直連", nativeMode: "原生解碼", retryMode: "智慧重試", relayMode: "始終中繼",
+    directMode: "僅直連", retryMode: "智慧重試", relayMode: "始終中繼",
     adFilter: "廣告過濾", adOff: "關閉", adKeyword: "關鍵詞", adHeuristic: "啟發式", adAggressive: "積極" },
   en: { loading: "Loading video details…", failed: "Playback unavailable", missing: "The playback link is missing its video or source.",
     sourceMissing: "This source is no longer configured. Return to search and try again.", session: "Your session expired. Sign in again.", rate: "Too many detail requests. Try again shortly.",
@@ -54,11 +58,102 @@ const COPY = {
     pip: "Picture in picture", pipUnavailable: "Picture in picture is unavailable on this browser or device", cast: "Cast", castUnavailable: "Google Cast capability was not detected",
     webFullscreen: "Web fullscreen", exitWebFullscreen: "Exit web fullscreen", systemFullscreen: "System fullscreen", exitSystemFullscreen: "Exit system fullscreen",
     systemFullscreenUnavailable: "System fullscreen is unavailable in this browser", connecting: "Connecting to protected media…", buffering: "Buffering…", retryPlayback: "Retry playback",
-    tokenInvalid: "Media authorization expired. Try again.", iptvDenied: "This account cannot play IPTV.", rateLimited: "Too many media requests. Try again shortly.",
+    tokenInvalid: "Media authorization expired. Try again.", rateLimited: "Too many media requests. Try again shortly.",
     upstreamFailed: "The upstream media stopped. Retry or switch sources.", playbackFailed: "Playback failed. Retry or switch sources.", codecUnsupported: "This browser cannot decode this media format.",
-    directMode: "Direct only", nativeMode: "Native decoding", retryMode: "Smart retry", relayMode: "Always relay",
+    directMode: "Direct only", retryMode: "Smart retry", relayMode: "Always relay",
     adFilter: "Ad filtering", adOff: "Off", adKeyword: "Keywords", adHeuristic: "Heuristic", adAggressive: "Aggressive" },
 } as const;
+
+const SKIP_COPY = {
+  "zh-CN": { title: "跳过设置", description: "此规则适用于当前来源下该视频的所有剧集。", close: "关闭跳过设置",
+    introEnabled: "跳过片头", introSeconds: "片头时长（秒）", outroEnabled: "跳过片尾", outroSeconds: "片尾剩余（秒）",
+    invalid: "请输入 0 到 600 的整数秒数。", cancel: "取消", save: "保存", remove: "删除规则" },
+  "zh-TW": { title: "跳過設定", description: "此規則適用於目前來源下該影片的所有劇集。", close: "關閉跳過設定",
+    introEnabled: "跳過片頭", introSeconds: "片頭時長（秒）", outroEnabled: "跳過片尾", outroSeconds: "片尾剩餘（秒）",
+    invalid: "請輸入 0 到 600 的整數秒數。", cancel: "取消", save: "儲存", remove: "刪除規則" },
+  en: { title: "Skip settings", description: "This rule applies to every episode of this video from the current source.", close: "Close skip settings",
+    introEnabled: "Skip intro", introSeconds: "Intro duration (seconds)", outroEnabled: "Skip outro", outroSeconds: "Outro remaining (seconds)",
+    invalid: "Enter whole seconds from 0 to 600.", cancel: "Cancel", save: "Save", remove: "Delete rule" },
+} as const;
+
+function SkipRuleEditor({ rule, copy, onSave, onDelete }: Readonly<{
+  rule?: VideoSkipRule;
+  copy: typeof SKIP_COPY[keyof typeof SKIP_COPY];
+  onSave: (value: VideoSkipRuleInput) => void;
+  onDelete: () => void;
+}>) {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const [open, setOpen] = useState(false);
+  const [introEnabled, setIntroEnabled] = useState(false);
+  const [introSeconds, setIntroSeconds] = useState("0");
+  const [outroEnabled, setOutroEnabled] = useState(false);
+  const [outroSeconds, setOutroSeconds] = useState("0");
+  const [error, setError] = useState(false);
+  const closeEditor = () => {
+    triggerRef.current?.focus();
+    setOpen(false);
+  };
+  useDialogFocusTrap({ open, dialogRef, returnFocusRef: triggerRef, onEscape: closeEditor });
+
+  const openEditor = () => {
+    const current = rule ?? EMPTY_VIDEO_SKIP_RULE;
+    setIntroEnabled(current.introEnabled);
+    setIntroSeconds(String(current.introSeconds));
+    setOutroEnabled(current.outroEnabled);
+    setOutroSeconds(String(current.outroSeconds));
+    setError(false);
+    setOpen(true);
+  };
+  const save = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const intro = Number(introSeconds);
+    const outro = Number(outroSeconds);
+    if (!Number.isInteger(intro) || intro < 0 || intro > MAX_VIDEO_SKIP_SECONDS
+      || !Number.isInteger(outro) || outro < 0 || outro > MAX_VIDEO_SKIP_SECONDS) {
+      setError(true);
+      return;
+    }
+    onSave({ introEnabled, introSeconds: intro, outroEnabled, outroSeconds: outro });
+    closeEditor();
+  };
+
+  return <div className="player-skip-rule-control" data-no-spatial>
+    <button ref={triggerRef} type="button" className="player-skip-rule-trigger" aria-haspopup="dialog"
+      aria-expanded={open} data-focusable onClick={openEditor}>{copy.title}</button>
+    {open && createPortal(<>
+      <button type="button" className="source-modal-backdrop" aria-label={copy.close} onClick={closeEditor} />
+      <section ref={dialogRef} className="source-modal player-skip-rule-dialog" role="dialog" aria-modal="true"
+        aria-labelledby="player-skip-rule-title" aria-describedby="player-skip-rule-description">
+        <header><h2 id="player-skip-rule-title">{copy.title}</h2>
+          <button type="button" aria-label={copy.close} data-focusable onClick={closeEditor}>×</button></header>
+        <p id="player-skip-rule-description">{copy.description}</p>
+        <form onSubmit={save} noValidate>
+          <div className="player-skip-rule-row">
+            <label className="player-skip-rule-toggle"><input type="checkbox" checked={introEnabled} data-focusable data-autofocus
+              onChange={(event) => { setIntroEnabled(event.target.checked); setError(false); }} /><span>{copy.introEnabled}</span></label>
+            <label><span>{copy.introSeconds}</span><input type="number" min={0} max={MAX_VIDEO_SKIP_SECONDS} step={1}
+              value={introSeconds} disabled={!introEnabled} data-focusable
+              onChange={(event) => { setIntroSeconds(event.target.value); setError(false); }} /></label>
+          </div>
+          <div className="player-skip-rule-row">
+            <label className="player-skip-rule-toggle"><input type="checkbox" checked={outroEnabled} data-focusable
+              onChange={(event) => { setOutroEnabled(event.target.checked); setError(false); }} /><span>{copy.outroEnabled}</span></label>
+            <label><span>{copy.outroSeconds}</span><input type="number" min={0} max={MAX_VIDEO_SKIP_SECONDS} step={1}
+              value={outroSeconds} disabled={!outroEnabled} data-focusable
+              onChange={(event) => { setOutroSeconds(event.target.value); setError(false); }} /></label>
+          </div>
+          {error && <p className="form-error" role="alert">{copy.invalid}</p>}
+          <div className="source-modal-actions">
+            {rule && <button type="button" className="danger-button" data-focusable onClick={() => { onDelete(); closeEditor(); }}>{copy.remove}</button>}
+            <button type="button" data-focusable onClick={closeEditor}>{copy.cancel}</button>
+            <button type="submit" className="primary-button" data-focusable>{copy.save}</button>
+          </div>
+        </form>
+      </section>
+    </>, document.body)}
+  </div>;
+}
 
 function detailFailure(error: unknown, copy: typeof COPY[keyof typeof COPY]): string {
   if (!(error instanceof ContentApiError)) return error instanceof Error ? error.message : copy.upstream;
@@ -72,6 +167,9 @@ export function PlayerExperience() {
   const parameters = useSearchParams();
   const router = useRouter();
   const auth = useAuth();
+  const accountId = auth?.session.accountId || "anonymous";
+  const authRef = useRef(auth);
+  useEffect(() => { authRef.current = auth; }, [auth]);
   const { locale } = useLocale();
   const copy = COPY[locale];
   const { documents, upsertRecord } = useSync();
@@ -87,7 +185,16 @@ export function PlayerExperience() {
     [documents.config.payload],
   );
   const source = configuredSources.find(({ id }) => id === sourceId);
+  const sourceRevision = source ? `${source.id}:${source.updatedAt}` : "";
+  const sourceRef = useRef(source);
+  useEffect(() => { sourceRef.current = source; }, [source]);
   const premium = parameters.get("premium") === "1" || source?.group === "premium";
+  const mode = premium ? "premium" : "standard";
+  const playerSettings = usePlayerSettings(accountId, mode);
+  const skipRuleId = useMemo(() => {
+    try { return videoSkipRuleKey(mode, sourceId, videoId); } catch { return ""; }
+  }, [mode, sourceId, videoId]);
+  const skipRule = skipRuleId ? playerSettings.videoSkipRules[skipRuleId] : undefined;
   const [groupedSources, setGroupedSources] = useState<GroupedSource[]>([]);
   const [detail, setDetail] = useState<VideoDetail | null>(null);
   const [episodeIndex, setEpisodeIndex] = useState(requestedEpisode);
@@ -145,24 +252,25 @@ export function PlayerExperience() {
   );
 
   useEffect(() => {
-    if (!videoId || !source) {
+    const activeSource = sourceRef.current;
+    if (!videoId || !activeSource) {
       queueMicrotask(() => { setState("error"); setMessage(!videoId || !sourceId ? copy.missing : copy.sourceMissing); });
       return;
     }
     const controller = new AbortController();
     queueMicrotask(() => { if (!controller.signal.aborted) { setState("loading"); setMessage(""); } });
-    void getVideoDetail(videoId, source, controller.signal).then((value) => {
+    void getVideoDetail(videoId, activeSource, controller.signal).then((value) => {
       setDetail(value);
       setEpisodeIndex(Math.min(requestedEpisode, Math.max(0, value.episodes.length - 1)));
       setState("ready");
     }).catch((error: unknown) => {
       if (error instanceof Error && error.name === "AbortError") return;
-      if (error instanceof ContentApiError && error.status === 401) auth?.markSessionExpired();
+      if (error instanceof ContentApiError && error.status === 401) authRef.current?.markSessionExpired();
       setMessage(detailFailure(error, copy));
       setState("error");
     });
     return () => controller.abort();
-  }, [attempt, auth, copy, requestedEpisode, source, sourceId, videoId]);
+  }, [accountId, attempt, copy, requestedEpisode, sourceId, sourceRevision, videoId]);
 
   const episode = detail?.episodes[episodeIndex] ?? null;
   const historyRecords = useMemo(() => "history" in documents.library.payload
@@ -218,7 +326,7 @@ export function PlayerExperience() {
   } : null;
 
   return <div className="player-shell">
-    <PlayerNavbar premium={premium} />
+    <PlayerNavbar premium={premium} video={favoriteVideo} />
     <main className="player-main">
       {state === "loading" && <p className="content-message" role="status">{copy.loading}</p>}
       {state === "error" && <section className="empty-collection player-route-error" role="alert">
@@ -236,7 +344,7 @@ export function PlayerExperience() {
         <div className="player-layout" data-viewport={effectiveViewport}>
           <section className="player-primary" aria-label={copy.player}>
             <div data-no-spatial>{episode ? <MediaPlayer key={`${sourceId}:${episode.index}`} target={episode.url}
-              route="proxy" title={`${detail.vod_name} ${episode.name}`} mode={premium ? "premium" : "standard"}
+              title={`${detail.vod_name} ${episode.name}`} mode={mode} skipRule={skipRule}
               danmaku={{ videoTitle: detail.vod_name, episodeName: episode.name, episodeIndex }}
               messages={copy} initialTime={playbackHistory.initialTime} onProgress={handlePlaybackProgress}
               onTerminalError={handleTerminalError} onResolutionDetected={handleResolutionDetected}
@@ -251,8 +359,9 @@ export function PlayerExperience() {
                 systemFullscreen: copy.systemFullscreen, exitSystemFullscreen: copy.exitSystemFullscreen,
                 systemFullscreenUnavailable: copy.systemFullscreenUnavailable }} />
               : <p className="content-message player-empty" role="alert">{copy.empty}</p>}</div>
-            <div className="desktop-metadata"><VideoMetadata detail={detail} sourceName={source?.name || detail.source} /></div>
-            {favoriteVideo && <PlayerFavoriteButton video={favoriteVideo} />}
+            {episode && skipRuleId && <SkipRuleEditor key={skipRuleId} rule={skipRule} copy={SKIP_COPY[locale]}
+              onSave={(value) => playerSettings.setVideoSkipRule(skipRuleId, value)}
+              onDelete={() => playerSettings.deleteVideoSkipRule(skipRuleId)} />}
           </section>
           <section className="player-secondary">
             <div className="player-mobile-tabs" role="tablist">
@@ -267,6 +376,7 @@ export function PlayerExperience() {
                 episodeSectionCollapsed={episodeSectionCollapsed} onEpisodeSectionCollapseChange={setEpisodeSectionCollapsed} />
             </div>
           </section>
+          <div className="desktop-metadata"><VideoMetadata detail={detail} sourceName={source?.name || detail.source} /></div>
         </div>
       </div>}
     </main>

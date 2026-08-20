@@ -4,10 +4,23 @@ import { useRouter } from "next/navigation";
 import { useLocale } from "@/components/LocaleProvider";
 
 const COPY = {
-  "zh-CN": { back: "返回上一页", title: "设置", description: "管理应用程序配置" },
-  "zh-TW": { back: "返回上一頁", title: "設定", description: "管理應用程式設定" },
-  en: { back: "Back", title: "Settings", description: "Manage application settings" },
+  "zh-CN": { back: "返回上一页", title: "设置", description: "管理应用程序配置", navigation: "设置分类", domains: { account: "账户与权限", sources: "视频源与弹幕", playback: "播放与网络", display: "显示、搜索与语言", sync: "同步与用量", data: "数据管理" } },
+  "zh-TW": { back: "返回上一頁", title: "設定", description: "管理應用程式設定", navigation: "設定分類", domains: { account: "帳戶與權限", sources: "影片來源與彈幕", playback: "播放與網路", display: "顯示、搜尋與語言", sync: "同步與用量", data: "資料管理" } },
+  en: { back: "Back", title: "Settings", description: "Manage application settings", navigation: "Settings sections", domains: { account: "Account and access", sources: "Sources and danmaku", playback: "Playback and network", display: "Display, search, and language", sync: "Sync and usage", data: "Data management" } },
 } as const;
+
+export function SettingsAnchorNav({ className = "settings-anchor-nav" }: Readonly<{ className?: string }>) {
+  const { locale } = useLocale();
+  const copy = COPY[locale];
+  return <nav className={className} aria-label={copy.navigation}>
+    <a href="#settings-domain-account" data-focusable>{copy.domains.account}</a>
+    <a href="#settings-domain-sources" data-focusable>{copy.domains.sources}</a>
+    <a href="#settings-domain-playback" data-focusable>{copy.domains.playback}</a>
+    <a href="#settings-domain-display" data-focusable>{copy.domains.display}</a>
+    <a href="#settings-domain-sync" data-focusable>{copy.domains.sync}</a>
+    <a href="#settings-domain-data" data-focusable>{copy.domains.data}</a>
+  </nav>;
+}
 
 export function SettingsPageHeading() {
   const router = useRouter();

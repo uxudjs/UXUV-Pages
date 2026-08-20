@@ -55,3 +55,41 @@ test("T55 renders locale choices as one direct three-column button group without
   assert.match(styles, /\.display-language-options\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/s);
   assert.match(styles, /\.display-language-options\s+button\s*\{[^}]*min-height:\s*44px/s);
 });
+
+test("S21-T10 groups both settings surfaces into the same localized six-domain layout", () => {
+  const standard = read("app/settings/page.tsx");
+  const premium = read("components/premium/PremiumSettingsExperience.tsx");
+  const heading = read("components/settings/SettingsPageHeading.tsx");
+  const styles = read("app/globals.css");
+  const domains = ["account", "sources", "playback", "display", "sync", "data"];
+  for (const source of [standard, premium]) {
+    let previous = -1;
+    for (const domain of domains) {
+      const index = source.indexOf(`settings-domain-${domain}`);
+      assert.ok(index > previous, `${domain} must follow the preceding settings domain`);
+      previous = index;
+    }
+    assert.match(source, /<SettingsAnchorNav className="settings-anchor-nav"/);
+  }
+  for (const domain of domains) assert.match(heading, new RegExp(`href=[{]?['\"]#settings-domain-${domain}`));
+  for (const locale of ["zh-CN", "zh-TW", "en"]) assert.match(heading, new RegExp(`(?:(?:"${locale}")|(?:${locale}:))`));
+  assert.match(styles, /\.settings-domain-list\s*\{/);
+  assert.match(styles, /@media \(min-width:\s*1024px\)[\s\S]*\.settings-anchor-nav/);
+  assert.match(styles, /\.settings-domain[\s\S]*:where\(button,\s*input,\s*select\)[^}]*min-height:\s*var\(--control-hit-size\)/);
+});
+
+test("S21-T10 keeps long settings copy in labeled rows and removes global skip editing", () => {
+  const display = read("components/settings/DisplaySettings.tsx");
+  const sort = read("components/settings/SortSettings.tsx");
+  const player = read("components/settings/PlayerSettings.tsx");
+  const danmaku = read("components/settings/UserDanmakuSettings.tsx");
+  assert.match(display, /settings-field-row/);
+  assert.match(display, /<span[^>]*>\{copy\.blocked\}<\/span>/);
+  assert.match(sort, /<select/);
+  assert.match(player, /playbackBehavior|networkPath|adFiltering|danmakuAppearance/);
+  assert.match(player, /settings-field-row/);
+  assert.match(player, /<span[^>]*>\{copy\.keywordPlaceholder\}<\/span>/);
+  assert.doesNotMatch(player, /autoSkipIntro|skipIntroSeconds|autoSkipOutro|skipOutroSeconds/);
+  assert.match(danmaku, /<span[^>]*>\{copy\.name\}<\/span>/);
+  assert.match(danmaku, /<span[^>]*>\{copy\.url\}<\/span>/);
+});

@@ -1,9 +1,9 @@
 import { expect, test, type BrowserContext, type Route } from "@playwright/test";
 
 const runtimeConfig = {
-  release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
+  release: { worker: "2.0.0", pages: "0.3.0", apiContract: 2 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: true, danmaku: false },
+  capabilities: { premium: true, danmaku: false },
   adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
   authenticated: true,
@@ -41,7 +41,7 @@ async function json(route: Route, body: unknown, status = 200) {
 
 async function mockMediaWorker(
   context: BrowserContext,
-  options: { permissions?: string[]; role?: string; iptvSources?: string; videoTarget?: string; proxyStatus?: number } = {},
+  options: { permissions?: string[]; role?: string; videoTarget?: string; proxyStatus?: number } = {},
 ) {
   const currentSession = session(options.permissions, options.role);
   const source = {
@@ -51,16 +51,12 @@ async function mockMediaWorker(
   const configDocument = remoteDocument("config", [source]);
   let libraryDocument = remoteDocument("library");
   const requestOrigins: string[] = [];
-  let iptvRequests = 0;
 
   await context.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
     requestOrigins.push(url.origin);
-    if (url.pathname === "/api/config") return json(route, {
-      ...runtimeConfig,
-      sources: { subscriptionSources: "", iptvSources: options.iptvSources || "", mergeSources: false, danmakuApiUrl: "" },
-    });
+    if (url.pathname === "/api/config") return json(route, runtimeConfig);
     if (url.pathname === "/api/auth/session") return json(route, { authenticated: true, session: currentSession });
     if (url.pathname === "/api/user/config") return json(route, configDocument);
     if (url.pathname === "/api/user/sync" && request.method() === "GET") return json(route, libraryDocument);
@@ -79,21 +75,8 @@ async function mockMediaWorker(
         ],
       },
     });
-    if (url.pathname === "/api/iptv") {
-      iptvRequests += 1;
-      return route.fulfill({ status: 200, contentType: "application/vnd.apple.mpegurl", body: [
-        "#EXTM3U",
-        "#EXTINF:-1 group-title=\"新闻\",新闻一台",
-        "https://media.example/news.mp4",
-        "#EXTINF:-1 group-title=\"体育\",过期频道",
-        "https://media.example/expired.m3u8",
-      ].join("\n") });
-    }
-    if (url.pathname === "/api/iptv/stream" && url.searchParams.get("url")?.includes("expired")) {
-      return json(route, { error: { code: "MEDIA_TOKEN_INVALID", message: "Media token invalid." } }, 401);
-    }
-    if (url.pathname === "/api/proxy" || url.pathname === "/api/iptv/stream") {
-      if (url.pathname === "/api/proxy" && options.proxyStatus) {
+    if (url.pathname === "/api/proxy") {
+      if (options.proxyStatus) {
         return route.fulfill({ status: options.proxyStatus, contentType: "text/plain", body: "upstream rejected Worker egress" });
       }
       return route.fulfill({ status: 206, headers: { "Content-Type": "video/mp4", "Content-Range": "bytes 0-3/4", "Accept-Ranges": "bytes" }, body: "test" });
@@ -101,7 +84,7 @@ async function mockMediaWorker(
     return json(route, { error: { code: "NOT_FOUND" } }, 404);
   });
 
-  return { requestOrigins, getIptvRequests: () => iptvRequests };
+  return { requestOrigins };
 }
 
 test("player loads detail, falls back from the Worker media route, and switches episodes", async ({ page }) => {
@@ -140,34 +123,4 @@ test("smart retry rebuilds HLS on the direct URL after the Worker media route fa
   await expect.poll(() => directManifestRequests, { timeout: 15_000 }).toBeGreaterThan(0);
   await expect(video).toHaveAttribute("data-media-source", target);
   await expect(page.locator(".media-player")).toHaveAttribute("data-proxy-mode", "retry");
-});
-
-test("IPTV enforces permission, loads channels, switches streams, and exposes token expiry", async ({ browser }) => {
-  const deniedContext = await browser.newContext({ locale: "zh-CN" });
-  const deniedWorker = await mockMediaWorker(deniedContext);
-  const deniedPage = await deniedContext.newPage();
-  await deniedPage.goto("http://127.0.0.1:4173/UXUV-Pages/iptv/");
-  await expect(deniedPage.getByRole("heading", { name: "无权访问 IPTV" })).toBeVisible();
-  expect(deniedWorker.getIptvRequests()).toBe(0);
-  await deniedContext.close();
-
-  const allowedContext = await browser.newContext({ locale: "zh-CN" });
-  const worker = await mockMediaWorker(allowedContext, {
-    role: "super_admin",
-    iptvSources: JSON.stringify([{ name: "内置直播", url: "https://iptv.example/list.m3u" }]),
-  });
-  const page = await allowedContext.newPage();
-  await page.goto("http://127.0.0.1:4173/UXUV-Pages/iptv/");
-  await expect(page.getByRole("button", { name: /新闻一台/ })).toBeVisible();
-  await page.getByRole("button", { name: /新闻一台/ }).click();
-  const video = page.getByLabel("视频播放器");
-  await expect(video).toHaveAttribute("data-media-source", /\/api\/iptv\/stream\?.*news\.mp4/);
-  await page.getByRole("button", { name: /过期频道/ }).click();
-  await expect(page.locator(".media-error[role=alert]")).toContainText("直播授权已过期");
-  for (const width of [320, 768, 1024, 1440]) {
-    await page.setViewportSize({ width, height: 900 });
-    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  }
-  expect(worker.requestOrigins.every((origin) => origin === "http://127.0.0.1:4173")).toBe(true);
-  await allowedContext.close();
 });

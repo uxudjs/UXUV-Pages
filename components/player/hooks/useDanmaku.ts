@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRuntimeConfig } from "@/components/RuntimeConfigProvider";
 import { useSync } from "@/components/SyncProvider";
 import { normalizeDanmakuApis } from "@/lib/player/player-settings";
 import { fuzzyMatchTitle, matchEpisode, parseDanmakuResponse, parseSearchResults,
@@ -34,7 +33,6 @@ async function requestDanmaku(action: "search" | "comments", apiUrl: string,
 }
 
 export function useDanmaku({ enabled, mode, videoTitle, episodeName, episodeIndex }: UseDanmakuOptions): DanmakuState {
-  const runtime = useRuntimeConfig();
   const sync = useSync();
   const fields = (sync.documents.config.payload as ConfigPayload).fields;
   const prefix = mode === "premium" ? "premium." : "";
@@ -42,7 +40,7 @@ export function useDanmaku({ enabled, mode, videoTitle, episodeName, episodeInde
     [fields, prefix]);
   const activeValue = fields[`${prefix}activeDanmakuApiId`]?.value;
   const activeApi = typeof activeValue === "string" ? apis.find(({ id }) => id === activeValue) : undefined;
-  const apiUrl = activeApi?.url ?? runtime.config.sources?.danmakuApiUrl ?? "";
+  const apiUrl = activeApi?.url ?? "";
   const available = enabled && Boolean(apiUrl && videoTitle && episodeName);
   const [state, setState] = useState<DanmakuState>(EMPTY_STATE);
 

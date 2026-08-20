@@ -15,7 +15,7 @@ const adminSession = {
 const runtimeConfig = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: true, danmaku: false },
+  capabilities: { premium: true, danmaku: false },
   adKeywords: [],
   thirdPartyScripts: {
     videoTogether: { enabled: false, scriptUrl: null, settingUrl: null },
@@ -208,6 +208,8 @@ function createSyncServer() {
     quota: false,
     error: false,
     conflicts: 0,
+    holdConflictRetry: false,
+    releaseConflictRetry: undefined as (() => void) | undefined,
   };
 }
 
@@ -263,6 +265,11 @@ async function mockSyncWorker(context: BrowserContext, server: ReturnType<typeof
       server.conflicts += 1;
       return fulfill(route, { error: { code: "SYNC_CONFLICT", details: { current } } }, 409);
     }
+    if (server.holdConflictRetry && server.conflicts > 0) {
+      await new Promise<void>((resolve) => {
+        server.releaseConflictRetry = resolve;
+      });
+    }
     server.documents[kind] = { kind, version: current.version + 1, updatedAt: Date.now(), payload: body.payload };
     return fulfill(route, server.documents[kind]);
   });
@@ -287,7 +294,7 @@ async function localLibrary(page: Page) {
 async function addSyncedSource(page: Page, name: string, baseUrl: string) {
   const section = page.locator('[data-settings-section="sources"]');
   await section.getByRole("button", { name: "添加源" }).click();
-  const modal = page.getByRole("dialog", { name: "添加个人视频源" });
+  const modal = page.getByRole("dialog", { name: "添加单独来源" });
   await modal.getByLabel("源名称").fill(name);
   await modal.getByLabel("接口地址").fill(baseUrl);
   await modal.getByRole("button", { name: "添加", exact: true }).click();
@@ -308,7 +315,7 @@ async function addSyncedSubscription(page: Page, name: string, url: string) {
 async function openSourceImport(page: Page) {
   const section = page.locator('[data-settings-section="sources"]');
   await section.getByRole("button", { name: "添加源" }).click();
-  const addModal = page.getByRole("dialog", { name: "添加个人视频源" });
+  const addModal = page.getByRole("dialog", { name: "添加单独来源" });
   await addModal.getByRole("button", { name: "导入来源" }).click();
   return page.getByRole("dialog", { name: "导入视频源" });
 }
@@ -655,10 +662,18 @@ test("sync: local changes remain queued while storage is unavailable and recover
   await expect.poll(async () => (await localConfig(page)).dirty).toBe(true);
   await expect(page.locator('[data-sync-status="offline"]')).toContainText("本機變更已保留");
   await expect(page.locator('[data-sync-detail="offline"]')).toContainText("本機變更已保留");
+  await page.clock.install();
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
+  await page.clock.fastForward(5_000);
+  await expect(page.locator('[data-sync-status="offline"]')).toBeVisible();
 
   server.unavailable = false;
   await page.locator('[data-settings-section="sync"]').getByRole("button", { name: "重試同步" }).click();
   await expect(page.locator('[data-sync-status="synced"]')).toBeVisible();
+  await page.clock.fastForward(2_999);
+  await expect(page.locator('[data-sync-status="synced"]')).toBeVisible();
+  await page.clock.fastForward(1);
+  await expect(page.locator('[data-sync-status="synced"]')).toBeHidden();
   await expect.poll(async () => (await localConfig(page)).dirty).toBe(false);
   expect((server.documents.config.payload as unknown as { fields: { locale: { value: string } } }).fields.locale.value).toBe("zh-TW");
 });
@@ -667,7 +682,7 @@ test("sync: a disconnected write stays local and the online event retries it", a
   const server = createSyncServer();
   await mockSyncWorker(page.context(), server);
   await page.goto("./settings/");
-  await expect(page.locator('[data-sync-status="synced"]')).toBeVisible();
+  await expect(page.locator('[data-sync-status="synced"]')).toHaveCount(1);
 
   server.networkDown = true;
   await localeChoice(page, "en").click();
@@ -701,7 +716,7 @@ test("sync: quota errors preserve local data and explain UTC reset, cleanup, and
   server.quota = true;
   await mockSyncWorker(page.context(), server);
   await page.goto("./settings/");
-  await expect(page.locator('[data-sync-status="synced"]')).toBeVisible();
+  await expect(page.locator('[data-sync-status="synced"]')).toHaveCount(1);
 
   await localeChoice(page, "en").click();
   const quota = page.locator('[data-sync-status="quota"]');
@@ -709,6 +724,10 @@ test("sync: quota errors preserve local data and explain UTC reset, cleanup, and
   await expect(quota).toContainText("clean D1 data, or upgrade the plan");
   await expect.poll(async () => (await localConfig(page)).dirty).toBe(true);
   await expect(page.locator('[data-sync-detail="quota"]')).toContainText("clean D1 data");
+  await page.clock.install();
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
+  await page.clock.fastForward(5_000);
+  await expect(quota).toBeVisible();
 });
 
 test("sync: a non-retryable server error remains visible without discarding local data", async ({ page }) => {
@@ -716,22 +735,26 @@ test("sync: a non-retryable server error remains visible without discarding loca
   server.error = true;
   await mockSyncWorker(page.context(), server);
   await page.goto("./settings/");
-  await expect(page.locator('[data-sync-status="synced"]')).toBeVisible();
+  await expect(page.locator('[data-sync-status="synced"]')).toHaveCount(1);
 
   await localeChoice(page, "zh-TW").click();
   await expect(page.locator('[data-sync-status="error"]')).toContainText("本機變更仍保留在此裝置");
   await expect(page.locator('[data-sync-detail="error"]')).toContainText("本機變更仍保留在此裝置");
   await expect.poll(async () => (await localConfig(page)).dirty).toBe(true);
+  await page.clock.install();
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
+  await page.clock.fastForward(5_000);
+  await expect(page.locator('[data-sync-status="error"]')).toBeVisible();
 });
 
-test("settings: a personal video source is synced and becomes available to search", async ({ page }) => {
+test("settings: a standalone video source is synced and becomes available to search", async ({ page }) => {
   const server = createSyncServer();
   await mockSyncWorker(page.context(), server);
   await page.goto("./settings/");
 
   await expect(page.getByRole("heading", { name: "视频源管理" })).toBeVisible();
   await page.getByRole("button", { name: "添加源" }).click();
-  const modal = page.getByRole("dialog", { name: "添加个人视频源" });
+  const modal = page.getByRole("dialog", { name: "添加单独来源" });
   await modal.getByLabel("源名称").fill("测试源");
   await modal.getByLabel("接口地址").fill("https://media.example");
   await modal.getByRole("button", { name: "添加", exact: true }).click();
@@ -757,22 +780,29 @@ test("sync: two browser contexts explain a CAS conflict and converge without rev
   const second = await secondContext.newPage();
   await Promise.all([first.goto("./settings/"), second.goto("./settings/")]);
   await Promise.all([
-    expect(first.locator('[data-sync-status="synced"]')).toBeVisible(),
-    expect(second.locator('[data-sync-status="synced"]')).toBeVisible(),
+    expect(first.locator('[data-sync-status="synced"]')).toHaveCount(1),
+    expect(second.locator('[data-sync-status="synced"]')).toHaveCount(1),
   ]);
 
   await localeChoice(first, "zh-TW").click();
   await expect.poll(() => server.documents.config.version).toBe(1);
-  await expect(first.locator('[data-sync-status="synced"]')).toBeVisible();
+  await expect(first.locator('[data-sync-status="synced"]')).toHaveCount(1);
+  server.holdConflictRetry = true;
   await localeChoice(second, "en").click();
   await expect(second.locator('[data-sync-status="conflict"]')).toContainText("local merge is retrying");
   await expect(second.locator('[data-sync-detail="conflict"]')).toContainText("local merge is retrying");
+  await second.clock.install();
+  await second.clock.pauseAt(await second.evaluate(() => Date.now() + 100));
+  await second.clock.fastForward(5_000);
+  await expect(second.locator('[data-sync-status="conflict"]')).toBeVisible();
+  server.holdConflictRetry = false;
+  server.releaseConflictRetry?.();
   await expect.poll(() => server.documents.config.version).toBe(2);
   await expect(second.locator('[data-sync-status="synced"]')).toBeVisible();
   expect(server.conflicts).toBe(1);
 
   await first.reload();
-  await expect(first.locator('[data-sync-status="synced"]')).toBeVisible();
+  await expect(first.locator('[data-sync-status="synced"]')).toHaveCount(1);
   await expect(localeChoice(first, "en")).toHaveAttribute("aria-pressed", "true");
   await firstContext.close();
   await secondContext.close();
@@ -794,8 +824,8 @@ test("sync: standard sources survive offline and quota failures, then converge w
   const second = await secondContext.newPage();
   await Promise.all([first.goto("./settings/"), second.goto("./settings/")]);
   await Promise.all([
-    expect(first.locator('[data-sync-status="synced"]')).toBeVisible(),
-    expect(second.locator('[data-sync-status="synced"]')).toBeVisible(),
+    expect(first.locator('[data-sync-status="synced"]')).toHaveCount(1),
+    expect(second.locator('[data-sync-status="synced"]')).toHaveCount(1),
   ]);
   await expect(first.locator('[data-settings-section="sources"]').getByText("Premium seed", { exact: true })).toHaveCount(0);
 
@@ -852,8 +882,8 @@ test("sync: subscriptions retain tombstones and mode isolation across offline, q
   const second = await secondContext.newPage();
   await Promise.all([first.goto("./settings/"), second.goto("./settings/")]);
   await Promise.all([
-    expect(first.locator('[data-sync-status="synced"]')).toBeVisible(),
-    expect(second.locator('[data-sync-status="synced"]')).toBeVisible(),
+    expect(first.locator('[data-sync-status="synced"]')).toHaveCount(1),
+    expect(second.locator('[data-sync-status="synced"]')).toHaveCount(1),
   ]);
 
   server.unavailable = true;
@@ -938,8 +968,8 @@ test("sync: standard and Premium favorites stay isolated through offline, quota,
   const premium = await secondContext.newPage();
   await Promise.all([standard.goto("./favorites/"), premium.goto("./premium/favorites/")]);
   await Promise.all([
-    expect(standard.locator('[data-sync-status="synced"]')).toBeVisible(),
-    expect(premium.locator('[data-sync-status="synced"]')).toBeVisible(),
+    expect(standard.locator('[data-sync-status="synced"]')).toHaveCount(1),
+    expect(premium.locator('[data-sync-status="synced"]')).toHaveCount(1),
   ]);
   await expect(standard.getByRole("heading", { name: "Standard favorite" })).toBeVisible();
   await expect(standard.getByRole("heading", { name: "Premium favorite" })).toHaveCount(0);
@@ -1009,8 +1039,8 @@ test("sync: a stale offline progress write cannot revive remotely deleted histor
     stale.goto("./player/?id=movie-1&source=source-a&title=Standard%20history"),
   ]);
   await Promise.all([
-    expect(first.locator('[data-sync-status="synced"]')).toBeVisible(),
-    expect(stale.locator('[data-sync-status="synced"]')).toBeVisible(),
+    expect(first.locator('[data-sync-status="synced"]')).toHaveCount(1),
+    expect(stale.locator('[data-sync-status="synced"]')).toHaveCount(1),
   ]);
   await expect(stale.getByRole("heading", { name: "Standard history" })).toBeVisible();
 

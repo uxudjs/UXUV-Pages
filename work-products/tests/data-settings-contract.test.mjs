@@ -40,3 +40,24 @@ test("T19 renders localized update available, current, and failed states through
   assert.doesNotMatch(page, /AppVersionSettings/);
   assert.match(page, /<DataSettings/);
 });
+
+test("S21-T11 v2 transfer preserves bounded rules and drops retired IPTV fields", () => {
+  const transfer = read("lib/data/settings-transfer.ts");
+  assert.match(transfer, /videoSkipRules/);
+  assert.match(transfer, /normalizeVideoSkipRules/);
+  assert.match(transfer, /retiredConfigField/);
+  assert.match(transfer, /iptv/i);
+  assert.match(transfer, /schemaVersion:\s*2/);
+});
+
+test("S21-T14 reports bounded retired-field skips before an otherwise valid import", () => {
+  const transfer = read("lib/data/settings-transfer.ts");
+  const importer = read("components/settings/SettingsImportModal.tsx");
+  assert.match(transfer, /skippedRetiredFields:\s*string\[\]/);
+  assert.match(transfer, /Object\.keys\(value\.fields\)/);
+  assert.match(transfer, /retiredConfigField/);
+  assert.match(importer, /preview\.summary\.skippedRetiredFields/);
+  for (const text of ["已跳过退休字段", "已略過已退役欄位", "Skipped retired fields"]) {
+    assert.match(importer, new RegExp(text));
+  }
+});

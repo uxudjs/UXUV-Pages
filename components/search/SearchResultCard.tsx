@@ -58,11 +58,13 @@ export function SearchResultCard({ video, active, favorite, labels, sources, lat
         </div>
       </div>
     </Link>
-    <ResolutionProbeButton video={video} sources={sources} className="kvideo-result-probe"
-      labels={{ action: labels.resolutionProbe, loading: labels.resolutionProbing,
-        unknown: labels.resolutionUnknown, error: labels.resolutionError }} />
-    <button type="button" className="kvideo-result-favorite" data-focusable aria-pressed={favorite}
-      aria-label={`${favorite ? labels.unfavorite : labels.favorite} ${video.vod_name.trim()}`}
-      onClick={() => onToggleFavorite(video)}>{favorite ? "★" : "☆"}</button>
+    <div className="kvideo-result-actions">
+      <button type="button" className="kvideo-result-favorite" data-focusable aria-pressed={favorite}
+        aria-label={`${favorite ? labels.unfavorite : labels.favorite} ${video.vod_name.trim()}`}
+        onClick={() => onToggleFavorite(video)}>{favorite ? "★" : "☆"}</button>
+      <ResolutionProbeButton video={video} sources={sources} className="kvideo-result-probe"
+        labels={{ action: labels.resolutionProbe, loading: labels.resolutionProbing,
+          unknown: labels.resolutionUnknown, error: labels.resolutionError }} />
+    </div>
   </article>;
 }

@@ -20,7 +20,10 @@ interface SyncContextValue {
   updateConfigField: (key: string, value: unknown) => void;
   replacePayload: (payloads: { config: ConfigPayload; library: LibraryPayload }) => void;
   upsertRecord: (kind: SyncKind, collection: SyncCollection, record: TimestampedRecord, syncDelay?: number) => void;
-  upsertRecords: (kind: SyncKind, updates: readonly { collection: SyncCollection; record: TimestampedRecord }[], syncDelay?: number) => void;
+  applyRecordChanges: (kind: SyncKind, changes: {
+    upserts: readonly { collection: SyncCollection; record: TimestampedRecord }[];
+    removals: readonly { collection: SyncCollection; id: string }[];
+  }, syncDelay?: number) => void;
   removeRecord: (kind: SyncKind, collection: SyncCollection, id: string) => void;
 }
 
@@ -120,11 +123,9 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
     });
     const retry = () => kinds.forEach((kind) => void runRef.current(kind));
     window.addEventListener("online", retry);
-    window.addEventListener("focus", retry);
     return () => {
       active = false;
       window.removeEventListener("online", retry);
-      window.removeEventListener("focus", retry);
       kinds.forEach((kind) => { if (scheduledTimers[kind]) window.clearTimeout(scheduledTimers[kind]); });
     };
   }, [accountId]);
@@ -163,11 +164,16 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
   const upsertRecord = useCallback((kind: SyncKind, collection: SyncCollection, record: TimestampedRecord, syncDelay?: number) => {
     mutate(kind, (current) => upsertDocumentRecord(current, collection, record), syncDelay ?? 250, syncDelay === undefined);
   }, [mutate]);
-  const upsertRecords = useCallback((kind: SyncKind,
-    updates: readonly { collection: SyncCollection; record: TimestampedRecord }[], syncDelay?: number) => {
-    if (!updates.length) return;
-    mutate(kind, (current) => updates.reduce(
-      (next, { collection, record }) => upsertDocumentRecord(next, collection, record), current,
+  const applyRecordChanges = useCallback((kind: SyncKind, changes: {
+    upserts: readonly { collection: SyncCollection; record: TimestampedRecord }[];
+    removals: readonly { collection: SyncCollection; id: string }[];
+  }, syncDelay?: number) => {
+    if (!changes.upserts.length && !changes.removals.length) return;
+    mutate(kind, (current) => changes.removals.reduce(
+      (next, { collection, id }) => removeDocumentRecord(next, collection, id),
+      changes.upserts.reduce(
+        (next, { collection, record }) => upsertDocumentRecord(next, collection, record), current,
+      ),
     ), syncDelay ?? 250, syncDelay === undefined);
   }, [mutate]);
   const value = useMemo<SyncContextValue>(() => ({
@@ -178,9 +184,9 @@ export function SyncProvider({ accountId, children }: Readonly<{ accountId: stri
     updateConfigField: (key, fieldValue) => mutate("config", (current) => updateConfigField(current, key, fieldValue)),
     replacePayload,
     upsertRecord,
-    upsertRecords,
+    applyRecordChanges,
     removeRecord: (kind, collection, id) => mutate(kind, (current) => removeDocumentRecord(current, collection, id)),
-  }), [documents, mutate, phases, ready.config, replacePayload, upsertRecord, upsertRecords]);
+  }), [applyRecordChanges, documents, mutate, phases, ready.config, replacePayload, upsertRecord]);
 
   return <SyncContext.Provider value={value}>{children}</SyncContext.Provider>;
 }

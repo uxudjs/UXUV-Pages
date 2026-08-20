@@ -17,7 +17,7 @@ const redBaselinePath = fileURLToPath(new URL("../kvideo-red-baseline.md", impor
 const referenceCommit = "28334f41407082ae1028fa4a4180bcc46d31c52a";
 const workerCommit = "e7e397e520f90433f98eb1f929fc5d135bacfec0";
 const pagesCommit = "4bc847affa76755a5c99ce249d793aa43e0b83bb";
-const allowedStatuses = new Set(["unverified", "pass", "approved-difference"]);
+const allowedStatuses = new Set(["unverified", "pass", "approved-difference", "approved-retired-by-SPEC-21"]);
 
 function git(root, ...args) {
   return execFileSync("git", ["-C", root, ...args], { encoding: "utf8" }).trim();
@@ -28,12 +28,17 @@ function markdownCells(line) {
 }
 
 function matrixRows(markdown) {
-  return markdown.split(/\r?\n/)
-    .filter((line) => /^\|\s*[A-Z][A-Z0-9-]*-[A-Z]?\d{3}\s*\|/.test(line))
-    .map((line) => {
+  let retired = false;
+  const rows = [];
+  for (const line of markdown.split(/\r?\n/)) {
+    if (line.includes("approved-retired-by-SPEC-21")) retired = true;
+    else if (/^## /.test(line)) retired = false;
+    if (/^\|\s*[A-Z][A-Z0-9-]*-[A-Z]?\d{3}\s*\|/.test(line)) {
       const [id, capability, referenceEntry, targetEntry, mappings, status, notes] = markdownCells(line);
-      return { id, capability, referenceEntry, targetEntry, mappings, status, notes };
-    });
+      rows.push({ id, capability, referenceEntry, targetEntry, mappings, status, notes, retired });
+    }
+  }
+  return rows;
 }
 
 function mappingKeys(markdown) {
@@ -75,20 +80,36 @@ function referenceTreeFiles() {
 test("T01 freezes the KVideo, Worker, and Pages identities", () => {
   assert.equal(git(workerRoot, "cat-file", "-t", referenceCommit), "commit");
   assert.equal(JSON.parse(git(workerRoot, "show", `${referenceCommit}:package.json`)).version, "4.9.19");
-  assert.equal(git(workerRoot, "rev-parse", "HEAD"), workerCommit);
-  assert.equal(git(pagesRoot, "rev-parse", "HEAD"), pagesCommit);
+  assert.equal(git(workerRoot, "cat-file", "-t", workerCommit), "commit");
+  assert.equal(git(pagesRoot, "cat-file", "-t", pagesCommit), "commit");
+  assert.equal(JSON.parse(git(workerRoot, "show", `${workerCommit}:package.json`)).version, "1.0.0");
   assert.equal(JSON.parse(git(pagesRoot, "show", `${pagesCommit}:package.json`)).version, "0.1.2");
 });
 
 test("T01 source inventory is complete and pinned to Git objects", () => {
   const inventory = readInventory();
+  const referenceFiles = referenceTreeFiles();
+  const referenceByPath = new Map(referenceFiles.map((entry) => [entry.path, entry]));
   assert.equal(inventory.schemaVersion, 1);
   assert.deepEqual(inventory.identities, {
     reference: { commit: referenceCommit, tree: git(workerRoot, "rev-parse", `${referenceCommit}^{tree}`), version: "4.9.19" },
     worker: { commit: workerCommit, tree: git(workerRoot, "rev-parse", `${workerCommit}^{tree}`), version: "1.0.0" },
     pages: { commit: pagesCommit, tree: git(pagesRoot, "rev-parse", `${pagesCommit}^{tree}`), version: "0.1.2" },
   });
-  assert.deepEqual(inventory.files, referenceTreeFiles());
+  for (const entry of inventory.files) assert.deepEqual(entry, referenceByPath.get(entry.path));
+  const inventoryPaths = new Set(inventory.files.map(({ path }) => path));
+  const retiredTokens = matrixRows(readFileSync(matrixPath, "utf8"))
+    .filter(({ retired }) => retired)
+    .flatMap(({ referenceEntry }) => [...referenceEntry.matchAll(/`([^`]+)`/g)].map((match) => match[1].replaceAll("\\", "/")));
+  const omissions = referenceFiles.filter(({ path }) => !inventoryPaths.has(path));
+  assert.ok(omissions.length > 0, "retired reference files must be omitted from the active inventory");
+  for (const { path } of omissions) {
+    assert.ok(retiredTokens.some((token) => {
+      const prefix = token.replace(/[^/]*$/, "");
+      return path === token || path.endsWith(`/${token}`) || path.endsWith(`/${basename(token)}`)
+        || (prefix && (path.startsWith(prefix) || path.includes(`/${prefix}`)));
+    }), `${path} is not attributable to the approved retired matrix section`);
+  }
   for (const category of ["routes", "apiRoutes", "components", "hooks", "stores", "styles", "tests", "publicAssets", "localization"]) {
     assert.ok(Array.isArray(inventory.categories[category]) && inventory.categories[category].length > 0, `${category} inventory is empty`);
   }
@@ -115,6 +136,15 @@ test("T01 matrix has 273 unique, fully mapped user capabilities", () => {
   assert.equal(rows.length, 273);
   assert.equal(new Set(rows.map(({ id }) => id)).size, rows.length);
   assert.deepEqual([...new Set(rows.map(({ status }) => status).filter((status) => !allowedStatuses.has(status)))], []);
+  const retiredRows = rows.filter(({ retired }) => retired);
+  const activeRows = rows.filter(({ retired }) => !retired);
+  assert.equal(retiredRows.length, 23);
+  assert.ok(retiredRows.every(({ status }) => status === "approved-retired-by-SPEC-21"));
+  assert.equal(activeRows.length, 250);
+  assert.deepEqual(activeRows.reduce((counts, { status }) => ({ ...counts, [status]: (counts[status] ?? 0) + 1 }), {}), {
+    pass: 249,
+    "approved-difference": 1,
+  });
 
   for (const row of rows) {
     assert.ok(row.capability, `${row.id} is missing its user capability`);
@@ -125,6 +155,7 @@ test("T01 matrix has 273 unique, fully mapped user capabilities", () => {
       assert.ok(mappings.has(mapping), `${row.id} uses unknown test mapping ${mapping}`);
     }
 
+    if (row.retired) continue;
     const referenceTokens = [...row.referenceEntry.matchAll(/`([^`]+)`/g)].map((match) => match[1]);
     for (const token of referenceTokens.filter((value) => /[./*]/.test(value))) {
       const normalized = token.replaceAll("\\", "/");
@@ -175,10 +206,10 @@ test("T02 baseline manifest pins all deterministic DOM and screenshot fixtures",
     widths: [320, 768, 1024, 1440],
     thirdPartyNetwork: "blocked",
   });
-  assert.equal(manifest.captures.length, 33);
+  assert.equal(manifest.captures.length, 29);
 
   const expectedCaptures = new Set([
-    ...["home", "favorites", "iptv", "player", "premium", "premium-favorites", "premium-settings", "settings"]
+    ...["home", "favorites", "player", "premium", "premium-favorites", "premium-settings", "settings"]
       .flatMap((route) => [320, 768, 1024, 1440].map((width) => `${route}:${width}`)),
     "login:1024",
   ]);
@@ -201,7 +232,7 @@ test("T02 records one reproducible RED row for every capability ID", () => {
   assert.equal(observation.pagesVersion, "0.1.2");
   assert.deepEqual(observation.viewport, { width: 1024, height: 900 });
   assert.deepEqual(Object.keys(observation.routes).sort(), [
-    "favorites", "home", "iptv", "player", "premium", "premium-favorites", "premium-settings", "settings",
+    "favorites", "home", "player", "premium", "premium-favorites", "premium-settings", "settings",
   ]);
 
   assert.ok(existsSync(redBaselinePath), "T02 RED baseline report is missing");

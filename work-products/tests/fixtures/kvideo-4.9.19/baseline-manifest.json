@@ -28,7 +28,7 @@
       "dom": "dom/home-320.json",
       "domSha256": "37af3187dce0d7ac4fd29308bd3e1f1ac263ab53fca983a9473219e13eaf7538",
       "screenshot": "routes/home-320.png",
-      "screenshotSha256": "d4d6681b3fa84b29d6e2ff284b10e481d2a92081fb32437b2e7e713c3dfceb75"
+      "screenshotSha256": "90d65a7d19ec7a24b6cc0397ca3218f046d73749b80f876b8fd79461056e2839"
     },
     {
       "route": "favorites",
@@ -37,16 +37,7 @@
       "dom": "dom/favorites-320.json",
       "domSha256": "4f73f5f72054702f3c4d8c4852a6212083f20c7390205d37073eeeb806f0db3a",
       "screenshot": "routes/favorites-320.png",
-      "screenshotSha256": "88d6501c971c77ae25f005436e976d5b5a02a6cf6cc9e12e76244940efb6575e"
-    },
-    {
-      "route": "iptv",
-      "path": "/iptv",
-      "width": 320,
-      "dom": "dom/iptv-320.json",
-      "domSha256": "ca49218ab51755246daf4ee7363b0df6651b95d905389a8b1edc0f05f59bf3f1",
-      "screenshot": "routes/iptv-320.png",
-      "screenshotSha256": "bc5395b42a9ac80e45b260262dd385976d14ea1c85a97cb2a1e1b796fbab41d6"
+      "screenshotSha256": "4a3ef9280caa1ea0716cba1fe089de6c5a076ce46a2c1b8ae6dfd06dfbfb6313"
     },
     {
       "route": "player",
@@ -55,7 +46,7 @@
       "dom": "dom/player-320.json",
       "domSha256": "ea11f8b7db8f77104205e96b38e99e5cb2acc6ab38afefd90e9943e705ba1fd1",
       "screenshot": "routes/player-320.png",
-      "screenshotSha256": "9b7891d5271546c24772aadc48040de776fdadf8b6f70acf6ab70474c323f588"
+      "screenshotSha256": "f4f9e73fdc181f210869e7445047a08537a163782396ae8a4c6686bbd9610350"
     },
     {
       "route": "premium",
@@ -64,7 +55,7 @@
       "dom": "dom/premium-320.json",
       "domSha256": "7584e3610b3f0a2eff9cb5c98b0879eeed38223d588a8f46d2077775b2918319",
       "screenshot": "routes/premium-320.png",
-      "screenshotSha256": "9c3e7f591af8b0a024b62b54a5765f770a0d2ad84279354c549895f72fa1a97a"
+      "screenshotSha256": "3d005bcca08ab6083c8085adeef81b597e8389e97cef6d2e4c12b8b2f9390ab5"
     },
     {
       "route": "premium-favorites",
@@ -73,7 +64,7 @@
       "dom": "dom/premium-favorites-320.json",
       "domSha256": "fe4db3278cbb7ae6ffc97f3b27bd1b4a178da51a379bfc24ee86f6509f154e7c",
       "screenshot": "routes/premium-favorites-320.png",
-      "screenshotSha256": "84a472a49a4d507135a3965ee4ef6f8ded63cea6e70050f354897ca870923ff1"
+      "screenshotSha256": "4a3ef9280caa1ea0716cba1fe089de6c5a076ce46a2c1b8ae6dfd06dfbfb6313"
     },
     {
       "route": "premium-settings",
@@ -82,16 +73,16 @@
       "dom": "dom/premium-settings-320.json",
       "domSha256": "b486a52180bafb3046a1c60835c5498582609cbe65035895d9befd5f28989e5a",
       "screenshot": "routes/premium-settings-320.png",
-      "screenshotSha256": "18058a0dac2f9f2a5ffedd677e61715eb7270c51bb38bfe925b6f9b7db816bb8"
+      "screenshotSha256": "00288863c6c4df453f542f7239259cd1866bc6e68f88ec75cc553e3c9a0a47b3"
     },
     {
       "route": "settings",
       "path": "/settings",
       "width": 320,
       "dom": "dom/settings-320.json",
-      "domSha256": "412319b650e6431a158049a077271a842e8ffe751c7f6eaf619f2cf62de1f385",
+      "domSha256": "aa1730746b5847b99cdab7c2bd98997bb598ca542c2cf068ce310bcafce7b65f",
       "screenshot": "routes/settings-320.png",
-      "screenshotSha256": "e47cba335a0516ef2156ec84e23cb72291b299315cb496c7f0fc14d77f3bb99b"
+      "screenshotSha256": "ffc0c2d82f1e727e8e9369f21e76a620e83599d07d6f0e7515610e21fab5a79c"
     },
     {
       "route": "home",
@@ -100,7 +91,7 @@
       "dom": "dom/home-768.json",
       "domSha256": "a4bc518159c0416c36255ff78e7cdfb29e92d42b13ac25dfe506926cf6188d25",
       "screenshot": "routes/home-768.png",
-      "screenshotSha256": "563e0bdbee4c6acf41d87d3908b1b12e8df0372eba94c5ea5d4e7ede3c1ac234"
+      "screenshotSha256": "fa85618a1a5c2aebab46d8eb89b12cd799dbf07e353ccc57025fe846a4cf7407"
     },
     {
       "route": "favorites",
@@ -109,16 +100,7 @@
       "dom": "dom/favorites-768.json",
       "domSha256": "5633e8e71ef9b484224bcf8e2b873340df1992b269198f1abed6d5b6e7a098ff",
       "screenshot": "routes/favorites-768.png",
-      "screenshotSha256": "4f35568e91d5ff4617fe5465a2be347903f34b6dade40a1f36a5132fd4431e77"
-    },
-    {
-      "route": "iptv",
-      "path": "/iptv",
-      "width": 768,
-      "dom": "dom/iptv-768.json",
-      "domSha256": "e6a7504841c9b9922b242dfa7c6108546a87b43dd5fdaee9071af8c69794a618",
-      "screenshot": "routes/iptv-768.png",
-      "screenshotSha256": "94d8d54f31c92d1094a1210225e35ae577ede1254f691fe041e55f4a97e7f67e"
+      "screenshotSha256": "e63606d28e6f5a525ea4042012c1e875d89dfae9d49f35237459fba8ab09f806"
     },
     {
       "route": "player",
@@ -127,7 +109,7 @@
       "dom": "dom/player-768.json",
       "domSha256": "89a08c8558b5bbdddf3f6c8995b5aec6d8a435da862fcd978307a1eb25a3bbdb",
       "screenshot": "routes/player-768.png",
-      "screenshotSha256": "c175427d12d68826f7ffdf863c4ca1dcd86b71714cec59aa3fb54990ef391390"
+      "screenshotSha256": "f7f5a8f31ccd534b3738a197f132b689905972eb58a09be84b889179f6c7bda6"
     },
     {
       "route": "premium",
@@ -136,7 +118,7 @@
       "dom": "dom/premium-768.json",
       "domSha256": "b6178fa7519b0af144e3aafba17f8d81c9587f1cbddd65f8d67400953fb3b0b2",
       "screenshot": "routes/premium-768.png",
-      "screenshotSha256": "cebaae9c9db180b8e35c9af05b89037878a1b6804b5fc55367fa00fea92667a3"
+      "screenshotSha256": "1fc8772811facc1e243561fb1b04f33df94e5a4ea1997b268121330be1f18bcb"
     },
     {
       "route": "premium-favorites",
@@ -145,7 +127,7 @@
       "dom": "dom/premium-favorites-768.json",
       "domSha256": "f4537c3e4556e39aa142daf5b5e54019362c5f8e2e0606ffbd315216f239a603",
       "screenshot": "routes/premium-favorites-768.png",
-      "screenshotSha256": "8356747fd89beacebd5403adf87ad5b39ea594bd624731a8fc4660e3d4c5f9ca"
+      "screenshotSha256": "e63606d28e6f5a525ea4042012c1e875d89dfae9d49f35237459fba8ab09f806"
     },
     {
       "route": "premium-settings",
@@ -154,16 +136,16 @@
       "dom": "dom/premium-settings-768.json",
       "domSha256": "63b98e7194abd61e90273b95ae71881b7cb75f475358d5ced43985f4ba3ee698",
       "screenshot": "routes/premium-settings-768.png",
-      "screenshotSha256": "2e766aba30f91512160f0a09420bdc26de1a56a8f95673c04c02c3d753843a9b"
+      "screenshotSha256": "08f0dbe36241401c5bec0fe9da5c441e9521be74287ce20cf1b93be38d54f299"
     },
     {
       "route": "settings",
       "path": "/settings",
       "width": 768,
       "dom": "dom/settings-768.json",
-      "domSha256": "cc54e083b5ede560883363c5cbee9197025979491923310dd8571e50ad90e467",
+      "domSha256": "d4d9a2c98892e6f49b96b8e90feed217b69d7bed0e4e3a9e6bd5f2200770d63a",
       "screenshot": "routes/settings-768.png",
-      "screenshotSha256": "a3d960da263a7df8027166046422b230164a4d150e48eea37445243fed66a4f2"
+      "screenshotSha256": "bbb7362216bd0da062516b3e5bf6b91c339ed85b615717068537304aa5600356"
     },
     {
       "route": "home",
@@ -172,7 +154,7 @@
       "dom": "dom/home-1024.json",
       "domSha256": "a058088603e68fc12cf437fefcbdb002b1b3bdbb8c9b69469855e417cb69ba46",
       "screenshot": "routes/home-1024.png",
-      "screenshotSha256": "2d435bb53b10ad5440dae00139681d4c43c4be1a6b470a1729a1ecdcaa421b96"
+      "screenshotSha256": "3cad030cce386a24070621b3017fdfcbe709268cfc749df8e76a18e806c8a42b"
     },
     {
       "route": "favorites",
@@ -181,16 +163,7 @@
       "dom": "dom/favorites-1024.json",
       "domSha256": "4a4ffefd8f9dc64b1cfa58d0c97a4d7db52ab25b414b1510f1a4264b4a12f6b5",
       "screenshot": "routes/favorites-1024.png",
-      "screenshotSha256": "7d6a354fbe10aca2c8dd7f8bca09d79aad63053fac7f243b2e74bc82609d308f"
-    },
-    {
-      "route": "iptv",
-      "path": "/iptv",
-      "width": 1024,
-      "dom": "dom/iptv-1024.json",
-      "domSha256": "71f3be18bb0293e294b696cffdd9bbde0427187edeae94c6db17e47fe7efe8df",
-      "screenshot": "routes/iptv-1024.png",
-      "screenshotSha256": "b830b27e28cd5708cfaf7a6c637bdae79c1f1b4fc22807cbaed7e636d113ef87"
+      "screenshotSha256": "708bbf45192b7177a5aa7bd5781a02408481a004e2b03f667c4a8f069ec64ab6"
     },
     {
       "route": "player",
@@ -199,7 +172,7 @@
       "dom": "dom/player-1024.json",
       "domSha256": "d47e6a430b87893b54775ed01f1625c3a4f6fd11e5ea0905afdd3ca666d967c0",
       "screenshot": "routes/player-1024.png",
-      "screenshotSha256": "eff3dab0c1b98ad30d4ca1a322b70483a380a8f3be4bc0820949679a037adefe"
+      "screenshotSha256": "843cd006f2ffb28122fc62127e7dce2bdd078f70c379a3ebebce5bd6e4eeac09"
     },
     {
       "route": "premium",
@@ -208,7 +181,7 @@
       "dom": "dom/premium-1024.json",
       "domSha256": "4a684d0988cec62dff776772e1f46da69ab2121a20f789260de60ab0265cede9",
       "screenshot": "routes/premium-1024.png",
-      "screenshotSha256": "e5e0e7a94e5493d55bc8289f81f4f2a0e49dffa2725ef2958877ce91d1d9eed3"
+      "screenshotSha256": "50ca0fc158a6a67b40d0564e3b8fd55ece610fb4f05fdc5d8e298049ec3e6b69"
     },
     {
       "route": "premium-favorites",
@@ -217,7 +190,7 @@
       "dom": "dom/premium-favorites-1024.json",
       "domSha256": "b4cae4913a83c026ad6fde2aeed19f2a32f31b7b437f9b955aa1a54a5a96d6a4",
       "screenshot": "routes/premium-favorites-1024.png",
-      "screenshotSha256": "90a09cc828664348b71c9b4429f7a7ce5a718236fe81409f58853865915fee0d"
+      "screenshotSha256": "708bbf45192b7177a5aa7bd5781a02408481a004e2b03f667c4a8f069ec64ab6"
     },
     {
       "route": "premium-settings",
@@ -226,16 +199,16 @@
       "dom": "dom/premium-settings-1024.json",
       "domSha256": "d2f3434f30c50daab814f553f4699002a9bc6ff0e14f12dc381dae0554d3a1cb",
       "screenshot": "routes/premium-settings-1024.png",
-      "screenshotSha256": "2cd2c6ab00208e6ce71caeec1035e6fbf6f1b052105bfd35d2ab40700ab2db8c"
+      "screenshotSha256": "5fbb294fae3e9918f58b47f3f6e6a5f0400fffe18e1ef1ba86192f581226b6bb"
     },
     {
       "route": "settings",
       "path": "/settings",
       "width": 1024,
       "dom": "dom/settings-1024.json",
-      "domSha256": "726cbee1620ef2d2474b5c57c143980eaca88b24cab38c9c66eab95e205edf12",
+      "domSha256": "67b23a09929772bee6c8e0ee30b24589968c233986c46f40093cf5684aa30e47",
       "screenshot": "routes/settings-1024.png",
-      "screenshotSha256": "c88eb2ddcfd9ac08efa400b02e256e7e8dce4ec4864f7ad98aaa52df47113f59"
+      "screenshotSha256": "38054736c6314d220e9dd1e3f18971309e00552fab9e8201f02bbdc3f7b6fa35"
     },
     {
       "route": "home",
@@ -244,7 +217,7 @@
       "dom": "dom/home-1440.json",
       "domSha256": "772d4b9f4afb2e7bd7ec1075e253f79fe40d7880a3534cbd25148134e296d5ed",
       "screenshot": "routes/home-1440.png",
-      "screenshotSha256": "5fe8d045fd05a2c9e58d4f5ad5d9d0be67bbf3f0f944d897ae7464e08ab6a05b"
+      "screenshotSha256": "4e5ac709972f902856ae6450adddab12d06e749d08b4e767aa6b7f18f83704d2"
     },
     {
       "route": "favorites",
@@ -253,16 +226,7 @@
       "dom": "dom/favorites-1440.json",
       "domSha256": "3d074665bb036ec4887766eee03034f6f6042e737aed4b37ce568e4f38816b82",
       "screenshot": "routes/favorites-1440.png",
-      "screenshotSha256": "0f93c69872e3a10d214fc84b3f37fab82196e2ae8b42ae7f5326145fde44788b"
-    },
-    {
-      "route": "iptv",
-      "path": "/iptv",
-      "width": 1440,
-      "dom": "dom/iptv-1440.json",
-      "domSha256": "40cda82963f331fb8c56742935e1298d835165a53e9136d9df0e09b4a4be471d",
-      "screenshot": "routes/iptv-1440.png",
-      "screenshotSha256": "e7a75cc14effab18000a75737e5a3999847829ce2a29357d227bddd4b7f47340"
+      "screenshotSha256": "2ff7c52bcb3a3b6d23fef36c98034404699b7f451e3cee3dea42c6321b7d8840"
     },
     {
       "route": "player",
@@ -271,7 +235,7 @@
       "dom": "dom/player-1440.json",
       "domSha256": "9be646e1c5f5cf12779c480b25adea0404e7a1cbf7f17a00a8f413e3cd94bbf8",
       "screenshot": "routes/player-1440.png",
-      "screenshotSha256": "a9d1223b226694ba5d7d0d5f094508947fb7a5775ba706f872fd30f2f2bfda14"
+      "screenshotSha256": "2e334cd20b22714740e39a5538c88e750df76a86e8ee926cb839c0765f200c1b"
     },
     {
       "route": "premium",
@@ -280,7 +244,7 @@
       "dom": "dom/premium-1440.json",
       "domSha256": "39e6f81c7269443fd6018f93fa9cb4b9fc11654e6d4af7e899ae247c75503b6f",
       "screenshot": "routes/premium-1440.png",
-      "screenshotSha256": "021cfbfc8b14b2f55fa8cc15ab460f01a2476a05413ec4ed7972030cebe8e107"
+      "screenshotSha256": "bd5a868d737b3bcde5b3b1ee8af75e448b2b631fe359449fb8df788d4060dcb4"
     },
     {
       "route": "premium-favorites",
@@ -289,7 +253,7 @@
       "dom": "dom/premium-favorites-1440.json",
       "domSha256": "8801447dbbe82e41a4fbb92bc3f315dc49d987e00fc46d05e39418e02fac4bdf",
       "screenshot": "routes/premium-favorites-1440.png",
-      "screenshotSha256": "bccce74c174598577cf5b6cb34af429fca3b3194a421de453905566050da196a"
+      "screenshotSha256": "2ff7c52bcb3a3b6d23fef36c98034404699b7f451e3cee3dea42c6321b7d8840"
     },
     {
       "route": "premium-settings",
@@ -298,16 +262,16 @@
       "dom": "dom/premium-settings-1440.json",
       "domSha256": "86c7d4aced4cb96e07f9e72a5afd5ec59659fb350eb7e7d7039d41df4beda72a",
       "screenshot": "routes/premium-settings-1440.png",
-      "screenshotSha256": "f24e40650aa0645bf130e4f1d0dcfe808d6201b236e6c3de15c0b669d419b422"
+      "screenshotSha256": "df8be9dca3489630b68ddd93104b74e83335899ffc6a0c3377292f4765fb5661"
     },
     {
       "route": "settings",
       "path": "/settings",
       "width": 1440,
       "dom": "dom/settings-1440.json",
-      "domSha256": "c34dce58cc9ab7ffb882303cbd68ffbcec313f42e72b08081794c7761f1676ac",
+      "domSha256": "68a0f3170adcb4d174fc981a254d0ea15c8095f5d3a37bcd44b9f254fc25b6f8",
       "screenshot": "routes/settings-1440.png",
-      "screenshotSha256": "2af3be1c29fe60d677f134972fedb7007ee6b1b2d37167f1657b36c3e2931458"
+      "screenshotSha256": "629b95f3299f1a33a910e4c224d23a9a0a61832ec625d520c856d94ae8185bdd"
     },
     {
       "route": "login",

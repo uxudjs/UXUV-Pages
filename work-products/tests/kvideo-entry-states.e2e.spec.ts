@@ -9,7 +9,7 @@ const session = {
 const runtimeConfig = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: true, danmaku: false },
+  capabilities: { premium: true, danmaku: false },
   adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
   authenticated: true,
@@ -138,7 +138,7 @@ test("account permission fallback is localized and never requests account data",
     const context = await browser.newContext({ locale });
     const page = await context.newPage();
     const accountRequests = await readyWorker(page, "viewer");
-    await page.goto("http://127.0.0.1:4173/UXUV-Pages/settings/");
+    await page.goto("http://127.0.0.1:4173/settings/");
     await expect(page.getByText(message)).toBeVisible();
     expect(accountRequests()).toBe(0);
     await context.close();

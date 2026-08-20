@@ -8,7 +8,6 @@ import { useLocale } from "@/components/LocaleProvider";
 import { PublicPage } from "@/components/PublicPage";
 import { ScrollPositionManager } from "@/components/ScrollPositionManager";
 import { useRuntimeConfig } from "@/components/RuntimeConfigProvider";
-import { RuntimeSourceSync } from "@/components/RuntimeSourceSync";
 import { SyncProvider } from "@/components/SyncProvider";
 import { SyncStatus } from "@/components/SyncStatus";
 import { TVNavigationInitializer } from "@/components/TVNavigationInitializer";
@@ -193,7 +192,7 @@ export function PasswordGate({ children }: Readonly<{ children: React.ReactNode 
   if (runtime.status === "error") {
     return (
       <main className="public-shell">
-        <section className="public-notice" role="alert">
+        <section className="public-notice" data-material="regular" role="alert">
           <h1 className="public-title">{startup.title}</h1>
           <p className="public-description">{startup.description}</p>
           <button className="primary-button" type="button" autoFocus onClick={runtime.retry}>{copy.retry}</button>
@@ -207,6 +206,7 @@ export function PasswordGate({ children }: Readonly<{ children: React.ReactNode 
         <div className="auth-frame">
           <form
             className="auth-card"
+            data-material="regular"
             onSubmit={submit}
             aria-labelledby="login-title"
             aria-busy={submitting}
@@ -262,18 +262,16 @@ export function PasswordGate({ children }: Readonly<{ children: React.ReactNode 
   return (
     <AuthContext.Provider value={context}>
       <UsageAlertProvider>
-          <SyncProvider key={context.session.accountId} accountId={context.session.accountId}>
-            <RuntimeSourceSync>
-              <div className="application-shell">
-                <AppUpdateControl />
-                <AccountPreferenceBridge accountId={context.session.accountId} />
-                <SyncStatus />
-                <ScrollPositionManager accountId={context.session.accountId} />
-                <TVNavigationInitializer />
-                {children}
-                <BackToTop />
-              </div>
-            </RuntimeSourceSync>
+        <SyncProvider key={context.session.accountId} accountId={context.session.accountId}>
+          <div className="application-shell">
+            <AppUpdateControl />
+            <AccountPreferenceBridge accountId={context.session.accountId} />
+            <SyncStatus />
+            <ScrollPositionManager accountId={context.session.accountId} />
+            <TVNavigationInitializer />
+            {children}
+            <BackToTop />
+          </div>
         </SyncProvider>
       </UsageAlertProvider>
     </AuthContext.Provider>

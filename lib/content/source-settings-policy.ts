@@ -6,10 +6,6 @@ export const DEFAULT_SOURCE_PATH = "/api.php/provide/vod/";
 export type SourceDraftError = "required" | "id" | "duplicate" | "url";
 export interface SourceDraft { name: string; id: string; baseUrl: string }
 
-export function sourceKind(source: VideoSource): "system" | "personal" {
-  return source.kind === "personal" ? "personal" : "system";
-}
-
 export function sourceIdFromName(name: string): string {
   return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
 }
@@ -39,7 +35,7 @@ export function normalizeSourceDraft(
     detailPath: initial?.detailPath || DEFAULT_SOURCE_PATH,
     enabled: initial?.enabled !== false,
     group,
-    kind: initial?.kind ?? "personal",
+    kind: initial?.kind ?? "standalone",
     priority: initial?.priority ?? existingIds.length + 1,
   } };
 }
@@ -51,18 +47,58 @@ export function orderedSources(sources: readonly VideoSource[]): VideoSource[] {
     .map(({ source }) => source);
 }
 
-function normalizedUrl(value: string): string {
-  try { return new URL(value.trim()).href; } catch { return value.trim(); }
+function belongsToMode(source: VideoSource, mode: "standard" | "premium"): boolean {
+  return mode === "premium" ? source.group === "premium" : source.group !== "premium";
 }
 
-export function standaloneSources(
+export function subscriptionOwnedSourceIds(
   sources: readonly VideoSource[],
-  subscriptions: readonly SourceSubscription[],
-): VideoSource[] {
-  const managedIds = new Set(subscriptions.flatMap(({ sourceIds }) => sourceIds ?? []));
-  const subscriptionUrls = new Set(subscriptions.map(({ url }) => normalizedUrl(url)));
-  return sources.filter((source) => !managedIds.has(source.id)
-    && !subscriptionUrls.has(normalizedUrl(source.baseUrl)));
+  subscription: SourceSubscription,
+  mode: "standard" | "premium",
+): string[] {
+  return sources.filter((source) => source.kind === "subscription"
+    && source.subscriptionId === subscription.id
+    && belongsToMode(source, mode)).map(({ id }) => id).sort();
+}
+
+export function prepareSubscriptionResync(
+  existingSources: readonly VideoSource[],
+  currentSubscription: SourceSubscription,
+  importedSources: readonly VideoSource[],
+  mode: "standard" | "premium",
+  now = Date.now(),
+): { sources: VideoSource[]; subscription: SourceSubscription; removeIds: string[] }
+  | { error: "conflict"; conflictingIds: string[] } {
+  const group = mode === "premium" ? "premium" : "normal";
+  const ownedIds = new Set(subscriptionOwnedSourceIds(existingSources, currentSubscription, mode));
+  const existingById = new Map(existingSources.map((source) => [source.id, source]));
+  const conflictingIds = [...new Set(importedSources
+    .filter((source) => existingById.has(source.id) && !ownedIds.has(source.id))
+    .map(({ id }) => id))].sort();
+  if (conflictingIds.length > 0) return { error: "conflict", conflictingIds };
+  const sources = importedSources.map<VideoSource>((source) => ({
+    ...source,
+    updatedAt: now,
+    group,
+    kind: "subscription" as const,
+    subscriptionId: currentSubscription.id,
+  }));
+  const nextIds = new Set(sources.map(({ id }) => id));
+  const removeIds = existingSources
+    .filter((source) => ownedIds.has(source.id) && !nextIds.has(source.id))
+    .map(({ id }) => id);
+  return {
+    sources,
+    subscription: {
+      ...currentSubscription,
+      updatedAt: now,
+      lastUpdated: now,
+      lastError: undefined,
+      sourceIds: sources.map(({ id }) => id),
+      mode,
+    },
+    removeIds,
+  };
 }
 
 export function reorderSources(sources: readonly VideoSource[], activeId: string, overId: string): VideoSource[] {

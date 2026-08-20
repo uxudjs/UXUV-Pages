@@ -40,6 +40,8 @@ test("opens a home poster directly in the matching player route", () => {
 
   assert.match(home, /const openHomeMovie = async \(movie: HomeMovie\)/);
   assert.match(home, /const found = await runSearch\(movie\.title\)/);
+  assert.match(home, /groupSearchVideos\(exactMatches/);
+  assert.match(home, /searchTypeFamily/);
   assert.match(home, /router\.push\(`\/player\?\$\{parameters\.toString\(\)\}`\)/);
   assert.match(home, /onMovieClick=\{\(movie\) => void openHomeMovie\(movie\)\}/);
   assert.doesNotMatch(home, /onMovieClick=\{\(movie\) => void runSearch\(movie\.title\)\}/);
@@ -61,7 +63,7 @@ test("T54 keeps only high-frequency content navigation actions", () => {
     assert.doesNotMatch(navigation, removed);
   }
   assert.match(navigation, /ThemeSwitcher/);
-  assert.match(navigation, /source=\{Tv\}/);
+  assert.doesNotMatch(navigation, /source=\{Tv\}/);
   assert.match(navigation, /source=\{LogOut\}/);
   assert.match(navigation, /signOut/);
 });
@@ -81,4 +83,13 @@ test("drives KVideo discovery through typed same-origin tag and recommendation r
   assert.match(client, /doubanUrl\("recommend", \{[\s\S]*type,[\s\S]*tag,/);
   assert.match(client, /credentials:\s*"same-origin"/);
   assert.doesNotMatch(`${home}\n${controls}\n${client}`, /https?:\/\//);
+});
+
+test("S21-T05 removes only the embedded continue-watching row", () => {
+  const home = read("components/HomeExperience.tsx");
+  assert.match(home, /onBrandActivate=\{clearSearch\}/);
+  assert.doesNotMatch(home, /Continue watching|继续观看|繼續觀看|history-row|history-title/);
+  assert.match(home, /historyForMode/);
+  assert.match(home, /usePersonalizedRecommendations\(contentType, history\)/);
+  assert.match(home, /<WatchHistorySidebar\s*\/>/);
 });

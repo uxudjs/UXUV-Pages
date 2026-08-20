@@ -9,9 +9,9 @@ import { favoritesForMode, MAX_FAVORITES } from "@/lib/content/favorites-policy"
 import { favoriteFromVideo, isFavoriteRecord, type Video } from "@/lib/content/types";
 
 const COPY = {
-  "zh-CN": { add: "收藏", remove: "取消收藏", label: "收藏这个视频", limit: "收藏已达 100 项上限。" },
-  "zh-TW": { add: "收藏", remove: "取消收藏", label: "收藏這部影片", limit: "收藏已達 100 項上限。" },
-  en: { add: "Favorite", remove: "Remove favorite", label: "Favorite this video", limit: "The 100-item favorites limit has been reached." },
+  "zh-CN": { add: "收藏", remove: "取消收藏", limit: "收藏已达 100 项上限。" },
+  "zh-TW": { add: "收藏", remove: "取消收藏", limit: "收藏已達 100 項上限。" },
+  en: { add: "Favorite", remove: "Remove favorite", limit: "The 100-item favorites limit has been reached." },
 } as const;
 
 export function PlayerFavoriteButton({ video }: Readonly<{ video: Video }>) {
@@ -37,10 +37,9 @@ export function PlayerFavoriteButton({ video }: Readonly<{ video: Video }>) {
     upsertRecord("library", "favorites", favoriteFromVideo(video));
   };
 
-  return <div className="player-favorite-row">
+  return <div className="player-navbar-favorite">
     <button type="button" aria-label={favorite ? copy.remove : copy.add} aria-pressed={Boolean(favorite)}
       onClick={toggle} data-focusable><Icon source={Heart} size={20} /></button>
-    <span>{copy.label}</span>
-    {message && <span role="alert">{message}</span>}
+    {message && <span className="sr-only" role="alert">{message}</span>}
   </div>;
 }

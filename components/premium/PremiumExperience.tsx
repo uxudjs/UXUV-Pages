@@ -219,7 +219,7 @@ export function PremiumExperience() {
     }
   };
 
-  if (state === "locked") return <main className="public-shell"><form className="auth-panel" onSubmit={(event) => void submitUnlock(event)}>
+  if (state === "locked") return <main className="public-shell"><form className="auth-panel" data-material="regular" onSubmit={(event) => void submitUnlock(event)}>
     <h1>{copy.lockedTitle}</h1><p role="alert">{message || copy.locked}</p><label className="field-label" htmlFor="premium-password">{copy.password}</label>
     <input id="premium-password" autoFocus type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
     <button className="primary-button" type="submit" disabled={!password}>{copy.unlock}</button></form></main>;
@@ -234,7 +234,7 @@ export function PremiumExperience() {
         loading={false} progressLabel="" cancelLabel={legacyCopy.cancel} onQueryChange={setQuery}
         onSearch={() => undefined} onClear={() => setQuery("")} onCancel={() => undefined} /></div>
       <main className="kvideo-home-main premium-legacy-main">
-        <button type="button" className="premium-legacy-manage" data-focusable
+        <button type="button" className="premium-legacy-manage" data-material="regular" data-focusable
           onClick={() => router.push("/premium/settings")}><Icon source={Tag} size={16} />{legacyCopy.manage}</button>
         <div className="kvideo-home-state premium-legacy-empty" role="status"><Icon source={Film} size={64} />{legacyCopy.empty}</div>
       </main>
@@ -244,7 +244,7 @@ export function PremiumExperience() {
 
   return <div className="content-shell"><ContentNavigation premium /><main className="content-main premium-main">
     <header className="hero-panel premium-hero"><p className="public-kicker">PREMIUM</p><h1>{copy.title}</h1><p>{copy.description}</p>
-      <form className="search-form" data-premium-stage="search" onKeyDown={handleSearchKey} onSubmit={submitSearch}><label htmlFor="premium-search">{copy.searchLabel}</label>
+      <form className="search-form" data-material="regular" data-premium-stage="search" onKeyDown={handleSearchKey} onSubmit={submitSearch}><label htmlFor="premium-search">{copy.searchLabel}</label>
         <div><input id="premium-search" data-focusable value={query} placeholder={copy.placeholder} onChange={(event) => setQuery(event.target.value)} />
           <button className="primary-button" data-focusable type="submit" disabled={state === "loading" || !query.trim()}>{copy.search}</button>
           {view === "search" && <button type="button" data-focusable onClick={cancelSearch}>{state === "loading" ? copy.cancel : copy.clearSearch}</button>}</div></form>
@@ -253,7 +253,7 @@ export function PremiumExperience() {
     {recommendationTerms.length > 0 && <section className="premium-recommendations" data-premium-stage="recommendations" onKeyDown={handleRecommendationsKey} aria-labelledby="premium-recommendations-title">
       <h2 id="premium-recommendations-title">{copy.recommendations}</h2><div>{recommendationTerms.map((term) => <button type="button" data-focusable key={term}
         onClick={() => { setQuery(term); void performSearch(term); }}>{term}</button>)}</div></section>}
-    {tags.length > 0 && <div className="premium-tags" data-premium-stage="categories" onKeyDown={handleCategoriesKey} role="group" aria-label={copy.categories}>
+    {tags.length > 0 && <div className="premium-tags" data-material="regular" data-premium-stage="categories" onKeyDown={handleCategoriesKey} role="group" aria-label={copy.categories}>
       {tags.map((tag) => <button type="button" data-focusable aria-pressed={tag.id === selectedTag} key={tag.id} onClick={() => selectTag(tag)}>{tag.label}</button>)}</div>}
     {state === "loading" && <p className="content-message" role="status">{copy.loading} {progress.found > 0 ? `${copy.found} ${progress.found}` : ""}</p>}
     {state === "empty" && <p className="content-message" role="status">{view === "search" ? copy.searchEmpty : copy.categoryEmpty}</p>}

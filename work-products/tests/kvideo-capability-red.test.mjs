@@ -10,20 +10,29 @@ const observationPath = fileURLToPath(new URL("./fixtures/uxuv-pages-0.1.2/obser
 const observed = JSON.parse(readFileSync(observationPath, "utf8"));
 
 const sha256 = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
-const ids = readFileSync(matrixPath, "utf8").split(/\r?\n/)
-  .map((line) => line.match(/^\|\s*([A-Z][A-Z0-9-]*-[A-Z]?\d{3})\s*\|/)?.[1])
-  .filter(Boolean);
+function activeIds(markdown) {
+  let retired = false;
+  const ids = [];
+  for (const line of markdown.split(/\r?\n/)) {
+    if (line.includes("approved-retired-by-SPEC-21")) retired = true;
+    else if (/^## /.test(line)) retired = false;
+    const id = line.match(/^\|\s*([A-Z][A-Z0-9-]*-[A-Z]?\d{3})\s*\|/)?.[1];
+    if (id && !retired) ids.push(id);
+  }
+  return ids;
+}
+
+const ids = activeIds(readFileSync(matrixPath, "utf8"));
 
 function routeForId(id) {
   if (/^(SRC|SET|DAT)-/.test(id)) return "settings";
   if (/^FAV-/.test(id)) return "favorites";
-  if (/^IPTV-/.test(id)) return "iptv";
   if (/^PRE-/.test(id)) return "premium";
   if (/^(HIS|PLY-|DAN|ADS|EXT)-/.test(id) || /^PLY-[ACS]/.test(id)) return "player";
   return "home";
 }
 
-assert.equal(ids.length, 273, "The frozen matrix must contain exactly 273 capability IDs");
+assert.equal(ids.length, 250, "The active matrix must contain exactly 250 capability IDs");
 assert.equal(observed.pagesCommit, "4bc847affa76755a5c99ce249d793aa43e0b83bb");
 
 for (const id of ids) {

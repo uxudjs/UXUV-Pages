@@ -19,14 +19,16 @@ test("T20 composes a localized Premium settings page from mode-isolated controls
   const settings = read("components/premium/PremiumSettingsExperience.tsx");
   const sources = read("components/settings/SourceSettings.tsx");
   const player = read("lib/hooks/usePlayerSettings.ts");
-  for (const token of ['mode="premium"', "PlayerSettings", "DisplaySettings", "SourceSettings"]) {
+  for (const token of ['mode="premium"', "PlayerSettings", "DisplaySettings", "SortSettings", "SourceSettings", "UserDanmakuSettings", "SyncSettings", "CloudflareUsageSettings", "DataSettings"]) {
     assert.match(settings, new RegExp(token));
   }
   assert.match(sources, /mode.*premium/);
   assert.match(sources, /group.*premium/);
   assert.match(sources, /ImportModal/);
   assert.match(player, /premium\./);
-  assert.doesNotMatch(settings, /DataSettings/);
+  for (const domain of ["account", "sources", "playback", "display", "sync", "data"]) assert.match(settings, new RegExp(`settings-domain-${domain}`));
+  assert.ok(settings.indexOf('if (state === "locked")') < settings.indexOf("settings-domain-account"));
+  assert.ok(settings.indexOf('if (state === "error")') < settings.indexOf("settings-domain-account"));
   assert.doesNotMatch(settings, /AppVersionSettings/);
   for (const locale of ["zh-CN", "zh-TW", "en"]) assert.match(settings, new RegExp(`(?:(?:"${locale}")|(?:${locale}:))`));
 });
@@ -42,4 +44,11 @@ test("T20 defines full standard plus Premium export while preserving v1 isolatio
   assert.match(transfer, /preserve/i);
   assert.match(data, /buildAllSettingsExport/);
   assert.match(data, /preferencesFor\(accountId,\s*"premium"\)/);
+});
+
+test("T13 keeps Premium access and heading surfaces readable without glassing settings domains", () => {
+  const settings = read("components/premium/PremiumSettingsExperience.tsx");
+  assert.match(settings, /className="auth-panel"[^>]*data-material="regular"/s);
+  assert.match(settings, /className="premium-settings-heading"[^>]*data-material="regular"/s);
+  assert.doesNotMatch(settings, /className="settings-domain[^>]*data-material=/s);
 });

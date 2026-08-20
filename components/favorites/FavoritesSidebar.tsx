@@ -72,11 +72,11 @@ export function FavoritesSidebar({ premium = false }: Readonly<{ premium?: boole
     queueMicrotask(() => closeRef.current?.focus());
   };
   return <>
-    <button ref={openRef} type="button" className="favorites-sidebar-toggle" aria-label={copy.open} title={copy.open}
+    <button ref={openRef} type="button" className="favorites-sidebar-toggle" data-material="regular" aria-label={copy.open} title={copy.open}
       style={floating.floatingStyle} onPointerDown={floating.onPointerDown} data-focusable
       onClick={(event) => { if (!floating.consumeSyntheticClick(event)) setOpen(true); }}><Icon source={Heart} size={24} /></button>
     {open && <><button type="button" className="favorites-sidebar-backdrop" aria-label={copy.close} onClick={close} />
-    <aside ref={sidebarRef} className="favorites-sidebar is-open" role="dialog" aria-modal="true"
+    <aside ref={sidebarRef} className="favorites-sidebar is-open" data-material="regular" role="dialog" aria-modal="true"
       aria-labelledby="favorites-sidebar-title">
       <header><div><h2 id="favorites-sidebar-title">{copy.title}</h2><span>{favorites.length}/{MAX_FAVORITES} {copy.item}</span></div>
         <button ref={closeRef} type="button" data-autofocus data-focusable aria-label={copy.close} onClick={close}><Icon source={X} size={18} /></button></header>
@@ -91,7 +91,7 @@ export function FavoritesSidebar({ premium = false }: Readonly<{ premium?: boole
         <Icon source={Trash2} size={16} />{copy.clear}</button>}
       <Link className="primary-link" data-focusable href={premium ? "/premium/favorites" : "/favorites"} prefetch={false}
         onClick={close}>{copy.all}</Link>
-      {confirmationOpen && <section className="history-confirm" role="alertdialog" aria-modal="true" aria-labelledby="favorites-confirm-title">
+      {confirmationOpen && <section className="history-confirm" data-material="regular" role="alertdialog" aria-modal="true" aria-labelledby="favorites-confirm-title">
         <h3 id="favorites-confirm-title">{confirmClear ? copy.confirmClear : copy.confirmRemove}</h3><p>{copy.irreversible}</p>
         <div><button type="button" data-autofocus data-focusable onClick={() => { setPendingRemoval(null); setConfirmClear(false); }}>{copy.cancel}</button>
           <button type="button" className="danger-button" data-focusable onClick={confirm}>{copy.confirm}</button></div>

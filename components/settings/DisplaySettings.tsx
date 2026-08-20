@@ -5,7 +5,7 @@ import { useLocale, type AppLocale } from "@/components/LocaleProvider";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { Switch } from "@/components/ui/Switch";
 import { useSync } from "@/components/SyncProvider";
-import { useSearchDisplayModePreference, type SearchDisplayMode } from "@/lib/hooks/useSearchDisplayMode";
+import { useSearchDisplayModePreference } from "@/lib/hooks/useSearchDisplayMode";
 import { useSearchResultPreferences } from "@/lib/hooks/useSearchResultPreferences";
 import { useAuth } from "@/lib/store/auth-store";
 import type { ConfigPayload } from "@/lib/sync/document-types";
@@ -41,12 +41,6 @@ const localeOptions: Array<{ value: AppLocale; key: "simplified" | "traditional"
   { value: "zh-CN", key: "simplified" }, { value: "zh-TW", key: "traditional" }, { value: "en", key: "english" },
 ];
 
-function Choice({ active, title, detail, onClick }: Readonly<{ active: boolean; title: string; detail: string; onClick: () => void }>) {
-  return <button type="button" className="preference-choice" aria-pressed={active} data-focusable onClick={onClick}>
-    <strong>{title}</strong><small>{detail}</small>
-  </button>;
-}
-
 export function DisplaySettings({ mode = "standard" }: Readonly<{ mode?: "standard" | "premium" }>) {
   const auth = useAuth();
   const sync = useSync();
@@ -64,25 +58,26 @@ export function DisplaySettings({ mode = "standard" }: Readonly<{ mode?: "standa
     search.addBlockedCategory(category);
     setCategory("");
   };
-  const chooseMode = (mode: SearchDisplayMode) => searchDisplayMode.setDisplayMode(mode);
-
   return <SettingsSection id="display" title={copy.title}>
     <div className="preference-stack">
       <div className="preference-toggle"><span><h3>{copy.remember}</h3><small>{copy.rememberHint}</small></span>
         <Switch checked={rememberScrollPosition} ariaLabel={copy.remember} onChange={(checked) => sync.updateConfigField(rememberField, checked)} /></div>
       <div className="preference-toggle"><span><h3>{copy.latency}</h3><small>{copy.latencyHint}</small></span>
         <Switch checked={search.realtimeLatency} ariaLabel={copy.latency} onChange={search.setRealtimeLatency} /></div>
-      <div className="preference-group"><h3>{copy.mode}</h3><p>{copy.modeHint}</p><div className="preference-grid">
-        <Choice active={searchDisplayMode.displayMode === "normal"} title={copy.normal} detail={copy.normalHint} onClick={() => chooseMode("normal")} />
-        <Choice active={searchDisplayMode.displayMode === "grouped"} title={copy.grouped} detail={copy.groupedHint} onClick={() => chooseMode("grouped")} />
-      </div></div>
+      <div className="preference-group"><label className="settings-field-row settings-field-stack"><span>{copy.mode}</span><small>{copy.modeHint}</small>
+        <select aria-label={copy.mode} value={searchDisplayMode.displayMode} data-focusable
+          onChange={(event) => searchDisplayMode.setDisplayMode(event.target.value as "normal" | "grouped")}>
+          <option value="normal">{copy.normal}</option><option value="grouped">{copy.grouped}</option>
+        </select><small>{searchDisplayMode.displayMode === "normal" ? copy.normalHint : copy.groupedHint}</small>
+      </label></div>
       <div className="preference-group display-language-settings"><h3>{copy.language}</h3><div className="display-language-options" role="group" aria-label={copy.language}>
         {localeOptions.map((option) => <button key={option.value} type="button" aria-pressed={locale === option.value} data-focusable
           onClick={() => setLocale(option.value)}>{copy[option.key]}</button>)}
       </div></div>
-      <div className="preference-group"><h3>{copy.blocked}</h3><p>{copy.blockedHint}</p>
-        <form className="preference-block-form" onSubmit={addCategory}><input maxLength={40} value={category} placeholder={copy.blockedPlaceholder}
-          onChange={(event) => setCategory(event.target.value)} /><button type="submit" data-focusable disabled={!category.trim()}>{copy.add}</button></form>
+      <div className="preference-group"><p>{copy.blockedHint}</p>
+        <form className="preference-block-form" onSubmit={addCategory}><label className="settings-field-row"><span>{copy.blocked}</span>
+          <input maxLength={40} value={category} placeholder={copy.blockedPlaceholder} onChange={(event) => setCategory(event.target.value)} />
+        </label><button type="submit" data-focusable disabled={!category.trim()}>{copy.add}</button></form>
         {search.blockedCategories.length > 0 && <div className="preference-chips">{search.blockedCategories.map((value) => <button type="button" data-focusable
           aria-label={`${copy.remove} ${value}`} key={value} onClick={() => search.removeBlockedCategory(value)}>{value} ×</button>)}</div>}
       </div>

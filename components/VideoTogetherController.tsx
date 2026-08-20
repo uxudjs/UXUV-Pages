@@ -258,6 +258,7 @@ export function VideoTogetherController({ visible, open, onOpenChange }: Readonl
       style={{ right: 144, opacity: visible || open ? 1 : 0, visibility: visible || open ? "visible" : "hidden",
         pointerEvents: visible || open ? "auto" : "none" }}>
       <button ref={triggerRef} type="button" className="desktop-speed-trigger video-together-trigger"
+        data-material="clear"
         aria-label={copy.open} aria-expanded={open} aria-haspopup="dialog"
         onClick={() => onOpenChange(!open)}>
         <UsersRound aria-hidden="true" />
@@ -267,7 +268,7 @@ export function VideoTogetherController({ visible, open, onOpenChange }: Readonl
       <button type="button" className="source-modal-backdrop" aria-label={copy.close}
         onClick={() => onOpenChange(false)} />
       <div ref={dialogRef} className="source-modal video-together-dialog" role="dialog" aria-modal="true"
-        aria-labelledby="video-together-title" data-videotogether-state={scriptState}>
+        aria-labelledby="video-together-title" data-material="regular" data-videotogether-state={scriptState}>
         <header>
           <h2 id="video-together-title">{copy.title}</h2>
           <button type="button" data-focusable aria-label={copy.close} onClick={() => onOpenChange(false)}>×</button>

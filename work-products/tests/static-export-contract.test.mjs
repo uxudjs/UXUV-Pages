@@ -10,7 +10,6 @@ const read = (path) => readFileSync(join(root, path), "utf8");
 const routes = new Map([
   ["/", "app/page.tsx"],
   ["/favorites", "app/favorites/page.tsx"],
-  ["/iptv", "app/iptv/page.tsx"],
   ["/player", "app/player/page.tsx"],
   ["/premium", "app/premium/page.tsx"],
   ["/premium/favorites", "app/premium/favorites/page.tsx"],
@@ -62,9 +61,9 @@ test("pins only the KVideo browser dependencies needed by later UI slices", () =
     assert.equal(packageLock.packages[""].dependencies[name], version, `${name} must be pinned in package-lock.json`);
     assert.equal(packageLock.packages[`node_modules/${name}`].version, version, `${name} lock entry drifted`);
   }
-  assert.equal(packageJson.devDependencies.esbuild, "0.27.7");
-  assert.equal(packageLock.packages[""].devDependencies.esbuild, "0.27.7");
-  assert.equal(packageLock.packages["node_modules/esbuild"].version, "0.27.7");
+  assert.equal(packageJson.devDependencies.esbuild, "0.28.2");
+  assert.equal(packageLock.packages[""].devDependencies.esbuild, "0.28.2");
+  assert.equal(packageLock.packages["node_modules/esbuild"].version, "0.28.2");
   for (const forbidden of ["@upstash/redis", "@vercel/analytics"]) {
     assert.equal(packageJson.dependencies[forbidden], undefined, `${forbidden} is server or deployment specific`);
     assert.equal(packageJson.devDependencies[forbidden], undefined, `${forbidden} is server or deployment specific`);

@@ -22,3 +22,11 @@ test("T29 keeps search and authorization on same-origin Worker routes", () => {
   assert.match(client, /credentials:\s*"same-origin"/);
   assert.doesNotMatch(experience, /fetch\(\s*(?:source|video)\.(?:baseUrl|url)/);
 });
+
+test("T13 uses regular material for Premium controls without glassing content cards", () => {
+  assert.match(experience, /className="auth-panel"[^>]*data-material="regular"/s);
+  assert.match(experience, /className="search-form"[^>]*data-material="regular"/s);
+  assert.match(experience, /className="premium-tags"[^>]*data-material="regular"/s);
+  assert.match(experience, /className="premium-legacy-manage"[^>]*data-material="regular"/s);
+  assert.doesNotMatch(experience, /className="(?:hero-panel premium-hero|content-section)"[^>]*data-material=/s);
+});

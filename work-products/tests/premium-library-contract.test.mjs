@@ -39,3 +39,10 @@ test("T30 makes Premium library controls reachable by keyboard and TV focus", ()
   assert.match(hook, /event\.key [!=]==? "Tab"/);
   assert.match(hook, /returnFocusRef/);
 });
+
+test("T13 leaves repeatable video cards on standard material", () => {
+  const card = read("components/VideoCard.tsx");
+  const css = read("app/globals.css");
+  assert.doesNotMatch(card, /data-(?:material|liquid-glass)=/);
+  assert.doesNotMatch(css, /\.video-card[^}]*backdrop-filter/s);
+});

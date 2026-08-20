@@ -52,8 +52,13 @@ test("T23 connects touch, TV isolation, fullscreen, PiP, and Cast only to the pr
 test("T23 defines web fullscreen and mobile control geometry without native controls", () => {
   const css = read("app/globals.css");
   const player = read("components/media/MediaPlayer.tsx");
+  const fullscreen = read("components/player/hooks/useFullscreenControls.ts");
+  const backToTop = read("components/ui/BackToTop.tsx");
   assert.match(css, /\.media-player\.is-web-fullscreen/);
+  assert.match(css, /body\.player-web-fullscreen-open\s+\.back-to-top/);
   assert.match(css, /\.media-player\[data-input-mode="touch"\]/);
   assert.match(css, /\.desktop-device-controls/);
   assert.match(player, /controls=\{!shellControls\}/);
+  assert.match(fullscreen, /fullscreenMode !== "window"/);
+  assert.match(backToTop, /hidden=\{webFullscreen\}/);
 });

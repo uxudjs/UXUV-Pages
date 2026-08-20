@@ -169,19 +169,19 @@ test("production export contains the PWA assets", () => {
   assert.equal(existsSync(join(root, "out/icon.png")), true);
 });
 
-test("production export recalculates a complete eight-route PWA release manifest", () => {
+test("production export recalculates the complete seven-route PWA release manifest", () => {
   rmSync(workRoot, { force: true, recursive: true });
   const result = buildRelease({
     sourceDir: join(root, "out"),
     releaseRoot: workRoot,
     licensePath: join(root, "LICENSE"),
-    version: "0.1.2",
-    apiContract: 1,
-    workerRange: ">=1.0.0 <2.0.0",
+    version: "0.3.0",
+    apiContract: 2,
+    workerRange: ">=2.0.0 <3.0.0",
   });
   const manifest = JSON.parse(readFileSync(result.manifestPath, "utf8"));
 
-  assert.equal(Object.keys(manifest.routes).length, 8);
+  assert.equal(Object.keys(manifest.routes).length, 7);
   for (const asset of ["/manifest.json", "/sw.js", "/icon.png"]) {
     assert.ok(manifest.assets[asset], `${asset} is missing from the release manifest`);
   }

@@ -78,3 +78,11 @@ test("the provider delegates generic transitions and exposes one localized aggre
   assert.match(settings, /Object\.values\(sync\.documents\)\.some/);
   assert.match(settings, /useLocale/);
 });
+
+test("S21-T11 types the bounded skip map as one timestamped config field", async () => {
+  const types = await read("lib/sync/document-types.ts");
+  assert.match(types, /interface VideoSkipRule/);
+  assert.match(types, /videoSkipRules\?:\s*VideoSkipRulesField/);
+  assert.match(types, /updatedAt:\s*number/);
+  assert.match(types, /Record<string, VideoSkipRule>/);
+});

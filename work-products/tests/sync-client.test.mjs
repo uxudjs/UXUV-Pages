@@ -5,10 +5,19 @@ import { ModuleKind, ScriptTarget, transpileModule } from "typescript";
 
 const sourceUrl = new URL("../../lib/sync/document-merge.ts", import.meta.url);
 const source = await readFile(sourceUrl, "utf8");
+const providerSource = await readFile(new URL("../../components/SyncProvider.tsx", import.meta.url), "utf8");
+const playbackHistorySource = await readFile(new URL("../../components/player/hooks/usePlaybackHistory.ts", import.meta.url), "utf8");
 const javascript = transpileModule(source, {
   compilerOptions: { module: ModuleKind.ESNext, target: ScriptTarget.ES2022 },
 }).outputText;
 const sync = await import(`data:text/javascript;base64,${Buffer.from(javascript).toString("base64")}`);
+
+test("S21-T05 retries only on online or manual actions and still saves hidden playback", () => {
+  assert.doesNotMatch(providerSource, /addEventListener\(["']focus["']/);
+  assert.match(providerSource, /addEventListener\(["']online["']/);
+  assert.match(providerSource, /retry:\s*\(\)\s*=>/);
+  assert.match(playbackHistorySource, /visibilityState\s*===\s*["']hidden["']/);
+});
 
 test("local field mutations stay dirty until a server version is accepted", () => {
   const initial = sync.createLocalDocument("config");

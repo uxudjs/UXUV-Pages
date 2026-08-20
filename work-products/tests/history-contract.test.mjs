@@ -27,3 +27,10 @@ test("T14 exposes one localized history dialog with remove, clear, empty, and pl
   assert.match(sidebar, /empty/);
   assert.match(home, /<WatchHistorySidebar/);
 });
+
+test("T13 marks only the history floating control and dialogs as functional material", () => {
+  const sidebar = read("components/history/WatchHistorySidebar.tsx");
+  assert.match(sidebar, /className="history-sidebar-toggle"[^>]*data-material="regular"/s);
+  assert.match(sidebar, /className="history-sidebar is-open"[^>]*data-material="regular"/s);
+  assert.match(sidebar, /className="history-confirm"[^>]*data-material="regular"/s);
+});

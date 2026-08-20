@@ -2,25 +2,32 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Settings } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { FavoritesSidebar } from "@/components/favorites/FavoritesSidebar";
 import { WatchHistorySidebar } from "@/components/history/WatchHistorySidebar";
-import { useLocale, type AppLocale } from "@/components/LocaleProvider";
+import { useLocale } from "@/components/LocaleProvider";
+import { PlayerFavoriteButton } from "@/components/player/PlayerFavoriteButton";
 import { useRuntimeConfig } from "@/components/RuntimeConfigProvider";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { Icon } from "@/components/ui/Icon";
+import type { Video } from "@/lib/content/types";
+import { useAuth } from "@/lib/store/auth-store";
+import { displayInitial } from "@/lib/utils/display-initial";
 
 const COPY = {
-  "zh-CN": { back: "返回", settings: "设置", language: "语言" },
-  "zh-TW": { back: "返回", settings: "設定", language: "語言" },
-  en: { back: "Back", settings: "Settings", language: "Language" },
+  "zh-CN": { back: "返回", settings: "打开设置" },
+  "zh-TW": { back: "返回", settings: "開啟設定" },
+  en: { back: "Back", settings: "Open settings" },
 } as const;
 
-export function PlayerNavbar({ premium }: Readonly<{ premium: boolean }>) {
+export function PlayerNavbar({ premium, video }: Readonly<{ premium: boolean; video: Video | null }>) {
   const router = useRouter();
   const runtime = useRuntimeConfig();
-  const { locale, setLocale } = useLocale();
+  const auth = useAuth();
+  const { locale } = useLocale();
   const copy = COPY[locale];
+  const settingsHref = premium ? "/premium/settings" : "/settings";
+  const userInitial = displayInitial(auth?.session.name, auth?.session.username);
 
   return <>
     <nav className="player-navbar" aria-label={copy.back}>
@@ -36,14 +43,9 @@ export function PlayerNavbar({ premium }: Readonly<{ premium: boolean }>) {
           </button>
         </div>
         <div className="player-navbar-actions">
-          <Link className="nav-icon" href={premium ? "/premium/settings" : "/settings"} prefetch={false}
-            aria-label={copy.settings} title={copy.settings} data-focusable><Icon source={Settings} size={20} /></Link>
-          <label className="locale-control"><span className="sr-only">{copy.language}</span>
-            <select value={locale} onChange={(event) => setLocale(event.target.value as AppLocale)}
-              aria-label={copy.language} data-focusable>
-              <option value="zh-CN">简</option><option value="zh-TW">繁</option><option value="en">EN</option>
-            </select>
-          </label>
+          {video && <PlayerFavoriteButton video={video} />}
+          {auth && <Link className="nav-user" href={settingsHref} prefetch={false}
+            aria-label={copy.settings} data-focusable>{userInitial}</Link>}
           <ThemeSwitcher />
         </div>
       </div>

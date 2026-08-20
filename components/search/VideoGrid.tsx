@@ -6,6 +6,7 @@ import { VideoGroupCard, type GroupedVideo } from "@/components/search/VideoGrou
 import type { Video, VideoSource } from "@/lib/content/types";
 import { videoRecordId } from "@/lib/content/types";
 import { useSearchDisplayMode } from "@/lib/hooks/useSearchDisplayMode";
+import { groupSearchVideos } from "@/lib/utils/search-result-policy";
 
 interface VideoGridProps {
   videos: Video[];
@@ -21,30 +22,15 @@ interface VideoGridProps {
 export function VideoGrid({ videos, sources, latencies, accountId, mode, favoriteIds, labels, onToggleFavorite }: VideoGridProps) {
   const displayMode = useSearchDisplayMode(accountId, mode);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
-  const groups = useMemo<GroupedVideo[]>(() => {
-    const byName = new Map<string, GroupedVideo>();
-    for (const video of videos) {
-      const normalizedName = video.vod_name.trim().toLocaleLowerCase();
-      const existing = byName.get(normalizedName);
-      if (existing) existing.videos.push(video);
-      else byName.set(normalizedName, { name: video.vod_name, representative: video, videos: [video] });
-    }
-    return [...byName.values()].map((group) => {
-      const ranked = group.videos.map((video, index) => ({ video, index })).sort((a, b) => {
-        const difference = (latencies[a.video.source] ?? Number.POSITIVE_INFINITY)
-          - (latencies[b.video.source] ?? Number.POSITIVE_INFINITY);
-        return Number.isNaN(difference) || difference === 0 ? a.index - b.index : difference;
-      }).map(({ video }) => video);
-      return { ...group, representative: ranked[0], videos: ranked };
-    });
-  }, [latencies, videos]);
+  const groups = useMemo<GroupedVideo[]>(() => groupSearchVideos(videos, latencies), [latencies, videos]);
   const activate = (_event: MouseEvent<HTMLAnchorElement>, cardId: string) => setActiveCardId(cardId);
 
   return <div className="kvideo-result-grid" role="list" aria-label={labels.view}>
     {displayMode === "grouped" ? groups.map((group) => {
-      const cardId = `group:${group.name.trim().toLocaleLowerCase()}`;
+      const cardId = `group:${encodeURIComponent(group.key)}`;
+      const favoriteVideo = group.videos.find((video) => favoriteIds.has(videoRecordId(video.source, video.vod_id)));
       return <VideoGroupCard key={cardId} group={group} active={activeCardId === cardId}
-        favorite={group.videos.some((video) => favoriteIds.has(videoRecordId(video.source, video.vod_id)))}
+        favorite={!!favoriteVideo} favoriteVideo={favoriteVideo}
         labels={labels} sources={sources} latency={latencies[group.representative.source]}
         onActivate={activate} onToggleFavorite={onToggleFavorite} />;
     }) : videos.map((video) => {

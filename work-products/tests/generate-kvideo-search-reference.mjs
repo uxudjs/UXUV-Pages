@@ -36,7 +36,7 @@ async function installNetwork(page) {
     if (url.origin !== referenceUrl) return route.abort("blockedbyclient");
     if (!url.pathname.startsWith("/api/")) return route.continue();
     const json = (body, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
-    if (url.pathname === "/api/auth") return json({ hasAuth: false, persistSession: true, loginMode: "none", subscriptionSources: "", iptvSources: "", mergeSources: "false", danmakuApiUrl: "" });
+    if (url.pathname === "/api/auth") return json({ hasAuth: false, persistSession: true, loginMode: "none" });
     if (url.pathname === "/api/search-parallel") {
       const events = [
         { type: "start", totalSources: 2 },

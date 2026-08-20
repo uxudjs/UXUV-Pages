@@ -9,7 +9,8 @@ export interface VideoSource extends TimestampedRecord {
   headers?: Record<string, string>;
   enabled?: boolean;
   group?: "normal" | "premium";
-  kind?: "system" | "personal";
+  kind?: "system" | "personal" | "subscription" | "standalone";
+  subscriptionId?: string;
   priority?: number;
 }
 

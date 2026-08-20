@@ -4,8 +4,7 @@ const capability = { profile: "paid", limits: { sources: 32, searchConcurrency: 
   videos: 2000, probeVideos: 100, probeConcurrency: 4, probeVariants: 4 } };
 const runtime = { release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: false, danmaku: false }, adKeywords: [],
-  sources: { subscriptionSources: "", iptvSources: "", mergeSources: false, danmakuApiUrl: "" },
+  capabilities: { premium: true, danmaku: false }, adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } }, authenticated: true };
 const standardSource = { id: "standard", updatedAt: 1, name: "Standard source", baseUrl: "https://standard.example", enabled: true, group: "normal", priority: 1 };
 const premiumA = { id: "premium-a", updatedAt: 1, name: "Premium A", baseUrl: "https://premium-a.example", enabled: true, group: "premium", priority: 1 };
@@ -73,6 +72,8 @@ test.describe("KVideo T29 Premium home", () => {
     await expect(page.getByRole("button", { name: "Premium Alpha" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Standard secret" })).toHaveCount(0);
     await expect(page.locator('[data-premium-stage="content"] .video-card')).toHaveCount(20);
+    await expect(page.locator(".premium-tags")).toHaveAttribute("data-material", "regular");
+    await expect(page.locator('[data-premium-stage="content"] .video-card').first()).not.toHaveAttribute("data-material", /.+/);
     expect(worker.evidence.categoryBodies[0].sources.map(({ id }) => id)).toEqual(["premium-a", "premium-b"]);
     await expect(page.locator(".source-badge").nth(0)).toHaveText("Premium A");
     await expect(page.locator(".source-badge").nth(1)).toHaveText("Premium B");
@@ -98,9 +99,15 @@ test.describe("KVideo T29 Premium home", () => {
       await page.screenshot({ path: testInfo.outputPath(`premium-home-${width}.png`), animations: "disabled" });
     }
 
+    await page.setViewportSize({ width: 640, height: 900 });
+    await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.evaluate(() => { document.documentElement.style.fontSize = ""; });
+
     worker.expire();
     await page.getByRole("button", { name: "返回分类" }).click();
     await expect(page.getByRole("heading", { name: "解锁 Premium" })).toBeVisible();
+    await expect(page.locator(".auth-panel")).toHaveAttribute("data-material", "regular");
     await page.getByLabel("Premium 密码").fill("premium-password");
     await page.getByRole("button", { name: "解锁", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Premium 内容" })).toBeVisible();
@@ -116,7 +123,7 @@ test.describe("KVideo T29 Premium home", () => {
       const context = await browser.newContext({ locale: scenario.locale });
       await mockPremiumWorker(context);
       const page = await context.newPage();
-      await page.goto("http://127.0.0.1:4173/UXUV-Pages/premium/");
+      await page.goto("http://127.0.0.1:4173/premium/");
       await expect(page.getByRole("heading", { name: scenario.heading })).toBeVisible();
       await expect(page.getByLabel(scenario.search)).toBeVisible();
       await context.close();

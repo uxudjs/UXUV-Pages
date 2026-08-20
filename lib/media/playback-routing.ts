@@ -18,12 +18,10 @@ function browserDirectMediaUrl(value: string): string | null {
 }
 
 export function resolvePlaybackSources(
-  route: "proxy" | "iptv-stream",
   target: string,
   protectedSrc: string,
   proxyMode: ProxyMode,
 ): PlaybackSources {
-  if (route !== "proxy") return { primarySrc: protectedSrc, fallbackSrc: null };
   const directSrc = browserDirectMediaUrl(target);
   if (!directSrc) return { primarySrc: protectedSrc, fallbackSrc: null };
   if (proxyMode === "none") return { primarySrc: directSrc, fallbackSrc: null };

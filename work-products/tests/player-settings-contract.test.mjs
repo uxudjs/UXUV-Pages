@@ -19,14 +19,14 @@ test("T18 preserves the reviewed player defaults, ranges, and compatibility boun
   assert.match(policy, /uxuv-player-settings-account-migration-v1/);
 });
 
-test("T18 exposes every player, skip, proxy, ad, and danmaku control through one synced snapshot", () => {
+test("T18 exposes current player, proxy, ad, and danmaku controls through one synced snapshot", () => {
   const player = read("components/settings/PlayerSettings.tsx");
   const danmaku = read("components/settings/UserDanmakuSettings.tsx");
   const hook = read("lib/hooks/usePlayerSettings.ts");
   const consumer = read("components/media/MediaPlayer.tsx");
   for (const token of [
-    "fullscreenType", "seekStepSeconds", "proxyMode", "autoNextEpisode", "autoSkipIntro",
-    "skipIntroSeconds", "autoSkipOutro", "skipOutroSeconds", "showModeIndicator", "adFilterMode",
+    "fullscreenType", "seekStepSeconds", "proxyMode", "autoNextEpisode",
+    "showModeIndicator", "adFilterMode",
     "adKeywords", "videoTogetherEnabled", "danmakuEnabled", "danmakuOpacity", "danmakuFontSize", "danmakuDisplayArea",
   ]) assert.match(player, new RegExp(token));
   assert.match(hook, /updateConfigField/);
@@ -35,6 +35,11 @@ test("T18 exposes every player, skip, proxy, ad, and danmaku control through one
   assert.match(consumer, /playerSettings\.videoTogetherEnabled/);
   assert.match(danmaku, /activeDanmakuApiId/);
   assert.match(danmaku, /unsafeDanmakuUrlReason/);
+  assert.match(player, /hasActiveDanmakuApi/);
+  assert.doesNotMatch(player, /commitDanmakuUrl|player-danmaku-api|DANMAKU_COPY/);
+  assert.doesNotMatch(player, /autoSkipIntro|skipIntroSeconds|autoSkipOutro|skipOutroSeconds/);
+  assert.match(player, /playbackBehavior|networkPath|adFiltering|danmakuAppearance/);
+  assert.match(danmaku, /danmaku-api-empty/);
 });
 
 test("T18 keeps the settings order, three languages, permissions, and direct fallback boundary explicit", () => {
@@ -51,5 +56,24 @@ test("T18 keeps the settings order, three languages, permissions, and direct fal
   assert.match(player, /same-origin/);
   assert.match(player, /CORS/);
   assert.match(player, /回退一次|回退一次/);
-  assert.match(danmaku, /danmaku_api/);
+  assert.match(danmaku, /activeDanmakuApiId/);
+  assert.doesNotMatch(danmaku, /useRuntimeConfig/);
+  const premium = read("components/premium/PremiumSettingsExperience.tsx");
+  assert.match(premium, /<UserDanmakuSettings mode="premium" \/>/);
+  assert.match(premium, /settings-domain-playback/);
+});
+
+test("S21-T11 drives skip automation only from the current player video rule", () => {
+  const experience = read("components/PlayerExperience.tsx");
+  const media = read("components/media/MediaPlayer.tsx");
+  const settings = read("lib/hooks/usePlayerSettings.ts");
+  assert.match(experience, /SkipRuleEditor/);
+  assert.match(experience, /videoSkipRuleKey\(mode, sourceId, videoId\)/);
+  assert.match(experience, /skipRule=\{skipRule\}/);
+  assert.match(media, /skipRule\?:\s*VideoSkipRule/);
+  assert.match(media, /autoSkipIntro:\s*skipRule\?\.introEnabled/);
+  assert.match(media, /autoSkipOutro:\s*skipRule\?\.outroEnabled/);
+  assert.doesNotMatch(media, /playerSettings\.(?:autoSkipIntro|skipIntroSeconds|autoSkipOutro|skipOutroSeconds)/);
+  assert.match(settings, /updateConfigField\("videoSkipRules"/);
+  assert.match(settings, /deleteVideoSkipRule/);
 });

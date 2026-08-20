@@ -1,4 +1,5 @@
 import type { ConfigPayload, LibraryPayload, SyncPayload, TimestampedRecord } from "@/lib/sync/document-types";
+import { normalizeVideoSkipRules, videoSkipRuleMode } from "@/lib/player/auto-skip";
 import { SEARCH_SORT_OPTIONS, type SearchSortOption } from "@/lib/utils/search-result-policy";
 
 export const MAX_SETTINGS_IMPORT_BYTES = 1024 * 1024;
@@ -42,7 +43,10 @@ export type SettingsExportEnvelope = StandardSettingsExport | AllSettingsExport;
 
 export interface SettingsImportPreview {
   envelope: SettingsExportEnvelope;
-  summary: { fields: number; sources: number; subscriptions: number; history: number; favorites: number; preferences: number };
+  summary: {
+    fields: number; sources: number; subscriptions: number; history: number; favorites: number; preferences: number;
+    skippedRetiredFields: string[];
+  };
 }
 
 export class SettingsTransferError extends Error {
@@ -58,6 +62,22 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function normalizedKey(key: string): string {
   return key.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+const RETIRED_CONFIG_FIELDS = new Set(["iptv", "iptvsource", "iptvsources", "subscriptionsources", "danmakuapiurl"]);
+
+function retiredConfigField(key: string): boolean {
+  return RETIRED_CONFIG_FIELDS.has(normalizedKey(key));
+}
+
+function skippedRetiredFields(value: unknown): string[] {
+  if (!isRecord(value) || !isRecord(value.fields)) return [];
+  const fields = new Map<string, string>();
+  for (const key of Object.keys(value.fields)) {
+    const normalized = normalizedKey(key);
+    if (retiredConfigField(key) && !fields.has(normalized)) fields.set(normalized, key);
+  }
+  return [...fields.values()].sort();
 }
 
 function unsafeUrl(value: string): boolean {
@@ -111,8 +131,17 @@ function configPayload(value: unknown, allowPremium = false): ConfigPayload {
     || Object.values(value.fields).some((field) => !isRecord(field) || !Object.hasOwn(field, "value") || !validTimestamp(field.updatedAt))
     || !validRecords(value.sources, 200) || !validRecords(value.subscriptions, 50)
     || !validTombstones(value.tombstones, ["sources", "subscriptions"])) throw new SettingsTransferError("invalid");
-  if (!allowPremium && value.sources.some((source) => source.group === "premium")) throw new SettingsTransferError("premium");
-  return value as unknown as ConfigPayload;
+  const sources = value.sources as TimestampedRecord[];
+  if (!allowPremium && sources.some((source) => source.group === "premium")) throw new SettingsTransferError("premium");
+  const fields = Object.fromEntries(Object.entries(value.fields).flatMap(([key, field]) => {
+    if (retiredConfigField(key)) return [];
+    const timestamped = field as { value: unknown; updatedAt: number };
+    return [[key, key === "videoSkipRules"
+      ? { ...timestamped, value: normalizeVideoSkipRules(timestamped.value) }
+      : timestamped]];
+  }));
+  return { fields, sources, subscriptions: value.subscriptions as TimestampedRecord[],
+    tombstones: value.tombstones as ConfigPayload["tombstones"] };
 }
 
 function libraryPayload(value: unknown): LibraryPayload {
@@ -170,7 +199,10 @@ export function buildSettingsExport(input: {
 }): StandardSettingsExport {
   const config = {
     ...input.config,
-    fields: Object.fromEntries(Object.entries(input.config.fields).filter(([key]) => !key.startsWith("premium."))),
+    fields: Object.fromEntries(Object.entries(input.config.fields).filter(([key]) => !key.startsWith("premium.") && !retiredConfigField(key))
+      .map(([key, field]) => [key, key === "videoSkipRules" ? { ...field,
+        value: Object.fromEntries(Object.entries(normalizeVideoSkipRules(field.value))
+          .filter(([ruleKey]) => videoSkipRuleMode(ruleKey) === "standard")) } : field])),
     sources: input.config.sources.filter((source) => source.group !== "premium"),
     subscriptions: input.config.subscriptions.filter((subscription) => subscription.mode !== "premium"),
     tombstones: [],
@@ -251,7 +283,11 @@ export function previewSettingsImport(text: string): SettingsImportPreview {
     : Object.keys(envelope.preferences).length;
   return { envelope, summary: { fields: Object.keys(envelope.config.fields).length, sources: envelope.config.sources.length,
     subscriptions: envelope.config.subscriptions.length, history: envelope.library.history.length, favorites: envelope.library.favorites.length,
-    preferences: preferenceCount } };
+    preferences: preferenceCount, skippedRetiredFields: skippedRetiredFields(value.config) } };
+}
+
+function requireUniqueRecordIds(records: readonly TimestampedRecord[]) {
+  if (new Set(records.map(({ id }) => id)).size !== records.length) throw new SettingsTransferError("invalid");
 }
 
 export function prepareImportedPayloads(preview: SettingsImportPreview,
@@ -271,9 +307,20 @@ export function prepareImportedPayloads(preview: SettingsImportPreview,
     const preservePremiumRecord = (record: TimestampedRecord) => record.mode === "premium" || record.id.startsWith("premium:");
     const sources = [...current.config.sources.filter((source) => source.group === "premium"), ...config.sources];
     const subscriptions = [...current.config.subscriptions.filter((subscription) => subscription.mode === "premium"), ...config.subscriptions];
+    const currentRuleField = current.config.fields.videoSkipRules;
+    const importedRuleField = config.fields.videoSkipRules;
+    const fields = { ...Object.fromEntries(Object.entries(current.config.fields).filter(([key]) => key.startsWith("premium."))), ...config.fields };
+    if (importedRuleField) {
+      fields.videoSkipRules = { ...importedRuleField, value: {
+        ...Object.fromEntries(Object.entries(normalizeVideoSkipRules(currentRuleField?.value))
+          .filter(([key]) => videoSkipRuleMode(key) === "premium")),
+        ...Object.fromEntries(Object.entries(normalizeVideoSkipRules(importedRuleField.value))
+          .filter(([key]) => videoSkipRuleMode(key) === "standard")),
+      } };
+    } else if (currentRuleField) fields.videoSkipRules = currentRuleField;
     config = {
       ...config,
-      fields: { ...Object.fromEntries(Object.entries(current.config.fields).filter(([key]) => key.startsWith("premium."))), ...config.fields },
+      fields,
       sources,
       subscriptions,
       tombstones: current.config.tombstones.filter((item) => item.collection === "sources"
@@ -290,6 +337,9 @@ export function prepareImportedPayloads(preview: SettingsImportPreview,
         ? !history.some((record) => record.id === item.id)
         : !favorites.some((record) => record.id === item.id)),
     };
+  }
+  for (const records of [config.sources, config.subscriptions, library.history, library.favorites]) {
+    requireUniqueRecordIds(records);
   }
   return { config: stamp(config) as ConfigPayload, library: stamp(library) as LibraryPayload };
 }

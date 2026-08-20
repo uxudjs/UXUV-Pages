@@ -13,7 +13,6 @@ const fixedTime = "2026-08-08T08:00:00.000+08:00";
 const routes = [
   { id: "home", path: "/" },
   { id: "favorites", path: "/favorites" },
-  { id: "iptv", path: "/iptv" },
   { id: "player", path: "/player?id=fixture-video&source=fixture-source&title=%E7%A4%BA%E4%BE%8B%E5%BD%B1%E7%89%87&episode=0" },
   { id: "premium", path: "/premium" },
   { id: "premium-favorites", path: "/premium/favorites" },
@@ -70,10 +69,6 @@ async function installDeterministicNetwork(page, { locked = false } = {}) {
         hasAuth: locked,
         persistSession: true,
         loginMode: locked ? "managed" : "none",
-        subscriptionSources: "",
-        iptvSources: "",
-        mergeSources: "false",
-        danmakuApiUrl: "",
       });
     }
     if (url.pathname === "/api/auth/session") return json(route, { authenticated: false, session: null }, 401);

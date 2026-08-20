@@ -47,6 +47,7 @@ export function EpisodeList({ episodes, currentEpisode, onEpisodeChange, sources
   const [reversed, setReversed] = useState(false);
   const [episodePage, setEpisodePage] = useState(0);
   const episodeButtons = useRef<Array<HTMLButtonElement | null>>([]);
+  const episodeScroller = useRef<HTMLDivElement>(null);
   const orderedEpisodes = useMemo(() => reversed ? [...episodes].reverse() : episodes, [episodes, reversed]);
   const currentDisplayIndex = reversed ? episodes.length - 1 - currentEpisode : currentEpisode;
   const pages = Math.max(1, Math.ceil(orderedEpisodes.length / EPISODES_PER_PAGE));
@@ -55,6 +56,11 @@ export function EpisodeList({ episodes, currentEpisode, onEpisodeChange, sources
     const page = Math.min(pages - 1, Math.max(0, Math.floor(currentDisplayIndex / EPISODES_PER_PAGE)));
     queueMicrotask(() => setEpisodePage(page));
   }, [currentDisplayIndex, pages]);
+  useEffect(() => {
+    const visibleIndex = episodeLayout === "grid"
+      ? currentDisplayIndex - episodePage * EPISODES_PER_PAGE : currentDisplayIndex;
+    episodeButtons.current[visibleIndex]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [currentDisplayIndex, episodeLayout, episodePage]);
   const visibleEpisodes = episodeLayout === "list" ? orderedEpisodes : orderedEpisodes.slice(episodePage * EPISODES_PER_PAGE, (episodePage + 1) * EPISODES_PER_PAGE);
   const visibleSources = showAllSources || sources.findIndex(({ source }) => source === currentSource) >= MAX_VISIBLE_SOURCES
     ? sources : sources.slice(0, MAX_VISIBLE_SOURCES);
@@ -78,9 +84,17 @@ export function EpisodeList({ episodes, currentEpisode, onEpisodeChange, sources
       : event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : 0;
     if (!direction) return;
     const next = Math.min(visibleEpisodes.length - 1, Math.max(0, visibleIndex + direction));
-    episodeButtons.current[next]?.focus();
+    const button = episodeButtons.current[next];
+    button?.focus({ preventScroll: true });
+    button?.scrollIntoView({ block: "nearest", inline: "nearest" });
     event.preventDefault();
     event.stopPropagation();
+  };
+  const shiftWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+    const scroller = episodeScroller.current;
+    if (!event.shiftKey || !scroller || scroller.scrollWidth <= scroller.clientWidth) return;
+    event.preventDefault();
+    scroller.scrollLeft += event.deltaY || event.deltaX;
   };
 
   return <aside className="player-panel episode-panel" aria-label={copy.episodes}>
@@ -137,7 +151,8 @@ export function EpisodeList({ episodes, currentEpisode, onEpisodeChange, sources
               onClick={() => setEpisodePage(page)} data-focusable>{start}-{end}</button>;
           })}
         </div>}
-        <div className={`episode-options is-${episodeLayout}`} role="radiogroup" aria-label={copy.episodes}>
+        <div ref={episodeScroller} className={`episode-options is-${episodeLayout}`} role="radiogroup"
+          aria-label={copy.episodes} onWheel={shiftWheel}>
           {visibleEpisodes.length === 0 ? <p>{copy.empty}</p> : visibleEpisodes.map((episode, visibleIndex) => {
             const orderedIndex = episodeLayout === "grid" ? episodePage * EPISODES_PER_PAGE + visibleIndex : visibleIndex;
             const originalIndex = reversed ? episodes.length - 1 - orderedIndex : orderedIndex;

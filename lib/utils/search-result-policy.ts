@@ -4,6 +4,14 @@ export const SEARCH_SORT_OPTIONS = [
   "default", "relevance", "latency-asc", "date-desc", "date-asc", "rating-desc", "name-asc", "name-desc",
 ] as const;
 export type SearchSortOption = typeof SEARCH_SORT_OPTIONS[number];
+export type SearchTypeFamily = "movie" | "tv" | "anime" | "variety" | "documentary" | "other" | "unknown";
+
+export interface SearchVideoGroup {
+  key: string;
+  name: string;
+  representative: Video;
+  videos: Video[];
+}
 
 export interface SearchFilters {
   blockedCategories: string[];
@@ -16,6 +24,50 @@ export function normalizeTypeName(value: string): string {
   let normalized = value.replace(/\s+/g, "").trim().normalize("NFC").toLocaleLowerCase();
   if (normalized.length > 2 && /[片剧類类]$/.test(normalized)) normalized = normalized.slice(0, -1);
   return normalized;
+}
+
+function normalizedTitle(value: string): string {
+  return value.normalize("NFC").trim().replace(/\s+/gu, " ").toLocaleLowerCase();
+}
+
+export function searchTypeFamily(value?: string): SearchTypeFamily {
+  const normalized = value?.normalize("NFC").trim().toLocaleLowerCase() ?? "";
+  if (!normalized) return "unknown";
+  if (/(电影|電影|影片|movie|film)/iu.test(normalized)) return "movie";
+  if (/(电视剧|電視劇|连续剧|連續劇|剧集|劇集|television|series|\btv\b)/iu.test(normalized)) return "tv";
+  if (/(动漫|動漫|动画|動畫|番剧|番劇|anime|animation)/iu.test(normalized)) return "anime";
+  if (/(综艺|綜藝|variety|reality)/iu.test(normalized)) return "variety";
+  if (/(纪录|紀錄|记录|紀實|纪实|documentary)/iu.test(normalized)) return "documentary";
+  return "other";
+}
+
+function normalizedYear(value?: string): string {
+  const normalized = value?.trim() ?? "";
+  if (!/^\d{4}$/.test(normalized)) return "unknown";
+  const year = Number(normalized);
+  return year >= 1888 && year <= 2100 ? normalized : "unknown";
+}
+
+export function searchGroupKey(video: Video): string {
+  return `${normalizedTitle(video.vod_name)}\0${searchTypeFamily(video.type_name)}\0${normalizedYear(video.vod_year)}`;
+}
+
+export function groupSearchVideos(videos: Video[], latencies: Record<string, number>): SearchVideoGroup[] {
+  const grouped = new Map<string, { key: string; name: string; videos: Video[] }>();
+  for (const video of videos) {
+    const key = searchGroupKey(video);
+    const existing = grouped.get(key);
+    if (existing) existing.videos.push(video);
+    else grouped.set(key, { key, name: video.vod_name.trim(), videos: [video] });
+  }
+  return [...grouped.values()].map((group) => {
+    const ranked = group.videos.map((video, index) => ({ video, index })).sort((a, b) => {
+      const difference = (latencies[a.video.source] ?? Number.POSITIVE_INFINITY)
+        - (latencies[b.video.source] ?? Number.POSITIVE_INFINITY);
+      return Number.isNaN(difference) || difference === 0 ? a.index - b.index : difference;
+    }).map(({ video }) => video);
+    return { ...group, representative: ranked[0], videos: ranked };
+  });
 }
 
 export function filterVideos(videos: Video[], filters: SearchFilters): Video[] {

@@ -22,7 +22,7 @@ export function ThemeSwitcher() {
   const { locale } = useLocale();
   const copy = COPY[locale];
   return (
-    <div className="theme-switcher">
+    <div className="theme-switcher" data-material="clear">
       {choices.map((choice) => (
         <button
           key={choice.value}

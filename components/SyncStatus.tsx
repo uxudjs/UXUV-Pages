@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useLocale } from "./LocaleProvider";
 import { useSync, type SyncPhase } from "./SyncProvider";
 
@@ -33,10 +35,30 @@ export const SYNC_STATUS_COPY: Record<"zh-CN" | "zh-TW" | "en", Record<SyncPhase
 export function SyncStatus() {
   const sync = useSync();
   const { locale } = useLocale();
+  const pathname = usePathname();
+  const [visible, setVisible] = useState(false);
+  const visibleRef = useRef(false);
   const copy = SYNC_STATUS_COPY[locale];
   const canRetry = ["offline", "quota", "error"].includes(sync.phase);
+  useEffect(() => {
+    const setStatusVisible = (next: boolean) => {
+      visibleRef.current = next;
+      setVisible(next);
+    };
+    let timer: number | undefined;
+    if (sync.phase === "synced") {
+      if (visibleRef.current) timer = window.setTimeout(() => setStatusVisible(false), 3_000);
+    } else {
+      const delay = ["loading", "pending"].includes(sync.phase) ? 500 : 0;
+      timer = window.setTimeout(() => setStatusVisible(true), delay);
+    }
+    return () => { if (timer !== undefined) window.clearTimeout(timer); };
+  }, [sync.phase]);
+
+  const settingsRoute = /^\/(?:premium\/)?settings\/?$/.test(pathname);
   return (
-    <aside className={`sync-status sync-status-${sync.phase}${sync.phase === "synced" ? " sr-only" : ""}`} data-sync-status={sync.phase} role="status" aria-live="polite">
+    <aside className={`sync-status sync-status-corner sync-status-${sync.phase}${settingsRoute ? " sync-status-settings-route" : ""}`} data-sync-status={sync.phase}
+      role="status" aria-live="polite" hidden={!visible}>
       <span>{copy[sync.phase]}</span>
       {canRetry && <button type="button" data-focusable onClick={sync.retry}>{copy.retry}</button>}
     </aside>

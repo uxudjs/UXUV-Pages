@@ -16,7 +16,6 @@ import { fileURLToPath } from "node:url";
 const ROUTES = {
   "/": "index.html",
   "/favorites": "favorites/index.html",
-  "/iptv": "iptv/index.html",
   "/player": "player/index.html",
   "/premium": "premium/index.html",
   "/premium/favorites": "premium/favorites/index.html",
@@ -169,8 +168,8 @@ if (resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
     releaseRoot: join(root, "release"),
     licensePath: join(root, "LICENSE"),
     version: packageJson.version,
-    apiContract: 1,
-    workerRange: ">=1.0.0 <2.0.0",
+    apiContract: 2,
+    workerRange: ">=2.0.0 <3.0.0",
   });
   console.log(`${result.unchanged ? "Verified" : "Updated"} current Pages release at ${relative(root, result.releaseDir)}`);
 }

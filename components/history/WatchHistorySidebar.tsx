@@ -90,11 +90,11 @@ export function WatchHistorySidebar({ premium = false }: Readonly<{ premium?: bo
   };
 
   return <>
-    <button ref={openRef} type="button" className="history-sidebar-toggle" aria-label={copy.open} title={copy.open}
+    <button ref={openRef} type="button" className="history-sidebar-toggle" data-material="regular" aria-label={copy.open} title={copy.open}
       style={floating.floatingStyle} onPointerDown={floating.onPointerDown} data-focusable
       onClick={(event) => { if (!floating.consumeSyntheticClick(event)) setOpen(true); }}><Icon source={History} size={24} /></button>
     {open && <><button type="button" className="history-sidebar-backdrop" aria-label={copy.close} onClick={close} />
-      <aside ref={sidebarRef} className="history-sidebar is-open" role="dialog" aria-modal="true" aria-labelledby="history-sidebar-title">
+      <aside ref={sidebarRef} className="history-sidebar is-open" data-material="regular" role="dialog" aria-modal="true" aria-labelledby="history-sidebar-title">
         <header><div><h2 id="history-sidebar-title">{copy.title}</h2><span>{visibleHistory.length}/{MAX_VISIBLE_HISTORY} {copy.item}</span></div>
           <button ref={closeRef} type="button" data-autofocus data-focusable aria-label={copy.close} onClick={close}><Icon source={X} size={18} /></button></header>
         {visibleHistory.length === 0 ? <div className="history-sidebar-empty"><Icon source={History} size={32} />
@@ -114,7 +114,7 @@ export function WatchHistorySidebar({ premium = false }: Readonly<{ premium?: bo
         </ul>}
         {visibleHistory.length > 0 && <button type="button" className="history-clear" data-focusable onClick={() => setConfirmClear(true)}>
           <Icon source={Trash2} size={16} />{copy.clear}</button>}
-        {confirmationOpen && <section className="history-confirm" role="alertdialog" aria-modal="true" aria-labelledby="history-confirm-title">
+        {confirmationOpen && <section className="history-confirm" data-material="regular" role="alertdialog" aria-modal="true" aria-labelledby="history-confirm-title">
           <h3 id="history-confirm-title">{confirmClear ? copy.confirmClear : copy.confirmRemove}</h3><p>{copy.irreversible}</p>
           <div><button type="button" data-autofocus data-focusable onClick={() => { setPendingRemoval(null); setConfirmClear(false); }}>{copy.cancel}</button>
             <button type="button" className="danger-button" data-focusable onClick={confirm}>{copy.confirm}</button></div>

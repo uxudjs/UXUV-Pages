@@ -4,7 +4,7 @@ import axe from "axe-core";
 const runtimeConfig = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: false, danmaku: false }, adKeywords: [],
+  capabilities: { premium: true, danmaku: false }, adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } }, authenticated: true,
 };
 
@@ -52,9 +52,12 @@ test.describe("KVideo T14 watch history", () => {
   test("continues, confirms removal and clear, localizes, and stays responsive", async ({ page }) => {
     await mockWorker(page.context(), "viewer-one", [standardHistory, secondStandard, premiumHistory]);
     await page.goto("./favorites");
-    await page.getByRole("button", { name: "打开观看历史" }).click();
+    const historyToggle = page.getByRole("button", { name: "打开观看历史" });
+    await expect(historyToggle).toHaveAttribute("data-material", "regular");
+    await historyToggle.click();
     const sidebar = page.getByRole("dialog", { name: "观看历史" });
     await expect(sidebar).toBeVisible();
+    await expect(sidebar).toHaveAttribute("data-material", "regular");
     await expect(sidebar.getByText("2/50 条")).toBeVisible();
     await expect(sidebar.getByText("高级记录")).toHaveCount(0);
     await expect(sidebar.getByRole("link", { name: "继续播放 标准记录" }))
@@ -66,9 +69,15 @@ test.describe("KVideo T14 watch history", () => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     }
 
+    await page.setViewportSize({ width: 640, height: 900 });
+    await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.evaluate(() => { document.documentElement.style.fontSize = ""; });
+
     await sidebar.getByRole("button", { name: "删除记录 第二记录" }).click();
     const removeDialog = page.getByRole("alertdialog", { name: "删除这条历史记录？" });
     await expect(removeDialog).toBeVisible();
+    await expect(removeDialog).toHaveAttribute("data-material", "regular");
     await removeDialog.getByRole("button", { name: "取消" }).click();
     await expect(sidebar.getByText("第二记录")).toBeVisible();
     await sidebar.getByRole("button", { name: "删除记录 第二记录" }).click();

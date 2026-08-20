@@ -13,7 +13,7 @@ const session = {
 const config = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Fixture UI", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: true, danmaku: true },
+  capabilities: { premium: true, danmaku: true },
   adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
   authenticated: false,
@@ -77,6 +77,7 @@ test.describe("reviewed KVideo login", () => {
     await page.goto("./");
     await expect(page.getByRole("heading", { name: "访问受限" })).toBeVisible();
     await expect(page.getByLabel("用户名")).toBeFocused();
+    await expect(page.locator(".auth-card")).toHaveAttribute("data-material", "regular");
 
     const boxes = await page.locator("#login-username,#login-password,.auth-submit").evaluateAll((elements) => (
       elements.map((element) => {
@@ -112,6 +113,11 @@ test.describe("reviewed KVideo login", () => {
       });
       expect(violations, `${width}px`).toEqual([]);
     }
+
+    await page.setViewportSize({ width: 640, height: 900 });
+    await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.evaluate(() => { document.documentElement.style.fontSize = ""; });
 
     await page.getByLabel("用户名").fill("admin");
     await page.keyboard.press("Tab");

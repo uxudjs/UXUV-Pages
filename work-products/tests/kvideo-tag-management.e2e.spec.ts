@@ -14,7 +14,7 @@ const session = {
 const runtimeConfig = {
   release: { worker: "1.0.0", pages: "0.1.2", apiContract: 1 },
   site: { name: "UXUVideo", title: "UXUVideo", description: "Private video", iconUrl: "/icon.png" },
-  capabilities: { premium: true, iptv: true, danmaku: false },
+  capabilities: { premium: true, danmaku: false },
   adKeywords: [],
   thirdPartyScripts: { videoTogether: { enabled: false, scriptUrl: null, settingUrl: null } },
   authenticated: true,
@@ -100,16 +100,16 @@ test.describe("KVideo T09 tags, recommendations, and pagination", () => {
     const managerBox = await page.getByRole("button", { name: "管理标签" }).boundingBox();
     const recommendationTagBox = await page.getByRole("button", { name: "为你推荐", exact: true }).boundingBox();
     expect(managerBox && { x: Math.round(managerBox.x), y: Math.round(managerBox.y), height: Math.round(managerBox.height) })
-      .toEqual({ x: 32, y: 314, height: 20 });
+      .toEqual({ x: 32, y: 366, height: 20 });
     expect(recommendationTagBox && { x: Math.round(recommendationTagBox.x), y: Math.round(recommendationTagBox.y), height: Math.round(recommendationTagBox.height) })
-      .toEqual({ x: 36, y: 366, height: 40 });
+      .toEqual({ x: 94, y: 418, height: 40 });
     await page.setViewportSize({ width: 320, height: 1000 });
     const mobileManagerBox = await page.getByRole("button", { name: "管理标签" }).boundingBox();
     const mobileRecommendationTagBox = await page.getByRole("button", { name: "为你推荐", exact: true }).boundingBox();
     expect(mobileManagerBox && { x: Math.round(mobileManagerBox.x), y: Math.round(mobileManagerBox.y), height: Math.round(mobileManagerBox.height) })
-      .toEqual({ x: 16, y: 284, height: 20 });
+      .toEqual({ x: 16, y: 336, height: 20 });
     expect(mobileRecommendationTagBox && { x: Math.round(mobileRecommendationTagBox.x), y: Math.round(mobileRecommendationTagBox.y), height: Math.round(mobileRecommendationTagBox.height) })
-      .toEqual({ x: 20, y: 336, height: 40 });
+      .toEqual({ x: 78, y: 388, height: 40 });
     await page.getByRole("button", { name: "为你推荐", exact: true }).click();
     await expect(page.getByRole("button", { name: "电影", exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "播放 推荐甲" })).toBeVisible();

@@ -66,7 +66,6 @@ export async function getVideoDetail(
 }
 
 export function buildMediaUrl(
-  route: "proxy" | "iptv-stream",
   target: string,
   options: { userAgent?: string; referer?: string; adFilterMode?: AdFilterMode; adKeywords?: readonly string[] } = {},
 ): string {
@@ -76,5 +75,5 @@ export function buildMediaUrl(
   if (options.adFilterMode) query.set("ad", options.adFilterMode);
   const keywords = [...new Set((options.adKeywords || []).map((value) => value.trim().slice(0, 40)).filter(Boolean))].slice(0, 32);
   for (const keyword of keywords) query.append("adkw", keyword);
-  return `${route === "proxy" ? "/api/proxy" : "/api/iptv/stream"}?${query}`;
+  return `/api/proxy?${query}`;
 }

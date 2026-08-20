@@ -18,6 +18,8 @@ test("boots all routes from same-origin config and session without static runtim
   const layout = read("app/layout.tsx");
   const combined = `${provider}\n${icon}\n${gate}\n${layout}`;
 
+  assert.match(provider, /release:\s*\{\s*worker:\s*["']["'],\s*pages:\s*["']0\.3\.0["'],\s*apiContract:\s*2\s*\}/);
+  assert.doesNotMatch(provider, /subscriptionSources|iptvSources|danmakuApiUrl|capabilities:\s*\{[^}]*iptv/);
   assert.match(provider, /Promise\.all\([\s\S]*fetch\(["']\/api\/config["'][\s\S]*fetch\(["']\/api\/auth\/session["']/);
   assert.match(provider, /isDirectPagesHost\(window\.location\.hostname\)/);
   assert.ok(

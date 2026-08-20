@@ -122,8 +122,11 @@ export function DataSettings() {
     <div className="data-settings-actions">
       <button type="button" data-focusable disabled={!canManage} onClick={() => { setSaved(false); setModal("export"); }}><span>{clearCopy.export}</span><Icon source={Download} size={20} /></button>
       <button type="button" data-focusable disabled={!canManage} onClick={() => { setSaved(false); setModal("import"); }}><span>{clearCopy.import}</span><Icon source={Upload} size={20} /></button>
-      <button className="danger-button" type="button" data-focusable disabled={!canManage} onClick={() => setConfirmClear(true)}><span>{clearCopy.clear}</span><Icon source={Trash2} size={20} /></button>
     </div>
+    <section className="data-settings-danger-zone" aria-labelledby="data-danger-title">
+      <div><h3 id="data-danger-title">{clearCopy.clear}</h3><p>{clearCopy.message}</p></div>
+      <button className="danger-button" type="button" data-focusable disabled={!canManage} onClick={() => setConfirmClear(true)}><span>{clearCopy.clear}</span><Icon source={Trash2} size={20} /></button>
+    </section>
     {saved && <p className="import-status" role="status">{copy.saved}</p>}
     {modal === "export" && <ExportModal onClose={() => setModal(null)} onBuild={buildExport} />}
     {modal === "import" && <SettingsImportModal onClose={() => setModal(null)} onImport={applyImport} />}

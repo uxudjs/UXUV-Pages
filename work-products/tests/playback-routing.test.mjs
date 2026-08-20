@@ -24,22 +24,18 @@ const target = "https://media.example/video.m3u8?token=fixture";
 const protectedSrc = `/api/proxy?url=${encodeURIComponent(target)}`;
 
 test("retry starts on the Worker route and exposes one direct fallback", () => {
-  assert.deepEqual(resolvePlaybackSources("proxy", target, protectedSrc, "retry"), {
+  assert.deepEqual(resolvePlaybackSources(target, protectedSrc, "retry"), {
     primarySrc: protectedSrc,
     fallbackSrc: target,
   });
 });
 
-test("none starts directly while always and IPTV remain protected", () => {
-  assert.deepEqual(resolvePlaybackSources("proxy", target, protectedSrc, "none"), {
+test("none starts directly while always stays protected", () => {
+  assert.deepEqual(resolvePlaybackSources(target, protectedSrc, "none"), {
     primarySrc: target,
     fallbackSrc: null,
   });
-  assert.deepEqual(resolvePlaybackSources("proxy", target, protectedSrc, "always"), {
-    primarySrc: protectedSrc,
-    fallbackSrc: null,
-  });
-  assert.deepEqual(resolvePlaybackSources("iptv-stream", target, protectedSrc, "retry"), {
+  assert.deepEqual(resolvePlaybackSources(target, protectedSrc, "always"), {
     primarySrc: protectedSrc,
     fallbackSrc: null,
   });
@@ -47,11 +43,11 @@ test("none starts directly while always and IPTV remain protected", () => {
 
 test("unsafe targets never enter the browser-direct path", () => {
   for (const unsafe of ["javascript:alert(1)", "data:text/plain,video", "https://user:pass@media.example/video.m3u8"]) {
-    assert.deepEqual(resolvePlaybackSources("proxy", unsafe, protectedSrc, "none"), {
+    assert.deepEqual(resolvePlaybackSources(unsafe, protectedSrc, "none"), {
       primarySrc: protectedSrc,
       fallbackSrc: null,
     });
-    assert.deepEqual(resolvePlaybackSources("proxy", unsafe, protectedSrc, "retry"), {
+    assert.deepEqual(resolvePlaybackSources(unsafe, protectedSrc, "retry"), {
       primarySrc: protectedSrc,
       fallbackSrc: null,
     });

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ContentNavigation } from "@/components/ContentNavigation";
@@ -12,7 +11,6 @@ import { useTagManager } from "@/components/home/hooks/useTagManager";
 import { usePersonalizedRecommendations } from "@/components/home/hooks/usePersonalizedRecommendations";
 import { MovieGrid, type HomeFeedState } from "@/components/home/MovieGrid";
 import { useSync } from "@/components/SyncProvider";
-import { useRuntimeSourcePhase } from "@/components/RuntimeSourceSync";
 import { SearchForm } from "@/components/search/SearchForm";
 import { SearchResults } from "@/components/search/SearchResults";
 import { ContentApiError, fetchHomeMovies, fetchHomeTags, type HomeContentType, type HomeMovie } from "@/lib/content/api-client";
@@ -23,24 +21,18 @@ import { orderedSources } from "@/lib/content/source-settings-policy";
 import { storeGroupedSources } from "@/lib/media/grouped-sources-cache";
 import { useAuth } from "@/lib/store/auth-store";
 import { traditionalToSimplified } from "@/lib/utils/chinese-convert";
+import { groupSearchVideos, searchTypeFamily } from "@/lib/utils/search-result-policy";
 import {
   favoriteFromVideo,
   isFavoriteRecord,
   isHistoryRecord,
   isVideoSource,
-  type HistoryRecord,
   type Video,
   videoRecordId,
 } from "@/lib/content/types";
 
 type SearchState = "idle" | "loading" | "ready" | "empty" | "error" | "cancelled";
 const HOME_PAGE_SIZE = 20;
-
-function historyPlayerHref(item: HistoryRecord): string {
-  const query = new URLSearchParams({ id: String(item.videoId), source: item.source, title: item.title });
-  if (Number.isInteger(item.episodeIndex)) query.set("episode", String(item.episodeIndex));
-  return `/player?${query}`;
-}
 
 function normalizedMovieTitle(value: string): string {
   const normalized = traditionalToSimplified(value).trim().toLocaleLowerCase();
@@ -71,8 +63,6 @@ const HOME_COPY = {
     deleteHistory: "删除",
     cancel: "取消",
     sourceMissing: "尚未配置可用视频源，请先前往设置。",
-    sourceSyncing: "正在同步系统视频源…",
-    sourceSyncError: "系统视频源同步失败，将在网络恢复或窗口重新聚焦后重试。",
     action: "播放",
     loading: "正在加载热门内容…",
     empty: "暂无内容",
@@ -88,8 +78,6 @@ const HOME_COPY = {
     popular: "热门内容",
     loadingMore: "正在加载更多内容…",
     noMore: "没有更多内容了",
-    history: "继续观看",
-    continue: "继续播放",
     searching: "正在搜索",
     cancelled: "已取消搜索。",
     noResults: "没有找到匹配结果，请尝试其他关键词。",
@@ -126,8 +114,6 @@ const HOME_COPY = {
     deleteHistory: "刪除",
     cancel: "取消",
     sourceMissing: "尚未設定可用影片來源，請先前往設定。",
-    sourceSyncing: "正在同步系統影片來源…",
-    sourceSyncError: "系統影片來源同步失敗，將在網路恢復或視窗重新聚焦後重試。",
     action: "播放",
     loading: "正在載入熱門內容…",
     empty: "暫無內容",
@@ -143,8 +129,6 @@ const HOME_COPY = {
     popular: "熱門內容",
     loadingMore: "正在載入更多內容…",
     noMore: "沒有更多內容了",
-    history: "繼續觀看",
-    continue: "繼續播放",
     searching: "正在搜尋",
     cancelled: "已取消搜尋。",
     noResults: "找不到相符結果，請嘗試其他關鍵字。",
@@ -181,8 +165,6 @@ const HOME_COPY = {
     deleteHistory: "Delete",
     cancel: "Cancel",
     sourceMissing: "No video source is configured. Open Settings first.",
-    sourceSyncing: "Syncing system video sources…",
-    sourceSyncError: "System video source sync failed. It will retry when the network or window becomes active.",
     action: "Play",
     loading: "Loading popular titles…",
     empty: "No titles yet",
@@ -198,8 +180,6 @@ const HOME_COPY = {
     popular: "Popular titles",
     loadingMore: "Loading more titles…",
     noMore: "No more content",
-    history: "Continue watching",
-    continue: "Continue",
     searching: "Searching",
     cancelled: "Search cancelled.",
     noResults: "No matching results. Try another keyword.",
@@ -231,7 +211,6 @@ const HOME_COPY = {
 export function HomeExperience() {
   const router = useRouter();
   const { documents, phase, upsertRecord, removeRecord } = useSync();
-  const runtimeSourcePhase = useRuntimeSourcePhase();
   const auth = useAuth();
   const { locale } = useLocale();
   const [homeMovies, setHomeMovies] = useState<HomeMovie[]>([]);
@@ -362,7 +341,7 @@ export function HomeExperience() {
 
   const runSearch = async (searchQuery: string) => {
     const originalQuery = searchQuery.trim();
-    if (!originalQuery || sources.length === 0 || runtimeSourcePhase !== "ready") return [];
+    if (!originalQuery || sources.length === 0) return [];
     const normalized = traditionalToSimplified(originalQuery);
     searchController.current?.abort();
     const controller = new AbortController();
@@ -393,13 +372,15 @@ export function HomeExperience() {
   };
 
   const openHomeMovie = async (movie: HomeMovie) => {
-    if (runtimeSourcePhase !== "ready") return;
     const found = await runSearch(movie.title);
     const normalizedTitle = normalizedMovieTitle(movie.title);
     const exactMatches = found.filter((video) => (
       normalizedMovieTitle(video.vod_name) === normalizedTitle
     ));
-    const matches = exactMatches;
+    const groups = groupSearchVideos(exactMatches, {});
+    const selectedGroup = groups.find(({ representative: video }) => searchTypeFamily(video.type_name) === contentType)
+      ?? groups[0];
+    const matches = selectedGroup?.videos ?? [];
     const representative = matches[0];
     if (!representative) return;
     const parameters = new URLSearchParams({
@@ -452,18 +433,16 @@ export function HomeExperience() {
 
   return (
     <div className="content-shell kvideo-home-shell">
-      <ContentNavigation />
+      <ContentNavigation onBrandActivate={clearSearch} />
       <div className="kvideo-home-search-region">
         <SearchForm accountId={auth?.session.accountId ?? "anonymous"} mode="standard" query={query}
           labels={{ input: copy.searchLabel, placeholder: copy.searchPlaceholder, search: copy.search,
             clear: copy.clearSearch, history: copy.searchHistory, clearAll: copy.clearAllHistory, deleteItem: copy.deleteHistory }}
-          disabled={sources.length === 0 || runtimeSourcePhase !== "ready"} loading={state === "loading"}
+          disabled={sources.length === 0} loading={state === "loading"}
           progressLabel={`${copy.searching}… ${progress.completed}/${progress.total} · ${progress.found}`}
           cancelLabel={copy.cancel} onQueryChange={setQuery} onSearch={(nextQuery) => void runSearch(nextQuery)}
           onClear={clearSearch} onCancel={cancelSearch} />
-        {runtimeSourcePhase === "loading" && <p className="kvideo-source-message" role="status">{copy.sourceSyncing}</p>}
-        {runtimeSourcePhase === "error" && <p className="kvideo-source-message" role="alert">{copy.sourceSyncError}</p>}
-        {runtimeSourcePhase === "ready" && sources.length === 0 && <p className="kvideo-source-message">{copy.sourceMissing}</p>}
+        {sources.length === 0 && <p className="kvideo-source-message">{copy.sourceMissing}</p>}
       </div>
 
       <main className="kvideo-home-main">
@@ -525,7 +504,6 @@ export function HomeExperience() {
                 emptyLabel={copy.empty}
                 errorLabel={copy.error}
                 retryLabel={copy.retry}
-                actionsDisabled={runtimeSourcePhase !== "ready"}
                 onMovieClick={(movie) => void openHomeMovie(movie)}
                 onRetry={() => void loadHome()}
                 hasMore={effectiveRecommendationSelected ? personalized.hasMore : hasMoreHomeMovies}
@@ -535,19 +513,6 @@ export function HomeExperience() {
                 onLoadMore={effectiveRecommendationSelected ? personalized.loadMore : loadMoreHomeMovies}
               />
             </section>}
-          </section>
-        )}
-
-        {history.length > 0 && state === "idle" && (
-          <section className="content-section" aria-labelledby="history-title">
-            <div className="section-title"><h2 id="history-title">{copy.history}</h2></div>
-            <div className="history-row">
-              {history.map((item) => (
-                <Link key={item.id} prefetch={false} href={historyPlayerHref(item)}>
-                  <strong>{item.title}</strong><span>{copy.continue}</span>
-                </Link>
-              ))}
-            </div>
           </section>
         )}
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { selectCompatibleHlsLevel, supportsHevcPlayback } from "@/lib/iptv/playback-policy";
+import { selectCompatibleHlsLevel, supportsHevcPlayback } from "@/lib/player/hls-compatibility";
 import type { ProxyMode } from "@/lib/player/player-settings";
 
 type HlsInstance = import("hls.js").default;

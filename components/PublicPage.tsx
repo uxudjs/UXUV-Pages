@@ -25,7 +25,7 @@ export function PublicPage({ title }: Readonly<{ title: string }>) {
   const copy = COPY[locale];
   return (
     <main className="public-shell">
-      <section className="public-notice" aria-labelledby="public-page-title">
+      <section className="public-notice" data-material="regular" aria-labelledby="public-page-title">
         <p className="public-kicker">{copy.kicker}</p>
         <h1 className="public-title" id="public-page-title">
           {title}

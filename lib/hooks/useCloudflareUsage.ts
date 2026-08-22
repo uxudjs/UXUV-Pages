@@ -30,6 +30,9 @@ export type CloudflareUsage = ConfiguredUsage | UnconfiguredUsage;
 type UsageState = { status: "idle" | "loading" | "ready" | "error"; data: CloudflareUsage | null; error: string };
 const LEVELS: UsageLevel[] = ["normal", "notice", "warning", "critical", "exhausted"];
 const REFRESH_COOLDOWN_MS = 30_000;
+const USAGE_ERROR_CODES = new Set([
+  "USAGE_AUTH_FAILED", "USAGE_FORBIDDEN", "USAGE_RATE_LIMITED", "USAGE_UPSTREAM_ERROR",
+]);
 const EXPECTED_LIMITS = {
   workers: 100_000,
   d1Read: 5_000_000,
@@ -132,6 +135,11 @@ async function readBody(response: Response): Promise<unknown> {
   try { return await response.json(); } catch { return null; }
 }
 
+function usageErrorCode(value: unknown): string | null {
+  if (!isRecord(value) || !isRecord(value.error) || typeof value.error.code !== "string") return null;
+  return USAGE_ERROR_CODES.has(value.error.code) ? value.error.code : null;
+}
+
 export function useCloudflareUsage() {
   const auth = useAuth();
   const enabled = auth?.session.role === "super_admin";
@@ -164,18 +172,20 @@ export function useCloudflareUsage() {
       if (active) setState((current) => ({ status: "loading", data: retainData ? current.data : null, error: "" }));
     });
     const load = async () => {
+      let failureCode = "USAGE_RESPONSE_INVALID";
       try {
         const response = await fetch("/api/admin/usage", {
           credentials: "same-origin", cache: "no-store", signal: controller.signal,
         });
         const body = await readBody(response);
         if (response.status === 401) markSessionExpiredRef.current?.();
+        failureCode = usageErrorCode(body) ?? failureCode;
         const data = isRecord(body) ? parseUsage(body.data) : null;
         if (!response.ok || !data) throw new Error("usage unavailable");
         if (!controller.signal.aborted) setState({ status: "ready", data, error: "" });
       } catch (error) {
         if (!controller.signal.aborted && (error as { name?: string }).name !== "AbortError") {
-          setState({ status: "error", data: null, error: "无法读取 Cloudflare 用量，请稍后重试。" });
+          setState({ status: "error", data: null, error: failureCode });
         }
       }
     };

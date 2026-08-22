@@ -132,7 +132,7 @@ export function CloudflareUsageSettings() {
       <button className="usage-refresh" type="button" data-focusable onClick={usage.refresh} disabled={usage.refreshDisabled}>{copy.refresh}</button>
     }>
       {usage.status === "loading" && <p role="status">{copy.loading}</p>}
-      {usage.status === "error" && <p className="form-error" role="alert">{copy.error}</p>}
+      {usage.status === "error" && <p className="form-error" role="alert">{copy.error} ({usage.error})</p>}
       {usage.status === "ready" && usage.data && !usage.data.configured && (
         <div className="usage-empty">
           <h3>{copy.unconfiguredTitle}</h3>

@@ -263,6 +263,7 @@ test("usage card exposes stale, unconfigured, and failure states without exposin
   worker.setUsageMode("error");
   await page.reload();
   await expect(card.getByRole("alert")).toContainText("无法读取 Cloudflare 用量");
+  await expect(card.getByRole("alert")).toContainText("USAGE_UPSTREAM_ERROR");
   expect(JSON.stringify(worker.requests)).not.toContain(TOKEN);
 });
 

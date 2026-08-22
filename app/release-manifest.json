@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "pagesVersion": "0.3.0",
+  "apiContract": 2,
+  "workerRange": ">=2.0.0 <3.0.0",
+  "routes": {
+    "/": "index.html",
+    "/favorites": "favorites/index.html",
+    "/player": "player/index.html",
+    "/premium": "premium/index.html",
+    "/premium/favorites": "premium/favorites/index.html",
+    "/premium/settings": "premium/settings/index.html",
+    "/settings": "settings/index.html"
+  },
+  "assets": {
+    "/404.html": {
+      "path": "404.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/404/index.html": {
+      "path": "404/index.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/LICENSE": {
+      "path": "LICENSE",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/__next.__PAGE__.txt": {
+      "path": "__next.__PAGE__.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/__next._full.txt": {
+      "path": "__next._full.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/__next._tree.txt": {
+      "path": "__next._tree.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/_next/static/chunks/08nrdmp_6h4i8.js": {
+      "path": "_next/static/chunks/08nrdmp_6h4i8.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/08ttfj81-47mu.js": {
+      "path": "_next/static/chunks/08ttfj81-47mu.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/0cz1d0mv5g_q7.js": {
+      "path": "_next/static/chunks/0cz1d0mv5g_q7.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/0z_i94qgf5gv9.js": {
+      "path": "_next/static/chunks/0z_i94qgf5gv9.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/1kgtby4lz7eq4.css": {
+      "path": "_next/static/chunks/1kgtby4lz7eq4.css",
+      "contentType": "text/css; charset=utf-8"
+    },
+    "/_next/static/chunks/1ssmuhbd87suo.js": {
+      "path": "_next/static/chunks/1ssmuhbd87suo.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/1tz6cqmokz5-y.js": {
+      "path": "_next/static/chunks/1tz6cqmokz5-y.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/23wf2bl1_qwsx.js": {
+      "path": "_next/static/chunks/23wf2bl1_qwsx.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/2608meme3wf34.js": {
+      "path": "_next/static/chunks/2608meme3wf34.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/2c4oo_an463f1.js": {
+      "path": "_next/static/chunks/2c4oo_an463f1.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/2chbm93d2mvlv.js": {
+      "path": "_next/static/chunks/2chbm93d2mvlv.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/2czzi5yvf866d.js": {
+      "path": "_next/static/chunks/2czzi5yvf866d.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/2i51e627rllld.js": {
+      "path": "_next/static/chunks/2i51e627rllld.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/2p8i5o-86za61.js": {
+      "path": "_next/static/chunks/2p8i5o-86za61.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/2v58whixtl2t9.js": {
+      "path": "_next/static/chunks/2v58whixtl2t9.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/33hgeb9nyf2d7.js": {
+      "path": "_next/static/chunks/33hgeb9nyf2d7.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/3815a1d9ixv96.js": {
+      "path": "_next/static/chunks/3815a1d9ixv96.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/3c5pdanv7_enx.js": {
+      "path": "_next/static/chunks/3c5pdanv7_enx.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/3mc6dra1m0098.js": {
+      "path": "_next/static/chunks/3mc6dra1m0098.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/4542h4-u6s45m.js": {
+      "path": "_next/static/chunks/4542h4-u6s45m.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/chunks/turbopack-13iajcp7n9x_0.js": {
+      "path": "_next/static/chunks/turbopack-13iajcp7n9x_0.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/uxuv-pages-0.3.0/_buildManifest.js": {
+      "path": "_next/static/uxuv-pages-0.3.0/_buildManifest.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/uxuv-pages-0.3.0/_clientMiddlewareManifest.js": {
+      "path": "_next/static/uxuv-pages-0.3.0/_clientMiddlewareManifest.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_next/static/uxuv-pages-0.3.0/_ssgManifest.js": {
+      "path": "_next/static/uxuv-pages-0.3.0/_ssgManifest.js",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/_not-found/__next._full.txt": {
+      "path": "_not-found/__next._full.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/_not-found/__next._not-found.__PAGE__.txt": {
+      "path": "_not-found/__next._not-found.__PAGE__.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/_not-found/__next._tree.txt": {
+      "path": "_not-found/__next._tree.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/_not-found/index.html": {
+      "path": "_not-found/index.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/_not-found/index.txt": {
+      "path": "_not-found/index.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/favorites/__next._full.txt": {
+      "path": "favorites/__next._full.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/favorites/__next._tree.txt": {
+      "path": "favorites/__next._tree.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/favorites/__next.favorites.__PAGE__.txt": {
+      "path": "favorites/__next.favorites.__PAGE__.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/favorites/index.html": {
+      "path": "favorites/index.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/favorites/index.txt": {
+      "path": "favorites/index.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/github-pages.html": {
+      "path": "github-pages.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/icon.png": {
+      "path": "icon.png",
+      "contentType": "image/png"
+    },
+    "/index.html": {
+      "path": "index.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/index.txt": {
+      "path": "index.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/manifest.json": {
+      "path": "manifest.json",
+      "contentType": "application/json; charset=utf-8"
+    },
+    "/placeholder-poster.svg": {
+      "path": "placeholder-poster.svg",
+      "contentType": "image/svg+xml"
+    },
+    "/player/__next._full.txt": {
+      "path": "player/__next._full.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/player/__next._tree.txt": {
+      "path": "player/__next._tree.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/player/__next.player.__PAGE__.txt": {
+      "path": "player/__next.player.__PAGE__.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/player/index.html": {
+      "path": "player/index.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/player/index.txt": {
+      "path": "player/index.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/__next._full.txt": {
+      "path": "premium/__next._full.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/__next._tree.txt": {
+      "path": "premium/__next._tree.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/__next.premium.__PAGE__.txt": {
+      "path": "premium/__next.premium.__PAGE__.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/favorites/__next._full.txt": {
+      "path": "premium/favorites/__next._full.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/favorites/__next._tree.txt": {
+      "path": "premium/favorites/__next._tree.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/favorites/__next.premium.favorites.__PAGE__.txt": {
+      "path": "premium/favorites/__next.premium.favorites.__PAGE__.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/favorites/index.html": {
+      "path": "premium/favorites/index.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/premium/favorites/index.txt": {
+      "path": "premium/favorites/index.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/index.html": {
+      "path": "premium/index.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/premium/index.txt": {
+      "path": "premium/index.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/settings/__next._full.txt": {
+      "path": "premium/settings/__next._full.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/settings/__next._tree.txt": {
+      "path": "premium/settings/__next._tree.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/settings/__next.premium.settings.__PAGE__.txt": {
+      "path": "premium/settings/__next.premium.settings.__PAGE__.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/premium/settings/index.html": {
+      "path": "premium/settings/index.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/premium/settings/index.txt": {
+      "path": "premium/settings/index.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/settings/__next._full.txt": {
+      "path": "settings/__next._full.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/settings/__next._tree.txt": {
+      "path": "settings/__next._tree.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/settings/__next.settings.__PAGE__.txt": {
+      "path": "settings/__next.settings.__PAGE__.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/settings/index.html": {
+      "path": "settings/index.html",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/settings/index.txt": {
+      "path": "settings/index.txt",
+      "contentType": "text/plain; charset=utf-8"
+    },
+    "/sw.js": {
+      "path": "sw.js",
+      "contentType": "text/javascript; charset=utf-8"
+    }
+  }
+}

@@ -32,6 +32,7 @@ const LEVELS: UsageLevel[] = ["normal", "notice", "warning", "critical", "exhaus
 const REFRESH_COOLDOWN_MS = 30_000;
 const USAGE_ERROR_CODES = new Set([
   "USAGE_AUTH_FAILED", "USAGE_FORBIDDEN", "USAGE_RATE_LIMITED", "USAGE_UPSTREAM_ERROR",
+  "USAGE_FETCH_TIMEOUT", "USAGE_FETCH_FAILED", "USAGE_GRAPHQL_ERROR", "USAGE_RESPONSE_INVALID",
 ]);
 const EXPECTED_LIMITS = {
   workers: 100_000,

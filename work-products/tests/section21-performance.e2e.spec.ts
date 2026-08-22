@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { expect, test, type Page } from '@playwright/test';
 
 const testRoot = dirname(fileURLToPath(import.meta.url));
-const baselinePath = resolve(testRoot, '../../../UXUVideo/work-products/evidence/section21/performance-baseline.json');
+const baselinePath = resolve(testRoot, '../evidence/section21/performance-baseline.json');
 
 function median(values: number[]) {
   const sorted = [...values].sort((a, b) => a - b);

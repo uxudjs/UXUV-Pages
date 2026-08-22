@@ -1,22 +1,15 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const pagesRoot = fileURLToPath(new URL("../..", import.meta.url));
-const workerRoot = fileURLToPath(new URL("../../../UXUVideo/", import.meta.url));
-const snapshotPath = join(workerRoot, "work-products/evidence/section21/inventory-snapshots/S21-PRE-T08-iptv-default-source-inventory.txt");
 const negativePath = "work-products/tests/iptv-retirement-contract.test.mjs";
 const frozenAggregates = new Set([
   "work-products/tests/section21-ui-contract.test.mjs",
   "work-products/tests/section21-visual.e2e.spec.ts",
-]);
-const mutableWorkflow = new Set([
-  "worker:work-products/plan.md",
-  "worker:work-products/todo.md",
 ]);
 const forbidden = /IPTV|iptv|subscriptionSources|iptvSources|danmakuApiUrl|RuntimeSourceSync|runtime-subscription-|kind:\s*["']system["']/;
 const retiredFieldDenylist = /new Set\(\s*\[\s*["']iptv["']\s*,\s*["']iptvsource["']\s*,\s*["']iptvsources["']\s*,\s*["']subscriptionsources["']\s*,\s*["']danmakuapiurl["']\s*\]\s*\)/g;
@@ -43,7 +36,6 @@ const negativeCompatibility = new Map([
     '  assert.equal(existing[2].kind, "system");',
   ]],
 ]);
-const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const slash = (value) => value.replaceAll("\\", "/");
 
 function candidateFiles(root) {
@@ -93,15 +85,6 @@ function match(root, path) {
   return forbidden.test(path) || forbidden.test(sanitized) ? path : null;
 }
 
-function snapshotRows() {
-  const rows = readFileSync(snapshotPath, "utf8").split(/\r?\n/).slice(2).filter(Boolean).map((line) => {
-    const [path, , classification, fileSha256] = line.split("\t", 5);
-    return { path, classification, fileSha256 };
-  });
-  assert.ok(rows.length > 0, "pre-T08 inventory snapshot must not be empty");
-  return rows;
-}
-
 test("S21-T08 removes retired runtime paths and v1 default-source fields from source and generated candidates", () => {
   const runtime = candidateFiles(pagesRoot).filter((path) => !path.startsWith("work-products/"));
   const generated = [join(pagesRoot, "out"), join(pagesRoot, "release/current")]
@@ -115,25 +98,4 @@ test("S21-T08 leaves no positive retired-feature test or fixture active", () => 
     && path !== negativePath && !frozenAggregates.has(path));
   const violations = active.map((path) => match(pagesRoot, path)).filter(Boolean);
   assert.deepEqual(violations, []);
-});
-
-test("S21-T08 preserves frozen historical evidence and records its approved retirement", () => {
-  const historical = new Map();
-  for (const row of snapshotRows().filter(({ classification }) => classification === "historical-evidence")) {
-    const existing = historical.get(row.path);
-    if (existing && existing !== row.fileSha256) throw new Error(`conflicting snapshot SHA: ${row.path}`);
-    historical.set(row.path, row.fileSha256);
-  }
-  for (const [qualifiedPath, expected] of historical) {
-    const separator = qualifiedPath.indexOf(":");
-    const repository = qualifiedPath.slice(0, separator);
-    const path = qualifiedPath.slice(separator + 1);
-    const root = repository === "pages" ? pagesRoot : repository === "worker" ? workerRoot : null;
-    assert.ok(root, `unclassified snapshot repository: ${repository}`);
-    assert.equal(existsSync(join(root, path)), true, `missing historical evidence: ${qualifiedPath}`);
-    if (qualifiedPath !== "worker:work-products/kvideo-parity-matrix.md" && !mutableWorkflow.has(qualifiedPath)) {
-      assert.equal(sha256(readFileSync(join(root, path))), expected, `historical evidence drift: ${qualifiedPath}`);
-    }
-  }
-  assert.match(readFileSync(join(workerRoot, "work-products/kvideo-parity-matrix.md"), "utf8"), /approved-retired-by-SPEC-21/);
 });

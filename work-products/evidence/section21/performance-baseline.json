@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "repositoryHead": "9e084f486953850f8de3d23bcd63cc2b71336b64",
+  "fixture": {
+    "cards": 120,
+    "mutedVideoSeconds": 30,
+    "samples": 3
+  },
+  "cssSha256": "a1121b8e0fe1ab634f6518630868a837c15cd8fc801c1f5cb468c8dfa13d939f",
+  "samples": [
+    {
+      "p95RafIntervalMs": 10.200000000000728,
+      "longTaskTotalMs": 247,
+      "droppedFrames": 6
+    },
+    {
+      "p95RafIntervalMs": 10.200000000000728,
+      "longTaskTotalMs": 0,
+      "droppedFrames": 0
+    },
+    {
+      "p95RafIntervalMs": 10.19999999999709,
+      "longTaskTotalMs": 0,
+      "droppedFrames": 0
+    }
+  ],
+  "median": {
+    "p95RafIntervalMs": 10.200000000000728,
+    "longTaskTotalMs": 0,
+    "droppedFrames": 0
+  }
+}

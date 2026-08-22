@@ -33,7 +33,7 @@ const freeCapability = {
 const unconfiguredUsage = {
   data: {
     configured: false,
-    missing: ["CF_ANALYTICS_API_TOKEN", "CF_ACCOUNT_ID", "CF_WORKER_SCRIPT_NAME", "CF_D1_DATABASE_ID"],
+    missing: ["CF_ANALYTICS_API_TOKEN", "CF_ACCOUNT_ID"],
     message: "Cloudflare usage analytics is not configured.",
   },
 };

@@ -80,6 +80,16 @@ test("uses relative account APIs and exposes management only to super_admin", ()
   assert.doesNotMatch(settings, /passwordHash|passwordSalt|token|localStorage|sessionStorage/);
 });
 
+test("clears usage state and alerts when permission or account identity changes", () => {
+  const hook = read("lib/hooks/useCloudflareUsage.ts");
+  const provider = read("components/UsageAlertProvider.tsx");
+
+  assert.match(hook, /if \(!enabled \|\| !accountId\)[\s\S]*setState\(\{ status: "idle", data: null, error: "" \}\)/);
+  assert.match(hook, /const retainData = activeAccountRef\.current === accountId;[\s\S]*activeAccountRef\.current = accountId/);
+  assert.match(hook, /if \(!controller\.signal\.aborted && \(error as \{ name\?: string \}\)\.name !== "AbortError"\)/);
+  assert.match(provider, /const showAlert = usage\.enabled && !!data && alertLevels\.has\(data\.level\)/);
+});
+
 test("T13 assigns readable material to authentication surfaces and keeps nested controls single-layer", () => {
   const gate = read("components/PasswordGate.tsx");
   const publicPage = read("components/PublicPage.tsx");

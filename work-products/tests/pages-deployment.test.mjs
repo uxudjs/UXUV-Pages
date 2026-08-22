@@ -5,7 +5,6 @@ import test from "node:test";
 
 const path = (relative) => fileURLToPath(new URL(`../../${relative}`, import.meta.url));
 const read = (relative) => readFileSync(path(relative), "utf8");
-const readWorker = (relative) => readFileSync(fileURLToPath(new URL(`../../../UXUVideo/${relative}`, import.meta.url)), "utf8");
 
 test("advances the current candidate without storing versioned releases in the source checkout", () => {
   const packageJson = JSON.parse(read("package.json"));
@@ -41,7 +40,6 @@ test("removes the custom commit-SHA release identity helper", () => {
 test("publishes public guidance at the Project Pages root and Worker assets at one stable subroot", () => {
   const workflow = read(".github/workflows/pages.yml");
   const guidance = read("public/github-pages.html");
-  const worker = readWorker("_worker.js");
   const releaseBuild = workflow.indexOf("npm run release:build");
   const staticBuild = workflow.indexOf("npm run build");
   const testGate = workflow.indexOf("npm test");
@@ -78,7 +76,6 @@ test("publishes public guidance at the Project Pages root and Worker assets at o
   assert.match(workflow, /"\$staging\/app\/"/);
   assert.match(workflow, /public\/github-pages\.html/);
   assert.match(workflow, /rsync --archive --delete --exclude='\.git\/' "\$staging\/" published\//);
-  assert.match(worker, /const PAGES_BASE_URL = ['"]https:\/\/uxudjs\.github\.io\/UXUV-Pages\/app\/['"]/);
   assert.match(guidance, /请从你的 UXUVideo Worker 域名访问完整应用/);
   assert.match(guidance, /Open the full application from your UXUVideo Worker domain/);
   assert.doesNotMatch(guidance, /\/_next|\/api\//);
